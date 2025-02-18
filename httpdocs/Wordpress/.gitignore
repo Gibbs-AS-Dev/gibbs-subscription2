@@ -15,10 +15,18 @@ httpdocs
 .git--
 sub.zip
 wp-content/
+/wp-content
 wp-admin/
 wp-includes/
 pages/
-
+.vscode
+.well-known
+register/
+subsciption_gibbs_licence_management/
+wordpress/
+adminer.php
+auth.php
+auth2.php
 
 
 .DS_Store

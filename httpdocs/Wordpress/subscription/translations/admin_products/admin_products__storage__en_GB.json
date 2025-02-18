@@ -1,0 +1,51 @@
+{
+  "js_texts":
+    [
+      "Delete storage unit $1. Are you sure?",
+      "An error occurred. Please contact customer service. Error code: $1. Timestamp: $2.",
+      "Warehouse",
+      "Storage unit",
+      "Unit type",
+      "All",
+      "None",
+      "Search",
+      "Edit",
+      "Filter:",
+      "Displaying $1 storage units",
+      "Displaying $1 of $2 storage units",
+      "Create storage unit",
+      "Edit storage unit",
+      "No storage units have been created yet.",
+      "You must include a number sign (\"#\") in the storage unit name when creating several storage units at once. The number sign will be replaced by the unit number.",
+      "Warehouse:",
+      "Name:",
+      "Unit type:",
+      "Create several storage units at once",
+      "Insert the unit number using the &num; character. For instance: &quot;A &num;&quot;.",
+      "Insert numbers from",
+      "to",
+      "inclusive",
+      "Pad the number with leading zeroes",
+      "Minimum number of digits:",
+      "Create",
+      "Update",
+      "Cancel",
+      "You must create both categories, unit types and warehouses before you can create storage units.",
+      "Can be booked when free",
+      "Select warehouses to be displayed",
+      "Select storage unit types to be displayed",
+      "Show all",
+      "Delete",
+      "Unit is occupied.",
+      "Unit status",
+      "Notes",
+      "Save",
+      "Edit notes"
+    ],
+  "php_texts":
+    [
+      "Storage units",
+      "Create storage unit",
+      "['Inactive', 'Active']"
+    ]
+}

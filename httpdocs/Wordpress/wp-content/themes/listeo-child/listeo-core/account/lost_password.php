@@ -1,0 +1,38 @@
+<div class="col-md-8">
+	<div class="row">
+		<div class="col-md-6 my-account">
+		<?php 
+		$errors = array();
+		if(isset($data)) :
+			$errors	 	= (isset($data->errors)) ? $data->errors : '' ;
+		endif;
+		?>
+		<?php if ( count( $errors ) > 0 ) : ?>
+			<?php foreach ( $errors as $error ) : ?>
+				<p>
+					<?php echo $error; ?>
+				</p>
+			<?php endforeach; ?>
+		<?php endif; ?>
+		<?php
+		/*WPEngine compatibility*/
+		//if (defined('PWP_NAME')) { ?>
+			
+			<form id="lostpasswordform" class="sign-in-form" action="<?php echo home_url(); ?>/wp-login.php?action=lostpassword" method="post">
+	
+		
+			<p class="form-row">
+				<label for="user_login">
+					 
+					<input type="text" name="user_login" placeholder="<?php _e( 'Email Address:', 'listeo_core' ); ?>" id="user_login">
+				</label>
+			</p>
+
+			<p class="lostpassword-submit">
+				<input type="submit" name="submit" class="lostpassword-button"
+				       value="<?php _e( 'Reset Password', 'listeo_core' ); ?>"/>
+			</p>
+		</form>
+	</div>
+	</div>
+</div>

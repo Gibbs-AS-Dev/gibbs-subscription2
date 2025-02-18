@@ -1,0 +1,25 @@
+.mo_user_group_id_card{
+    background-color: white;
+    width:75%;
+    padding: 20px 20px 20px 20px;
+    margin-top:20px;
+    border-radius:5px;
+    box-shadow:0 4px 8px 0 rgb(0 0 0 / 20%);
+}
+
+.mo_custom_user_group_id_heading_image{
+    height: 30px;
+    margin-bottom: -8px;
+}
+.mo_user_group_id_description{
+    color: #666666;
+    background: #93939317;
+    padding: 1px 15px;
+    border-radius: 5px;
+}
+.mo_group_id_email_domain_mapping_table{
+    padding: 20px 10px;
+    border-collapse: separate;
+    table-layout: auto;
+    width: 100%;
+}

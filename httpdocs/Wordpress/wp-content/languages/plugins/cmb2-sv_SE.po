@@ -1,0 +1,699 @@
+# Translation of Plugins - CMB2 - Development (trunk) in Swedish
+# This file is distributed under the same license as the Plugins - CMB2 - Development (trunk) package.
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2020-03-09 20:45:54+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: GlotPress/3.0.0-alpha.2\n"
+"Language: sv_SE\n"
+"Project-Id-Version: Plugins - CMB2 - Development (trunk)\n"
+
+#: includes/types/CMB2_Type_Counter_Base.php:62
+msgid "Your text may be truncated."
+msgstr "Din text kan bli avkortad."
+
+#: includes/types/CMB2_Type_Counter_Base.php:57
+msgid "Characters"
+msgstr "Tecken"
+
+#: includes/types/CMB2_Type_Counter_Base.php:56
+msgid "Characters left"
+msgstr "Tecken kvar"
+
+#: includes/types/CMB2_Type_Counter_Base.php:51
+msgid "Words"
+msgstr "Ord"
+
+#: includes/types/CMB2_Type_Counter_Base.php:50
+msgid "Words left"
+msgstr "Ord kvar"
+
+#. translators: %s: register_routes()
+#: includes/shim/WP_REST_Controller.php:25
+msgid "Method '%s' must be overridden."
+msgstr "Metoden ”%s” måste åsidosättas."
+
+#: example-functions.php:753
+msgid "%s &mdash; Updated!"
+msgstr "%s &mdash; uppdaterades!"
+
+#: includes/CMB2_Hookup_Base.php:44
+msgid "%1$s should be implemented by the extended class."
+msgstr "%1$s bör implementeras med den utökade klassen."
+
+#. Author URI of the plugin
+msgid "https://cmb2.io"
+msgstr "https://cmb2.io"
+
+#. Author of the plugin
+msgid "CMB2 team"
+msgstr "Gruppen bakom CMB2"
+
+#. Plugin URI of the plugin
+msgid "https://github.com/CMB2/CMB2"
+msgstr "https://github.com/CMB2/CMB2"
+
+#: includes/CMB2_Types.php:408
+msgid "Remove Row"
+msgstr "Ta bort raden"
+
+#: includes/CMB2_Options_Hookup.php:139
+msgid "Nothing to update."
+msgstr "Inget att uppdatera."
+
+#: includes/CMB2_Options_Hookup.php:143
+msgid "Settings updated."
+msgstr "Inställningarna har uppdaterats."
+
+#: example-functions.php:685
+msgid "Theme Options"
+msgstr "Temaalternativ"
+
+#: includes/CMB2_Hookup.php:560
+msgid "Toggle panel: %s"
+msgstr "Slå på/av panel: %s"
+
+#: includes/CMB2_Types.php:226
+msgid "Custom CMB2 field type classes must extend CMB2_Type_Base."
+msgstr "Anpassade klasser för CMB2-fälttyper måste utöka CMB2_Type_Base."
+
+#: example-functions.php:802
+msgid "Will show in REST API \"editable\" contexts only (`POST` requests)."
+msgstr "Kommer att visas endast i kontext som kan ”redigeras” visa REST-API (`POST`-förfrågningar)."
+
+#: example-functions.php:801
+msgid "REST Editable Test Text"
+msgstr "Provtext som är redigerbar via REST"
+
+#: example-functions.php:795
+msgid "Will show in the REST API for this box and for pages."
+msgstr "Kommer att visas i REST-API för denna ruta och för sidor."
+
+#: example-functions.php:794
+msgid "REST Test Text"
+msgstr "Provningstext för REST"
+
+#: example-functions.php:785
+msgid "REST Test Box"
+msgstr "Provningsruta för REST"
+
+#: includes/shim/WP_REST_Controller.php:308
+msgid "Scope under which the request is made; determines fields present in response."
+msgstr "Omfattning (scope) inom vilken förfrågan skickas. Detta avgör vilka fält som kommer att ingå i svaret."
+
+#: includes/shim/WP_REST_Controller.php:290
+msgid "Limit results to those matching a string."
+msgstr "Begränsa resultat till dem som matchar en sträng."
+
+#: includes/shim/WP_REST_Controller.php:281
+msgid "Maximum number of items to be returned in result set."
+msgstr "Maximalt antal objekt som ska inkluderas i resultatet."
+
+#: includes/shim/WP_REST_Controller.php:273
+msgid "Current page of the collection."
+msgstr "Aktuell sida för samlingen."
+
+#: includes/shim/WP_REST_Controller.php:35
+#: includes/shim/WP_REST_Controller.php:47
+#: includes/shim/WP_REST_Controller.php:59
+#: includes/shim/WP_REST_Controller.php:71
+#: includes/shim/WP_REST_Controller.php:83
+#: includes/shim/WP_REST_Controller.php:95
+#: includes/shim/WP_REST_Controller.php:107
+#: includes/shim/WP_REST_Controller.php:119
+#: includes/shim/WP_REST_Controller.php:131
+#: includes/shim/WP_REST_Controller.php:143
+#: includes/shim/WP_REST_Controller.php:155
+#: includes/shim/WP_REST_Controller.php:168
+msgid "Method '%s' not implemented. Must be overridden in subclass."
+msgstr "Metoden '%s' är inte implementerad. Den måste åsidosättas i underordnad klass."
+
+#: includes/rest-api/CMB2_REST_Controller_Fields.php:415
+msgid "Value Error for %s"
+msgstr "Felaktigt värde för %s"
+
+#: includes/rest-api/CMB2_REST_Controller_Fields.php:312
+#: includes/rest-api/CMB2_REST_Controller_Fields.php:341
+msgid "No field found by that id."
+msgstr "Inget fält med detta id kunde hittas."
+
+#: includes/rest-api/CMB2_REST_Controller_Fields.php:297
+msgid "CMB2 Field value cannot be modified without the object_id and object_type parameters specified."
+msgstr "CMB2-fältets värde kan inte ändras om parametrarna 'object_id' och 'object_type' anges."
+
+#: includes/rest-api/CMB2_REST_Controller_Fields.php:236
+msgid "CMB2 Field value cannot be updated without the value parameter specified."
+msgstr "CMB2-fältets värde kan inte uppdateras om inte värdeparametern anges."
+
+#: includes/rest-api/CMB2_REST_Controller_Fields.php:33
+#: includes/rest-api/CMB2_REST_Controller_Fields.php:36
+msgid "To view or modify the field's value, the 'object_id' and 'object_type' arguments are required."
+msgstr "För att visa eller modifiera värdet på ett fält krävs argumenten  'object_id' och 'object_type'."
+
+#: includes/rest-api/CMB2_REST_Controller_Fields.php:30
+msgid "When the '_rendered' argument is passed, the renderable field attributes will be returned fully rendered. By default, the names of the callback handers for the renderable attributes will be returned."
+msgstr "När argumentet '_rendered' skickas med kommer de fältattribut som kan renderas att skickas med fullt renderade. Som standard kommer namnen på återanrops-åtgärderna för renderbara attrbut att ingå i svaret."
+
+#: includes/rest-api/CMB2_REST_Controller_Fields.php:27
+msgid "Includes the box object which the fields are registered to in the response."
+msgstr "Inkluderar rutans objekt med de fält som finns registrerade i svaret."
+
+#: includes/rest-api/CMB2_REST_Controller_Boxes.php:122
+msgid "No boxes found."
+msgstr "Inga rutor hittades."
+
+#: includes/rest-api/CMB2_REST_Controller_Boxes.php:72
+msgid "Includes the fully rendered attributes, 'form_open', 'form_close', as well as the enqueued 'js_dependencies' script handles, and 'css_dependencies' stylesheet handles."
+msgstr "Inkluderar komplett renderade attribut, skript-åtgärderna 'form_open', 'form_close' samt kölagda 'js_dependencies' och stilåtgärden 'css_dependencies'."
+
+#: includes/rest-api/CMB2_REST_Controller_Boxes.php:51
+msgid "Includes the registered fields for the box in the response."
+msgstr "Inkluderar rutans registrerade fält i svaret."
+
+#: includes/rest-api/CMB2_REST_Controller.php:392
+msgid "The title for the object."
+msgstr "Objektets rubrik."
+
+#: includes/rest-api/CMB2_REST_Controller.php:385
+msgid "The id for the object."
+msgstr "Objektets id."
+
+#: includes/rest-api/CMB2_REST_Controller.php:378
+msgid "A human-readable description of the object."
+msgstr "En beskrivning av objketet som människor kan förstå."
+
+#: includes/rest-api/CMB2_REST_Controller.php:300
+msgid "No box found by that id. A box needs to be registered with the \"show_in_rest\" parameter configured."
+msgstr "Ingen ruta hittades med detta id. Rutan måste registreras med parametern ”show_in_rest” konfigurerad."
+
+#: includes/rest-api/CMB2_REST_Controller.php:277
+msgid "This box does not have write permissions."
+msgstr "Denna ruta saknar skrivrättigheter."
+
+#: includes/rest-api/CMB2_REST_Controller.php:257
+msgid "This box does not have read permissions."
+msgstr "Denna ruta saknar läsrättigheter."
+
+#: includes/types/CMB2_Type_Base.php:157 includes/CMB2_Base.php:510
+msgid "Invalid %1$s method: %2$s"
+msgstr "Ogiltig metod för %1$s: %2$s"
+
+#: includes/types/CMB2_Type_Base.php:173 includes/CMB2_Options_Hookup.php:369
+#: includes/CMB2_Hookup_Base.php:102 includes/CMB2_Options.php:247
+#: includes/CMB2_Base.php:492
+msgid "Invalid %1$s property: %2$s"
+msgstr "Ogiltig egenskap för %1$s: %2$s"
+
+#: includes/CMB2_Base.php:459
+msgid "%1$s was called with a parameter that is <strong>deprecated</strong> since version %2$s with no alternative available."
+msgstr "%1$s anropades med en parameter som <strong>tagits ur bruk</strong> sedan version %2$s och saknar ersättningsalternativ."
+
+#: includes/CMB2_Base.php:457
+msgid "%1$s was called with a parameter that is <strong>deprecated</strong> since version %2$s! %3$s"
+msgstr "%1$s anropades med en parameter som <strong>tagits ur bruk</strong> sedan version %2$s! %3$s"
+
+#: includes/CMB2_Base.php:427
+msgid "Using the \"%1$s\" field parameter as a callback has been deprecated in favor of the \"%2$s\" parameter."
+msgstr "Användning av fältparametern ”%1$s” via återanrop har tagits ur bruk och ersatts av parametern”%2$s”."
+
+#: includes/CMB2_Base.php:423
+msgid "The \"%1$s\" field parameter has been deprecated in favor of the \"%2$s\" parameter."
+msgstr "Fältparametern ”%1$s” har ersatts av parametern ”%2$s”."
+
+#. translators: %s: link to codex.wordpress.org/Embeds
+#: example-functions.php:449
+msgid "Enter a youtube, twitter, or instagram URL. Supports services listed at %s."
+msgstr "Ange en adress för t.ex YouTube, Twitter eller Instagram. Stöder de tjänster som är uppräknade på %s."
+
+#: example-functions.php:185
+msgid "Hey there, I'm a read-only field"
+msgstr "Hejsan, jag är ett fält som endast kan läsas"
+
+#: example-functions.php:181
+msgid "Read-only Disabled Field"
+msgstr "Inaktiverat fält endast för avläsning"
+
+#. translators: 1: results for. 2: link to codex.wordpress.org/Embeds
+#: includes/CMB2_Ajax.php:189 includes/helper-functions.php:107
+msgid "No oEmbed Results Found for %1$s. View more info at %2$s."
+msgstr "Inga oEmbed-resultat funna för %1$s. Mer information på %2$s."
+
+#: includes/CMB2_Field.php:1589
+msgid "Sorry, this field does not have a cmb_id specified."
+msgstr "För detta fält är cmb_id inte angivet."
+
+#: example-functions.php:194
+msgid "Custom Rendered Field"
+msgstr "Fält med anpassad rendering"
+
+#: includes/CMB2_Hookup.php:192
+msgid "Term metaboxes configuration requires a \"taxonomies\" parameter."
+msgstr "Konfigurationen av metaboxar för termer kräver en ”taxonomi”-parameter."
+
+#: includes/CMB2_Hookup.php:188
+msgid "Term Metadata is a WordPress 4.4+ feature. Please upgrade your WordPress install."
+msgstr "Metadata för termer finns i WordPress 4.4 och senare. Du behöver uppgradera WordPress."
+
+#: example-functions.php:666
+msgid "Arbitrary Term Field"
+msgstr "Godtyckligt termfält"
+
+#: example-functions.php:659
+msgid "Term Image"
+msgstr "Termbild"
+
+#: example-functions.php:644
+msgid "Category Metabox"
+msgstr "Metabox för kategori"
+
+#. Description of the plugin
+msgid "CMB2 will create metaboxes and forms with custom fields that will blow your mind."
+msgstr "CMB2 kan skapa metaboxar och formulär med anpassade fält som kommer att få dig att gå bananas."
+
+#. Plugin Name of the plugin
+msgid "CMB2"
+msgstr "CMB2"
+
+#: includes/helper-functions.php:308
+msgid "Save"
+msgstr "Spara"
+
+#: includes/types/CMB2_Type_File.php:76
+msgid "Add or Upload File"
+msgstr "Lägg till eller ladda upp fil"
+
+#: includes/types/CMB2_Type_File_List.php:41
+msgid "Add or Upload Files"
+msgstr "Lägg till eller ladda upp filer"
+
+#: includes/types/CMB2_Type_Taxonomy_Base.php:115
+msgid "No terms"
+msgstr "Inga termer"
+
+#: includes/CMB2_Types.php:344
+msgid "Add Row"
+msgstr "Lägg till rad"
+
+#: includes/CMB2_JS.php:244
+msgid "Select / Deselect All"
+msgstr "Markera/avmarkera alla"
+
+#: includes/types/CMB2_Type_File_Base.php:93 includes/CMB2_JS.php:243
+msgid "Download"
+msgstr "Ladda ner"
+
+#: includes/types/CMB2_Type_File_Base.php:90
+#: includes/CMB2_Field_Display.php:453 includes/CMB2_JS.php:242
+msgid "File:"
+msgstr "Fil:"
+
+#: includes/types/CMB2_Type_File_Base.php:95 includes/CMB2_Types.php:408
+#: includes/CMB2_JS.php:241
+msgid "Remove"
+msgstr "Ta bort"
+
+#: includes/types/CMB2_Type_File_Base.php:75 includes/CMB2_JS.php:240
+msgid "Remove Image"
+msgstr "Ta bort bild"
+
+#: includes/CMB2_JS.php:239
+msgid "Use these files"
+msgstr "Använd dessa filer"
+
+#: includes/CMB2_JS.php:238
+msgid "Use this file"
+msgstr "Använd denna fil"
+
+#: includes/CMB2_JS.php:232
+msgctxt "Valid formatting string, as per http://trentrichardson.com/examples/timepicker/"
+msgid "hh:mm TT"
+msgstr "HH:mm"
+
+#: includes/CMB2_JS.php:230
+msgid "Now"
+msgstr "Nu"
+
+#: includes/CMB2_JS.php:229
+msgid "Second"
+msgstr "Sekund"
+
+#: includes/CMB2_JS.php:228
+msgid "Minute"
+msgstr "Minut"
+
+#: includes/CMB2_JS.php:227
+msgid "Hour"
+msgstr "Timme"
+
+#: includes/CMB2_JS.php:226
+msgid "Time"
+msgstr "Tid"
+
+#: includes/CMB2_JS.php:225
+msgid "Choose Time"
+msgstr "Välj tid"
+
+#: includes/CMB2_JS.php:221 includes/CMB2_JS.php:231
+msgid "Done"
+msgstr "Klart"
+
+#: includes/CMB2_JS.php:220
+msgid "Today"
+msgstr "Idag"
+
+#: includes/CMB2_JS.php:219
+msgid "Prev"
+msgstr "Föreg."
+
+#: includes/CMB2_JS.php:218
+msgid "Next"
+msgstr "Nästa"
+
+#: includes/CMB2_JS.php:217
+msgid "Jan, Feb, Mar, Apr, May, Jun, Jul, Aug, Sep, Oct, Nov, Dec"
+msgstr "Jan, Feb, Mar, Apr, Maj, Jun, Jul, Aug, Sep, Okt, Nov, Dec"
+
+#: includes/CMB2_JS.php:216
+msgid "January, February, March, April, May, June, July, August, September, October, November, December"
+msgstr "Januari, Februari, Mars, April, Maj, Juni, Juli, Augusti, September, Oktober, November, December"
+
+#: includes/CMB2_JS.php:215
+msgid "Sun, Mon, Tue, Wed, Thu, Fri, Sat"
+msgstr "Sön, Mån, Tis, Ons, Tor, Fre, Lör"
+
+#: includes/CMB2_JS.php:214
+msgid "Su, Mo, Tu, We, Th, Fr, Sa"
+msgstr "Sö, Må, Ti, On, To, Fr, Lö"
+
+#: includes/CMB2_JS.php:213
+msgid "Sunday, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday"
+msgstr "Söndag, Måndag, Tisdag, Onsdag, Torsdag, Fredag, Lördag"
+
+#: includes/CMB2_JS.php:212
+msgctxt "Valid formatDate string for jquery-ui datepicker"
+msgid "mm/dd/yy"
+msgstr "yy-mm-dd"
+
+#: includes/CMB2_JS.php:180
+msgid "Current Color"
+msgstr "Nuvarande färg"
+
+#: includes/CMB2_JS.php:179
+msgid "Select Color"
+msgstr "Välj färg"
+
+#: includes/CMB2_JS.php:178
+msgid "Default"
+msgstr "Standard"
+
+#: includes/CMB2_JS.php:177 includes/CMB2_JS.php:222
+msgid "Clear"
+msgstr "Rensa"
+
+#: includes/CMB2_Field.php:1471 includes/CMB2_Field.php:1475
+msgid "None"
+msgstr "Ingen"
+
+#: includes/CMB2_Field.php:1439
+msgid "Remove Group"
+msgstr "Ta bort grupp"
+
+#: includes/CMB2_Field.php:1438
+msgid "Add Group"
+msgstr "Lägg till grupp"
+
+#: includes/CMB2_Ajax.php:181
+msgid "Remove Embed"
+msgstr "Ta bort inbäddning"
+
+#: includes/CMB2_Ajax.php:75
+msgid "Please Try Again"
+msgstr "Försök igen"
+
+#: includes/CMB2.php:618
+msgid "Click to toggle"
+msgstr "Klicka för att slå på/av"
+
+#: includes/CMB2.php:199
+msgid "Metabox configuration is required to have an ID parameter."
+msgstr "Konfigurationen av metaboxar kräver en ID-parameter"
+
+#: example-functions.php:716
+msgid "Site Background Color"
+msgstr "Webbplatsens bakgrundsfärg"
+
+#: example-functions.php:625
+msgid "User Field"
+msgstr "Användarfält"
+
+#: example-functions.php:618
+msgid "Linkedin URL"
+msgstr "Linkedin-URL"
+
+#: example-functions.php:611
+msgid "Google+ URL"
+msgstr "Google+-URL"
+
+#: example-functions.php:604
+msgid "Twitter URL"
+msgstr "Twitter-URL"
+
+#: example-functions.php:597
+msgid "Facebook URL"
+msgstr "Facebook-URL"
+
+#: example-functions.php:590
+msgid "Avatar"
+msgstr "Profilbild"
+
+#: example-functions.php:582 example-functions.php:651
+msgid "Extra Info"
+msgstr "Extra information"
+
+#: example-functions.php:575
+msgid "User Profile Metabox"
+msgstr "Metaboxar för användarprofil"
+
+#: example-functions.php:557
+msgid "Image Caption"
+msgstr "Bildtext"
+
+#: example-functions.php:551
+msgid "Entry Image"
+msgstr "Inläggsbild"
+
+#: example-functions.php:545
+msgid "Write a short description for this entry"
+msgstr "Skriv en kort beskrivning av inlägget"
+
+#: example-functions.php:544
+msgid "Description"
+msgstr "Beskrivning"
+
+#: example-functions.php:537
+msgid "Entry Title"
+msgstr "Inläggsrubrik"
+
+#: example-functions.php:523
+msgid "Remove Entry"
+msgstr "Ta bort inlägg"
+
+#: example-functions.php:522
+msgid "Add Another Entry"
+msgstr "Lägg till ett till inlägg"
+
+#: example-functions.php:521
+msgid "Entry {#}"
+msgstr "Inlägg {#}"
+
+#: example-functions.php:519
+msgid "Generates reusable form entries"
+msgstr "Genererar återanvändbara formulärinlägg"
+
+#: example-functions.php:511
+msgid "Repeating Field Group"
+msgstr "Upprepande fältgrupp"
+
+#: example-functions.php:481
+msgid "About Page Metabox"
+msgstr "Metaboxar för om-sidor"
+
+#: example-functions.php:446
+msgid "oEmbed"
+msgstr "oEmbed"
+
+#: example-functions.php:439
+msgid "Upload or add multiple images/attachments."
+msgstr "Ladda upp eller lägg till flera bilder/bilagor."
+
+#: example-functions.php:438
+msgid "Multiple Files"
+msgstr "Flera filer"
+
+#: example-functions.php:432
+msgid "Upload an image or enter a URL."
+msgstr "Ladda upp en bild eller ange en URL."
+
+#: example-functions.php:431
+msgid "Test Image"
+msgstr "Testbild"
+
+#: example-functions.php:421
+msgid "Test wysiwyg"
+msgstr "Test-wysiwyg"
+
+#: example-functions.php:415
+msgid "Check Three"
+msgstr "Välj tre"
+
+#: example-functions.php:414
+msgid "Check Two"
+msgstr "Välj två"
+
+#: example-functions.php:413
+msgid "Check One"
+msgstr "Välj en"
+
+#: example-functions.php:407
+msgid "Test Multi Checkbox"
+msgstr "Multi-kryssruta för provning"
+
+#: example-functions.php:400
+msgid "Test Checkbox"
+msgstr "Kryssruta för provning"
+
+#: example-functions.php:391
+msgid "Test Taxonomy Multi Checkbox"
+msgstr "Testmulticheckboxar för taxonomier"
+
+#: example-functions.php:383
+msgid "Test Taxonomy Select"
+msgstr "Testrullgardinsmeny för taxonomier"
+
+#: example-functions.php:369
+msgid "Test Taxonomy Radio"
+msgstr "Testradioknapp för taxonomier"
+
+#: example-functions.php:357
+msgid "Test Radio"
+msgstr "Testradioknapp"
+
+#: example-functions.php:344
+msgid "Test Radio inline"
+msgstr "Testradioknappar på rad"
+
+#: example-functions.php:339 example-functions.php:352
+#: example-functions.php:364
+msgid "Option Three"
+msgstr "Alternativ tre"
+
+#: example-functions.php:338 example-functions.php:351
+#: example-functions.php:363
+msgid "Option Two"
+msgstr "Alternativ två"
+
+#: example-functions.php:337 example-functions.php:350
+#: example-functions.php:362
+msgid "Option One"
+msgstr "Alternativ ett"
+
+#: example-functions.php:331
+msgid "Test Select"
+msgstr "Testrullgardinsmeny"
+
+#: example-functions.php:325
+msgid "This is a title description"
+msgstr "Detta är en rubrikbeskrivning"
+
+#: example-functions.php:324
+msgid "Test Title Weeeee"
+msgstr "Testrubrik Swisch"
+
+#: example-functions.php:306
+msgid "Test Text Area for Code"
+msgstr "Testtextbox för kod"
+
+#: example-functions.php:299
+msgid "Test Text Area Small"
+msgstr "Testtextbox liten"
+
+#: example-functions.php:292
+msgid "Test Text Area"
+msgstr "Testtextområde"
+
+#: example-functions.php:276
+msgid "Test Color Picker"
+msgstr "Testfärgväljare"
+
+#: example-functions.php:267
+msgid "Test Money"
+msgstr "Testvaluta"
+
+#: example-functions.php:250
+msgid "Test Date/Time Picker Combo (UNIX timestamp)"
+msgstr "Testdatum/tidväljarkombo (UNIX-format)"
+
+#: example-functions.php:242
+msgid "Test Date Picker (UNIX timestamp)"
+msgstr "Testdatumväljare (UNIX-format)"
+
+#: example-functions.php:234
+msgid "Test Date Picker"
+msgstr "Testdatumväljare"
+
+#: example-functions.php:227 example-functions.php:228
+msgid "Time zone"
+msgstr "Tidszon"
+
+#: example-functions.php:219
+msgid "Test Time"
+msgstr "Testtid"
+
+#: example-functions.php:211
+msgid "Test Text Email"
+msgstr "Testtext e-post"
+
+#: example-functions.php:202
+msgid "Website URL"
+msgstr "Webbplatsadress"
+
+#: example-functions.php:174
+msgid "Test Text Medium"
+msgstr "Testtext medium"
+
+#: example-functions.php:161
+msgid "Test Text Small"
+msgstr "Testtext liten"
+
+#: example-functions.php:149 example-functions.php:162
+#: example-functions.php:175 example-functions.php:182
+#: example-functions.php:195 example-functions.php:203
+#: example-functions.php:212 example-functions.php:220
+#: example-functions.php:235 example-functions.php:243
+#: example-functions.php:251 example-functions.php:268
+#: example-functions.php:277 example-functions.php:293
+#: example-functions.php:300 example-functions.php:307
+#: example-functions.php:332 example-functions.php:345
+#: example-functions.php:358 example-functions.php:370
+#: example-functions.php:384 example-functions.php:392
+#: example-functions.php:401 example-functions.php:408
+#: example-functions.php:422 example-functions.php:493
+#: example-functions.php:583 example-functions.php:591
+#: example-functions.php:598 example-functions.php:605
+#: example-functions.php:612 example-functions.php:619
+#: example-functions.php:626 example-functions.php:652
+#: example-functions.php:660 example-functions.php:667
+#: example-functions.php:717
+msgid "field description (optional)"
+msgstr "fältbeskrivning (valfritt)"
+
+#: example-functions.php:148 example-functions.php:492
+msgid "Test Text"
+msgstr "Testtext"
+
+#: example-functions.php:115
+msgid "Test Metabox"
+msgstr "Testmetabox"

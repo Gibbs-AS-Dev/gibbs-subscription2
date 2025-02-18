@@ -1,0 +1,39 @@
+{
+  "js_texts":
+    [
+      "Det oppstod en feil. Vennligst kontakt kundeservice og oppgi feilkode $1. Tidspunkt: $2.",
+      "",
+      "Innlogging vellykket!",
+      "Ditt behov",
+      "Ønsket lager:",
+      "Ikke oppgitt",
+      "Ønsket kategori:",
+      "Ønsket innflyttingsdato:",
+      "Beskrivelse:"
+    ],
+  "php_texts":
+    [
+      "Send forespørsel",
+      "Tilbake",
+      "Kontaktinformasjon",
+      "Fornavn:",
+      "Etternavn:",
+      "E-post:",
+      "Telefonnr:",
+      "Nytt passord (minst $0 tegn):",
+      "['', 'Man', 'Tir', 'Ons', 'Tor', 'Fre', 'L&oslash;r', 'S&oslash;n']",
+      "['Januar', 'Februar', 'Mars', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Desember']",
+      "['januar', 'februar', 'mars', 'april', 'mai', 'juni', 'juli', 'august', 'september', 'oktober', 'november', 'desember']",
+      "Send forespørsel",
+      "Logg inn",
+      "Er du allerede kunde? Logg inn her.",
+      "Passord:",
+      "Adresse:",
+      "Postnummer:",
+      "Poststed:",
+      "Privatperson",
+      "Bedrift",
+      "Selskapets navn:",
+      "Organisasjonsnummer:"
+    ]
+}

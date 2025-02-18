@@ -1,0 +1,356 @@
+
+.fields_main .main_user_manage .search-box-inner {
+  display: flex;
+  align-items: center;
+}
+.fields_main .main_user_manage .search-box-inner .user_icon {
+  border: 1px solid #ccc;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  padding: 13px;
+  border-radius: 5px 0px 0px 5px;
+}
+.fields_main .main_user_manage .search-box-inner input {
+  height: 50px;
+  margin: 0px;
+}
+.fields_main .main_user_manage .search-box-inner2 {
+  display: flex;
+  align-items: center;
+}
+.fields_main .main_user_manage .search-box-inner2 .user_icon {
+  border: 1px solid #ccc;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  padding: 13px;
+  border-radius: 5px 0px 0px 5px;
+}
+.fields_main .main_user_manage .search-box-inner2 input {
+  height: 50px;
+  margin: 0px;
+}
+
+.fields_main .main_user_manage .dropbtn {
+  background-color: transparent;
+  color: #000;
+  padding: 0px 21px;
+  font-size: 13px;
+  cursor: pointer;
+  height: 50px;
+  border-radius: 2px;
+  border: 1px solid #ccc;
+}
+.fields_main .main_user_manage .dropbtn_custom_field{
+  padding: 0px 14px !important;
+    font-size: 16px !important;
+    border: 1px solid #F5F8FA !important;
+    background-color: #F5F8FA!important;
+    border-radius: 10px!important;
+    color: #888888!important;
+    font-weight: 700!important;
+    /* margin: 16px 0px 16px 16px; */
+    width: 100%-20px;
+}
+
+.fields_main .user_group_modal{
+padding-top: 0;
+text-align: center;
+}
+.fields_main .container.main_user_manage .user_group_modal .modal-content{
+display: inline-block;
+text-align: left;
+vertical-align: middle;
+border: 0px;
+border-radius: 10px;
+}
+.fields_main .user_group_modal:before {
+content: '';
+display: inline-block;
+height: 100%;
+vertical-align: middle;
+margin-right: -4px;
+}
+.fields_main .user_group_modal .modal-header h2{
+margin: 0px;
+padding: 10px;
+font-size: 24px;
+}
+.fields_main .main_user_manage .user_group_modal .close{
+margin: 10px;
+}
+.fields_main .form-group.age_btn_submit{
+margin: 0px !important;
+}
+.fields_main .form-group.age_btn_submit_flex{
+margin: 0px !important;
+display: flex;
+}
+.fields_main .form-group.age_btn_submit_flex  .close_usergroup_btn {
+    width: 15%;
+    margin-left: 25px !important;
+    background: #F5F5F5;
+    color: #5F616F;
+    border: none;
+    border-radius: 6px;
+    font-size: 18px;
+    min-width: initial;
+    padding: 6px 20px;
+    height: auto;
+    margin: 0px;
+    margin-bottom: 20px !important;
+        font-weight: 600;
+}
+.fields_main .form-group.age_btn_submit .form-control{
+min-width: 130px;
+margin: 0px;
+margin-bottom: 20px !important;
+}
+.fields_main .main_user_manage .main_user_manage_row .row-data-filter.user_cols_main .listing-outer:nth-child(2) .search-box-inner .user_icon{
+display: block;
+}
+
+.fields_main .wrapper .container .user_group_modal .modal-header{
+background-color: transparent;
+color: #000;
+}
+.fields_main .wrapper .container .user_group_modal .modal-header h2, .wrapper .container .user_group_modal .close{
+color: #000;
+padding: 20px 0px;
+font-weight: 600;
+}
+.fields_main .wrapper .container .user_group_modal .close{
+padding: 10px 0px;
+}
+
+
+.fields_main .user_group_modal {
+display: none; /* Hidden by default */
+position: fixed; /* Stay in place */
+z-index: 99999; /* Sit on top */
+padding-top:  40px;
+left: 0;
+top: 0;
+width: 100%; /* Full width */
+height: 100%; /* Full height */
+overflow: auto; /* Enable scroll if needed */
+background-color: rgb(0,0,0); /* Fallback color */
+background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+/* Modal Content */
+.fields_main .user_group_modal .modal-content {
+position: relative;
+background-color: #fefefe;
+margin: auto;
+padding: 0;
+border: 1px solid #888;
+width: 60%;
+box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
+-webkit-animation-name: animatetop;
+-webkit-animation-duration: 0.4s;
+animation-name: animatetop;
+animation-duration: 0.4s
+}
+
+/* Add Animation */
+@-webkit-keyframes animatetop {
+from {top:-300px; opacity:0} 
+to {top:0; opacity:1}
+}
+
+@keyframes animatetop {
+from {top:-300px; opacity:0}
+to {top:0; opacity:1}
+}
+
+/* The Close Button */
+.fields_main .user_group_modal .close {
+color: white;
+float: right;
+font-size: 28px;
+font-weight: bold;
+margin: 15px;
+}
+
+.fields_main .user_group_modal .close:hover,
+.fields_main .user_group_modal .close:focus {
+color: #000;
+text-decoration: none;
+cursor: pointer;
+}
+
+.fields_main .user_group_modal .modal-header {
+  
+  background-color: #ffffff;
+  border-radius: 10px;
+}
+.fields_main .user_group_modal .modal-header h2{
+  color: #000 !important;
+  font-size: 23px;
+  font-weight: 600;
+  padding: 13px 16px 14px 20px;
+}
+.fields_main .wrapper .container .user_group_modal .modal-header h2, .wrapper .container .user_group_modal .close {
+  color: #000;
+  padding: 5px 16px;
+  font-weight: 600;
+}
+
+.fields_main .user_group_modal .modal-body {padding: 2px 16px;}
+.fields_main .alert_error_message {
+  color: #721c24;
+  background-color: #f8d7da;
+  border-color: #f5c6cb;
+  padding: 10px;
+  margin: 12px 0px;
+  border-radius: 5px;
+}
+.fields_main .alert_success_message {
+  color: #155724;
+  background-color: #d4edda;
+  border-color: #c3e6cb;
+  padding: 10px;
+  margin: 12px 0px;
+  border-radius: 5px;
+}
+.fields_main .dataTables_wrapper .row:first-child{
+display: none;
+}
+.fields_main .user_group_modal input[type="text"], .fields_main .user_group_modal input[type="password"], .fields_main .user_group_modal input[type="email"], .fields_main .user_group_modal input[type="number"], .fields_main .user_group_modal textarea {
+  padding-left: 8px !important;
+}
+.checkbox_field{
+  display: flex;
+}
+
+.checkbox_field input{
+    width: 21px;
+    margin-left: 15px;
+    margin-top: -12px;
+}
+.label_fields .text_fields {
+    background: #e7e7e7;
+    padding: 11px;
+    border-radius: 9px;
+    justify-content: space-between;
+    display: flex;
+}
+.label_fields .edit_field{
+    cursor: pointer;
+}
+.table_inner .table {
+       margin-bottom: 0px;
+}
+.table_inner .table > tbody > tr > td {
+    padding: 8px 0px 0px 36px;
+}
+.table_inner .table td {
+
+  border:none;
+
+}
+.table:not(.table_inner table) > tbody > tr > td {
+    border-radius: 9px;
+    padding: 23px;
+    margin-bottom: 36px !important;
+}
+.table .table, .table-hover > tbody > tr:hover {
+    background-color: #ffffff00;
+}
+.iconss {
+    width: 23%;
+    display: flex;
+    justify-content: flex-end;
+}
+.iconss .svgs {
+    width: 22%;
+    font-size: 22px;
+    cursor: pointer;
+}
+.iconss .delete_field {
+    color: red;
+}
+.fields_main .field-card {
+    padding: 22px;
+    background: #ffffff;
+    border-radius: 9px !important;
+    margin-top: 18px;
+    border: 1px solid #f5f5f5;
+    box-shadow: 0px 0px 15px rgb(204 204 204 / 59%);
+}
+.justify-content-flex-end{
+    justify-content: flex-end;
+}
+.field_btn_submit 
+ .btn.btn-primary {
+    margin-left: 25px !important;
+    background: #008474;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 18px;
+    min-width: initial;
+    padding: 6px 20px;
+    height: auto;
+    margin: 0px;
+    margin-bottom: 20px !important;
+    font-weight: 600;
+}
+
+input, input[type="text"], input[type="password"], input[type="email"], input[type="number"], textarea, select {
+  height: 51px;
+  padding: 0 20px;
+  outline: none;
+  font-size: 15px;
+  color: #000000;
+  margin: 0 0 16px 0;
+  max-width: 100%;
+  width: 100%;
+  box-sizing: border-box;
+  display: block;
+  background-color: #f5f8fa;
+  border: 0px solid #dbdbdb;
+  box-shadow: 0 1px 3px 0px rgb(0 0 0 / 6%);
+  font-weight: 500;
+  opacity: 1;
+  border-radius: 3px;
+}
+
+section.fields_main {
+  background: #ffffff;
+  border-radius: 8px;
+  margin-top: 14px;
+}
+
+.fields_main .main_user_manage .dropbtn {
+  padding: 0px 26px !important;
+  font-size: 16px !important;
+  border: 1px solid #F5F8FA !important;
+  background-color: #F5F8FA!important;
+  border-radius: 10px!important;
+  color: #888888!important;
+  font-weight: 700!important;
+  margin: 16px 0px 16px 16px;
+}
+
+.label_fields .text_fields {
+  background: #ffffff !important; 
+  padding: 16px !important;
+  border-radius: 9px;
+  border: 1px solid #F5F8FA;
+  box-shadow: 0 1px 3px 0px rgb(0 0 0 / 6%);
+}
+
+.show_in_calendar{
+  display: none !important;
+}
+.field-inner {
+    display: flex;
+    justify-content: space-between;
+}
+.field-inner .toggle {
+    display: flex;
+    gap: 10px;
+}

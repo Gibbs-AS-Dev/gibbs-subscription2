@@ -1,0 +1,1019 @@
+#, fuzzy
+msgid ""
+msgstr ""
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+"Project-Id-Version: Listeo Elementor\n"
+"POT-Creation-Date: 2021-08-20 13:41+0200\n"
+"PO-Revision-Date: 2020-12-21 20:01+0100\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 2.4.3\n"
+"X-Poedit-Basepath: ..\n"
+"X-Poedit-Flags-xgettext: --add-comments=translators:\n"
+"X-Poedit-WPHeader: listeo-elementor.php\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-KeywordsList: __;_e;_n:1,2;_x:1,2c;_ex:1,2c;_nx:4c,1,2;esc_attr__;"
+"esc_attr_e;esc_attr_x:1,2c;esc_html__;esc_html_e;esc_html_x:1,2c;"
+"_n_noop:1,2;_nx_noop:3c,1,2;__ngettext_noop:1,2\n"
+"X-Poedit-SearchPath-0: .\n"
+"X-Poedit-SearchPathExcluded-0: *.min.js\n"
+
+#: class-widgets.php:194
+msgid "Listeo"
+msgstr ""
+
+#: widgets/class-address-box.php:58
+msgid "Address box"
+msgstr ""
+
+#: widgets/class-address-box.php:109 widgets/class-alertbox.php:109
+#: widgets/class-flip-banner.php:111 widgets/class-headline.php:105
+#: widgets/class-home-banner.php:115 widgets/class-home-search-slider.php:114
+#: widgets/class-home-search-slider.php:141 widgets/class-iconbox.php:114
+#: widgets/class-iconbox.php:130 widgets/class-iconbox.php:132
+#: widgets/class-imagebox.php:115 widgets/class-logo-slider.php:109
+#: widgets/class-pricing-table-woo.php:118 widgets/class-pricing-table.php:118
+#: widgets/class-pricing-table.php:134 widgets/class-tax-carousel.php:125
+#: widgets/class-tax-gallery.php:125 widgets/class-tax-grid.php:105
+#: widgets/class-tax-list.php:110 widgets/class-widget2.php:104
+#: widgets/class-widget2.php:129 widgets/class-widget2.php:131
+msgid "Content"
+msgstr ""
+
+#: widgets/class-address-box.php:115
+msgid "Address"
+msgstr ""
+
+#: widgets/class-address-box.php:118
+msgid "Enter your Address & details"
+msgstr ""
+
+#: widgets/class-address-box.php:125
+msgid "Map Marker Latitude"
+msgstr ""
+
+#: widgets/class-address-box.php:132
+msgid "Map Marker Longitude"
+msgstr ""
+
+#: widgets/class-address-box.php:139 widgets/class-flip-banner.php:150
+#: widgets/class-home-banner.php:186 widgets/class-imagebox.php:139
+msgid "Choose Background Image"
+msgstr ""
+
+#: widgets/class-address-box.php:170
+msgid "Street View"
+msgstr ""
+
+#: widgets/class-alertbox.php:58
+msgid "Alert box"
+msgstr ""
+
+#: widgets/class-alertbox.php:115
+msgid "Message"
+msgstr ""
+
+#: widgets/class-alertbox.php:118
+msgid "Enter your notification text"
+msgstr ""
+
+#: widgets/class-alertbox.php:125
+msgid "Notice type tag "
+msgstr ""
+
+#: widgets/class-alertbox.php:129
+msgid "Success"
+msgstr ""
+
+#: widgets/class-alertbox.php:130
+msgid "Error"
+msgstr ""
+
+#: widgets/class-alertbox.php:131
+msgid "Warning"
+msgstr ""
+
+#: widgets/class-alertbox.php:132
+msgid "Notice"
+msgstr ""
+
+#: widgets/class-flip-banner.php:58
+msgid "Flip Banner"
+msgstr ""
+
+#: widgets/class-flip-banner.php:118
+msgid "Front text"
+msgstr ""
+
+#: widgets/class-flip-banner.php:120 widgets/class-headline.php:112
+#: widgets/class-headline.php:114 widgets/class-home-banner.php:122
+#: widgets/class-iconbox.php:121 widgets/class-iconbox.php:123
+#: widgets/class-pricing-table-woo.php:133 widgets/class-pricing-table.php:125
+#: widgets/class-pricing-table.php:127 widgets/class-pricing-table.php:136
+#: widgets/class-tax-list.php:121 widgets/class-tax-list.php:123
+#: widgets/class-widget2.php:111 widgets/class-widget2.php:113
+msgid "Title"
+msgstr ""
+
+#: widgets/class-flip-banner.php:126
+msgid "Flipped text"
+msgstr ""
+
+#: widgets/class-flip-banner.php:128
+msgid "Text after hover"
+msgstr ""
+
+#: widgets/class-flip-banner.php:135 widgets/class-iconbox.php:138
+#: widgets/class-imagebox.php:123
+msgid "Link"
+msgstr ""
+
+#: widgets/class-flip-banner.php:137 widgets/class-iconbox.php:140
+#: widgets/class-imagebox.php:125 widgets/class-pricing-table-woo.php:157
+#: widgets/class-pricing-table.php:170
+msgid "https://your-link.com"
+msgstr ""
+
+#: widgets/class-flip-banner.php:162
+msgid "Overlay Color"
+msgstr ""
+
+#: widgets/class-flip-banner.php:173
+msgid "Overlay Opacity"
+msgstr ""
+
+#: widgets/class-headline.php:58
+msgid "Headline"
+msgstr ""
+
+#: widgets/class-headline.php:120 widgets/class-home-banner.php:130
+#: widgets/class-listings-carousel.php:363 widgets/class-tax-carousel.php:237
+#: widgets/class-tax-gallery.php:247
+msgid "Subtitle"
+msgstr ""
+
+#: widgets/class-headline.php:131 widgets/class-iconbox.php:155
+msgid "Style Section"
+msgstr ""
+
+#: widgets/class-headline.php:139
+msgid "Element tag "
+msgstr ""
+
+#: widgets/class-headline.php:143
+msgid "H1"
+msgstr ""
+
+#: widgets/class-headline.php:144
+msgid "H2"
+msgstr ""
+
+#: widgets/class-headline.php:145
+msgid "H3"
+msgstr ""
+
+#: widgets/class-headline.php:146
+msgid "H4"
+msgstr ""
+
+#: widgets/class-headline.php:147
+msgid "H5"
+msgstr ""
+
+#: widgets/class-headline.php:156
+msgid "Text align"
+msgstr ""
+
+#: widgets/class-headline.php:160 widgets/class-home-banner.php:171
+msgid "Left"
+msgstr ""
+
+#: widgets/class-headline.php:164 widgets/class-home-banner.php:170
+msgid "Center"
+msgstr ""
+
+#: widgets/class-headline.php:168
+msgid "Right"
+msgstr ""
+
+#: widgets/class-headline.php:180
+msgid "With Border"
+msgstr ""
+
+#: widgets/class-headline.php:182 widgets/class-home-banner.php:258
+#: widgets/class-imagebox.php:197 widgets/class-listings-carousel.php:300
+#: widgets/class-listings-carousel.php:321
+#: widgets/class-listings-carousel.php:349 widgets/class-listings.php:308
+#: widgets/class-listings.php:381 widgets/class-post-grid.php:235
+#: widgets/class-post-grid.php:246 widgets/class-post-grid.php:257
+#: widgets/class-post-grid.php:268 widgets/class-tax-carousel.php:196
+#: widgets/class-tax-carousel.php:210 widgets/class-tax-carousel.php:223
+#: widgets/class-tax-gallery.php:206 widgets/class-tax-gallery.php:220
+#: widgets/class-tax-gallery.php:233 widgets/class-tax-grid.php:174
+#: widgets/class-tax-grid.php:188 widgets/class-tax-list.php:285
+#: widgets/class-testimonials.php:194 widgets/class-testimonials.php:205
+#: widgets/class-testimonials.php:216
+msgid "Show"
+msgstr ""
+
+#: widgets/class-headline.php:183 widgets/class-home-banner.php:259
+#: widgets/class-imagebox.php:198 widgets/class-listings-carousel.php:301
+#: widgets/class-listings-carousel.php:322
+#: widgets/class-listings-carousel.php:350 widgets/class-listings.php:309
+#: widgets/class-listings.php:382 widgets/class-post-grid.php:236
+#: widgets/class-post-grid.php:247 widgets/class-post-grid.php:258
+#: widgets/class-post-grid.php:269 widgets/class-tax-carousel.php:197
+#: widgets/class-tax-carousel.php:211 widgets/class-tax-carousel.php:224
+#: widgets/class-tax-gallery.php:207 widgets/class-tax-gallery.php:221
+#: widgets/class-tax-gallery.php:234 widgets/class-tax-grid.php:175
+#: widgets/class-tax-grid.php:189 widgets/class-tax-list.php:286
+#: widgets/class-testimonials.php:195 widgets/class-testimonials.php:206
+#: widgets/class-testimonials.php:217
+msgid "Hide"
+msgstr ""
+
+#: widgets/class-home-banner.php:59
+msgid "Home Banner"
+msgstr ""
+
+#: widgets/class-home-banner.php:124
+msgid "Find Nearby Attractions"
+msgstr ""
+
+#: widgets/class-home-banner.php:132
+msgid "Explore top-rated attractions, activities and more!"
+msgstr ""
+
+#: widgets/class-home-banner.php:138
+msgid "Search form style "
+msgstr ""
+
+#: widgets/class-home-banner.php:142
+msgid "Wide"
+msgstr ""
+
+#: widgets/class-home-banner.php:143
+msgid "Boxed"
+msgstr ""
+
+#: widgets/class-home-banner.php:152
+msgid "Header style "
+msgstr ""
+
+#: widgets/class-home-banner.php:156
+msgid "Transparent"
+msgstr ""
+
+#: widgets/class-home-banner.php:157
+msgid "Solid"
+msgstr ""
+
+#: widgets/class-home-banner.php:166
+msgid "Text alignment "
+msgstr ""
+
+#: widgets/class-home-banner.php:194
+msgid "Choose Video"
+msgstr ""
+
+#: widgets/class-home-banner.php:202
+msgid "Choose Video Poster Image"
+msgstr ""
+
+#: widgets/class-home-banner.php:214
+msgid "Solid Background Color"
+msgstr ""
+
+#: widgets/class-home-banner.php:218
+msgid "Solid color"
+msgstr ""
+
+#: widgets/class-home-banner.php:219
+msgid "Gradient"
+msgstr ""
+
+#: widgets/class-home-banner.php:231
+msgid "Overlay on homepage search banner"
+msgstr ""
+
+#: widgets/class-home-banner.php:256
+msgid "Show Featured Categories"
+msgstr ""
+
+#: widgets/class-home-banner.php:269
+msgid "Show in Featured Categories this terms"
+msgstr ""
+
+#: widgets/class-home-banner.php:359
+msgid "Or browse featured categories:"
+msgstr ""
+
+#: widgets/class-home-search-slider.php:59
+msgid "Home Search Slider"
+msgstr ""
+
+#: widgets/class-home-search-slider.php:124
+msgid "Title first line"
+msgstr ""
+
+#: widgets/class-home-search-slider.php:126
+#: widgets/class-home-search-slider.php:134
+msgid "List Title"
+msgstr ""
+
+#: widgets/class-home-search-slider.php:132
+msgid "Title second line"
+msgstr ""
+
+#: widgets/class-home-search-slider.php:151
+msgid "Repeater List"
+msgstr ""
+
+#: widgets/class-home-search-slider.php:156
+msgid "Title #1"
+msgstr ""
+
+#: widgets/class-home-search-slider.php:157
+msgid "Item content. Click the edit button to change this text."
+msgstr ""
+
+#: widgets/class-iconbox.php:58
+msgid "IconBox"
+msgstr ""
+
+#: widgets/class-iconbox.php:163
+msgid "Type of iconbox"
+msgstr ""
+
+#: widgets/class-iconbox.php:167
+msgid "Icon on top"
+msgstr ""
+
+#: widgets/class-iconbox.php:168
+msgid "Icon on the right. "
+msgstr ""
+
+#: widgets/class-iconbox.php:178
+msgid "Icon"
+msgstr ""
+
+#: widgets/class-imagebox.php:58
+msgid "ImageBox"
+msgstr ""
+
+#: widgets/class-imagebox.php:164 widgets/class-tax-carousel.php:137
+#: widgets/class-tax-gallery.php:147 widgets/class-tax-grid.php:117
+#: widgets/class-tax-list.php:162
+msgid "Taxonomy"
+msgstr ""
+
+#: widgets/class-imagebox.php:179
+msgid "Show term from "
+msgstr ""
+
+#: widgets/class-imagebox.php:195 widgets/class-tax-carousel.php:208
+#: widgets/class-tax-gallery.php:218 widgets/class-tax-grid.php:186
+#: widgets/class-tax-list.php:283
+msgid "Show listings counter"
+msgstr ""
+
+#: widgets/class-imagebox.php:208 widgets/class-tax-grid.php:199
+msgid "Style "
+msgstr ""
+
+#: widgets/class-imagebox.php:212 widgets/class-listings.php:333
+msgid "Standard"
+msgstr ""
+
+#: widgets/class-imagebox.php:213 widgets/class-tax-grid.php:204
+msgid "Alternative"
+msgstr ""
+
+#: widgets/class-imagebox.php:275 widgets/class-tax-gallery.php:321
+#, php-format
+msgid "%s Listing"
+msgid_plural "%s Listings"
+msgstr[0] ""
+msgstr[1] ""
+
+#: widgets/class-listings-carousel.php:58
+msgid "Listings Carousel"
+msgstr ""
+
+#: widgets/class-listings-carousel.php:121 widgets/class-post-grid.php:116
+#: widgets/class-testimonials.php:108
+msgid "Query"
+msgstr ""
+
+#: widgets/class-listings-carousel.php:128 widgets/class-listings.php:128
+msgid "Listings to display"
+msgstr ""
+
+#: widgets/class-listings-carousel.php:141 widgets/class-listings.php:140
+#: widgets/class-post-grid.php:136 widgets/class-pricing-table-woo.php:126
+#: widgets/class-tax-list.php:228 widgets/class-testimonials.php:128
+msgid "Order by"
+msgstr ""
+
+#: widgets/class-listings-carousel.php:145 widgets/class-post-grid.php:140
+#: widgets/class-testimonials.php:132
+msgid "No order"
+msgstr ""
+
+#: widgets/class-listings-carousel.php:146 widgets/class-listings.php:150
+#: widgets/class-post-grid.php:141 widgets/class-testimonials.php:133
+msgid "Order by post id. "
+msgstr ""
+
+#: widgets/class-listings-carousel.php:147 widgets/class-listings.php:151
+#: widgets/class-post-grid.php:142 widgets/class-testimonials.php:134
+msgid "Order by author."
+msgstr ""
+
+#: widgets/class-listings-carousel.php:148 widgets/class-listings.php:152
+#: widgets/class-post-grid.php:143 widgets/class-testimonials.php:135
+msgid "Order by title."
+msgstr ""
+
+#: widgets/class-listings-carousel.php:149 widgets/class-listings.php:153
+#: widgets/class-post-grid.php:144 widgets/class-testimonials.php:136
+msgid " Order by post name (post slug)."
+msgstr ""
+
+#: widgets/class-listings-carousel.php:150 widgets/class-post-grid.php:145
+#: widgets/class-testimonials.php:137
+msgid " Order by post type."
+msgstr ""
+
+#: widgets/class-listings-carousel.php:151 widgets/class-listings.php:144
+#: widgets/class-post-grid.php:146 widgets/class-testimonials.php:138
+msgid " Order by date."
+msgstr ""
+
+#: widgets/class-listings-carousel.php:152 widgets/class-listings.php:154
+#: widgets/class-post-grid.php:147 widgets/class-testimonials.php:139
+msgid " Order by last modified date."
+msgstr ""
+
+#: widgets/class-listings-carousel.php:153 widgets/class-listings.php:155
+#: widgets/class-post-grid.php:148 widgets/class-testimonials.php:140
+msgid " Order by post/page parent id."
+msgstr ""
+
+#: widgets/class-listings-carousel.php:154 widgets/class-listings.php:145
+#: widgets/class-post-grid.php:149 widgets/class-testimonials.php:141
+msgid " Random order."
+msgstr ""
+
+#: widgets/class-listings-carousel.php:155 widgets/class-listings.php:156
+#: widgets/class-post-grid.php:150 widgets/class-testimonials.php:142
+msgid " Order by number of commen"
+msgstr ""
+
+#: widgets/class-listings-carousel.php:163 widgets/class-listings.php:164
+#: widgets/class-post-grid.php:158 widgets/class-tax-list.php:243
+#: widgets/class-testimonials.php:150
+msgid "Order"
+msgstr ""
+
+#: widgets/class-listings-carousel.php:167 widgets/class-listings.php:168
+#: widgets/class-post-grid.php:162 widgets/class-tax-list.php:247
+#: widgets/class-testimonials.php:154
+msgid "Descending"
+msgstr ""
+
+#: widgets/class-listings-carousel.php:168 widgets/class-listings.php:169
+#: widgets/class-post-grid.php:163 widgets/class-tax-list.php:248
+#: widgets/class-testimonials.php:155
+msgid "Ascending. "
+msgstr ""
+
+#: widgets/class-listings-carousel.php:179 widgets/class-listings.php:198
+msgid "Show only from listing categories"
+msgstr ""
+
+#: widgets/class-listings-carousel.php:192 widgets/class-listings.php:211
+msgid "Show only from service categories"
+msgstr ""
+
+#: widgets/class-listings-carousel.php:205 widgets/class-listings.php:224
+msgid "Show only from rental categories"
+msgstr ""
+
+#: widgets/class-listings-carousel.php:218
+msgid "Show only from event categories"
+msgstr ""
+
+#: widgets/class-listings-carousel.php:231
+msgid "Exclude listings"
+msgstr ""
+
+#: widgets/class-listings-carousel.php:243
+msgid "Include listings"
+msgstr ""
+
+#: widgets/class-listings-carousel.php:258 widgets/class-listings.php:253
+msgid "Show only listings with features"
+msgstr ""
+
+#: widgets/class-listings-carousel.php:270 widgets/class-listings.php:265
+msgid "Show only listings from region"
+msgstr ""
+
+#: widgets/class-listings-carousel.php:283
+msgid "Taxonomy Relation"
+msgstr ""
+
+#: widgets/class-listings-carousel.php:287
+msgid "OR (listings in one of selected taxonomies)"
+msgstr ""
+
+#: widgets/class-listings-carousel.php:288
+msgid "AND  (listings in all of selected taxonomies) "
+msgstr ""
+
+#: widgets/class-listings-carousel.php:298 widgets/class-listings.php:306
+msgid "Show only featured listings"
+msgstr ""
+
+#: widgets/class-listings-carousel.php:311
+msgid "Settings"
+msgstr ""
+
+#: widgets/class-listings-carousel.php:319
+msgid "Show fullwidth slider"
+msgstr ""
+
+#: widgets/class-listings-carousel.php:331
+msgid "Style"
+msgstr ""
+
+#: widgets/class-listings-carousel.php:335 widgets/class-listings.php:334
+msgid "Compact"
+msgstr ""
+
+#: widgets/class-listings-carousel.php:336 widgets/class-listings.php:335
+msgid "Grid. "
+msgstr ""
+
+#: widgets/class-listings-carousel.php:347 widgets/class-tax-carousel.php:221
+#: widgets/class-tax-gallery.php:231
+msgid "Auto Play"
+msgstr ""
+
+#: widgets/class-listings-carousel.php:361 widgets/class-tax-carousel.php:235
+#: widgets/class-tax-gallery.php:245
+msgid "Auto Play Speed"
+msgstr ""
+
+#: widgets/class-listings.php:58
+msgid "Listings"
+msgstr ""
+
+#: widgets/class-listings.php:121
+msgid "Query Settings"
+msgstr ""
+
+#: widgets/class-listings.php:146 widgets/class-pricing-table-woo.php:256
+#: widgets/class-pricing-table.php:241
+msgid "Featured"
+msgstr ""
+
+#: widgets/class-listings.php:147
+msgid "Best rated"
+msgstr ""
+
+#: widgets/class-listings.php:148
+msgid "Most views"
+msgstr ""
+
+#: widgets/class-listings.php:149
+msgid "Most reviews"
+msgstr ""
+
+#: widgets/class-listings.php:179
+msgid "Show only Listing Types"
+msgstr ""
+
+#: widgets/class-listings.php:184
+msgid "All"
+msgstr ""
+
+#: widgets/class-listings.php:185
+msgid "Service"
+msgstr ""
+
+#: widgets/class-listings.php:186
+msgid "Rentals. "
+msgstr ""
+
+#: widgets/class-listings.php:187
+msgid "Events. "
+msgstr ""
+
+#: widgets/class-listings.php:237
+msgid "Show only from events categories"
+msgstr ""
+
+#: widgets/class-listings.php:278
+msgid "Keyword search"
+msgstr ""
+
+#: widgets/class-listings.php:286
+msgid "Location search"
+msgstr ""
+
+#: widgets/class-listings.php:294
+msgid "Radius distance search"
+msgstr ""
+
+#: widgets/class-listings.php:320
+msgid "Layout Settings"
+msgstr ""
+
+#: widgets/class-listings.php:329
+msgid "Layout"
+msgstr ""
+
+#: widgets/class-listings.php:345
+msgid "Grid columns"
+msgstr ""
+
+#: widgets/class-listings.php:349
+msgid "1"
+msgstr ""
+
+#: widgets/class-listings.php:350
+msgid "2"
+msgstr ""
+
+#: widgets/class-listings.php:351
+msgid "3"
+msgstr ""
+
+#: widgets/class-listings.php:362
+msgid "Show Elements"
+msgstr ""
+
+#: widgets/class-listings.php:366
+msgid "Layout switcher"
+msgstr ""
+
+#: widgets/class-listings.php:367
+msgid "Filters"
+msgstr ""
+
+#: widgets/class-listings.php:368
+msgid "Orderby"
+msgstr ""
+
+#: widgets/class-listings.php:369
+msgid "Radius"
+msgstr ""
+
+#: widgets/class-listings.php:379
+msgid "Show pagination"
+msgstr ""
+
+#: widgets/class-logo-slider.php:58
+msgid "Logo Slider"
+msgstr ""
+
+#: widgets/class-logo-slider.php:117
+msgid "Add Images"
+msgstr ""
+
+#: widgets/class-post-grid.php:58
+msgid "Posts Grid"
+msgstr ""
+
+#: widgets/class-post-grid.php:123 widgets/class-testimonials.php:115
+msgid "Posts to display"
+msgstr ""
+
+#: widgets/class-post-grid.php:174
+msgid "Show from categories"
+msgstr ""
+
+#: widgets/class-post-grid.php:187 widgets/class-testimonials.php:167
+msgid "Exclude posts"
+msgstr ""
+
+#: widgets/class-post-grid.php:199 widgets/class-testimonials.php:179
+msgid "Include posts"
+msgstr ""
+
+#: widgets/class-post-grid.php:212
+msgid "Excerpt length"
+msgstr ""
+
+#: widgets/class-post-grid.php:224
+msgid "Add after excerpt"
+msgstr ""
+
+#: widgets/class-post-grid.php:226
+msgid "..."
+msgstr ""
+
+#: widgets/class-post-grid.php:233
+msgid "Show \"View Blog\" button"
+msgstr ""
+
+#: widgets/class-post-grid.php:244
+msgid "Show post excerpt"
+msgstr ""
+
+#: widgets/class-post-grid.php:255
+msgid "Show post date"
+msgstr ""
+
+#: widgets/class-post-grid.php:266
+msgid "Show post category"
+msgstr ""
+
+#: widgets/class-post-grid.php:437
+msgid "View Blog"
+msgstr ""
+
+#: widgets/class-pricing-table-woo.php:58
+msgid "Pricing Table WooCommerce"
+msgstr ""
+
+#: widgets/class-pricing-table-woo.php:130 widgets/class-pricing-table.php:142
+msgid "Price"
+msgstr ""
+
+#: widgets/class-pricing-table-woo.php:131
+msgid "Price desc"
+msgstr ""
+
+#: widgets/class-pricing-table-woo.php:132
+msgid "Rating"
+msgstr ""
+
+#: widgets/class-pricing-table-woo.php:134
+msgid "Popularity"
+msgstr ""
+
+#: widgets/class-pricing-table-woo.php:135
+msgid "Random"
+msgstr ""
+
+#: widgets/class-pricing-table-woo.php:143
+msgid "Columns in a row"
+msgstr ""
+
+#: widgets/class-pricing-table-woo.php:155
+msgid "Option URL for add Listing overide"
+msgstr ""
+
+#: widgets/class-pricing-table-woo.php:273
+msgid "Unlimited number of listings"
+msgstr ""
+
+#: widgets/class-pricing-table-woo.php:277
+msgid "This plan includes "
+msgstr ""
+
+#: widgets/class-pricing-table-woo.php:277
+#, php-format
+msgid "%d listing"
+msgid_plural "%s listings"
+msgstr[0] ""
+msgstr[1] ""
+
+#: widgets/class-pricing-table-woo.php:283
+msgid "Listings are visible "
+msgstr ""
+
+#: widgets/class-pricing-table-woo.php:283
+#, php-format
+msgid "for %s day"
+msgid_plural "for %s days"
+msgstr[0] ""
+msgstr[1] ""
+
+#: widgets/class-pricing-table-woo.php:287
+msgid "Unlimited availability of listings"
+msgstr ""
+
+#: widgets/class-pricing-table-woo.php:297
+msgid "Add Listing"
+msgstr ""
+
+#: widgets/class-pricing-table.php:58
+msgid "Pricing Table"
+msgstr ""
+
+#: widgets/class-pricing-table.php:144
+msgid "19.99"
+msgstr ""
+
+#: widgets/class-pricing-table.php:150
+msgid "Discount"
+msgstr ""
+
+#: widgets/class-pricing-table.php:152
+msgid "8.99"
+msgstr ""
+
+#: widgets/class-pricing-table.php:158
+msgid "Per"
+msgstr ""
+
+#: widgets/class-pricing-table.php:160
+msgid "month"
+msgstr ""
+
+#: widgets/class-pricing-table.php:168
+msgid "Buy button URL"
+msgstr ""
+
+#: widgets/class-pricing-table.php:182
+msgid "Buy button Label"
+msgstr ""
+
+#: widgets/class-pricing-table.php:184
+msgid "Buy Now"
+msgstr ""
+
+#: widgets/class-pricing-table.php:194
+msgid "Featured package"
+msgstr ""
+
+#: widgets/class-pricing-table.php:196 widgets/class-tax-list.php:271
+msgid "Yes"
+msgstr ""
+
+#: widgets/class-pricing-table.php:197 widgets/class-tax-list.php:272
+msgid "No"
+msgstr ""
+
+#: widgets/class-pricing-table.php:207
+msgid "Color"
+msgstr ""
+
+#: widgets/class-tax-carousel.php:72
+msgid "Taxonomy Carousel"
+msgstr ""
+
+#: widgets/class-tax-carousel.php:152 widgets/class-tax-gallery.php:162
+#: widgets/class-tax-grid.php:132
+msgid "Include listing from "
+msgstr ""
+
+#: widgets/class-tax-carousel.php:166 widgets/class-tax-gallery.php:176
+#: widgets/class-tax-grid.php:146
+msgid "Exclude listings from "
+msgstr ""
+
+#: widgets/class-tax-carousel.php:182 widgets/class-tax-gallery.php:192
+#: widgets/class-tax-grid.php:161 widgets/class-tax-list.php:258
+msgid "Terms to display"
+msgstr ""
+
+#: widgets/class-tax-carousel.php:194 widgets/class-tax-gallery.php:204
+#: widgets/class-tax-grid.php:172
+msgid "Show only top terms"
+msgstr ""
+
+#: widgets/class-tax-carousel.php:298
+msgid "listings"
+msgstr ""
+
+#: widgets/class-tax-carousel.php:300
+msgid "Browse"
+msgstr ""
+
+#: widgets/class-tax-gallery.php:72
+msgid "Taxonomy Gallery"
+msgstr ""
+
+#: widgets/class-tax-gallery.php:136
+msgid "Right side Content"
+msgstr ""
+
+#: widgets/class-tax-gallery.php:138
+msgid ""
+"<h2>Find Your Ultimate <br> Local Weekend</h2>\n"
+"\t\t\t\t\t<p>A curated collection of stays and experiences to inspire your "
+"next trip.</p>\n"
+"\t\t\t\t\t<a href=\"listings-list-with-sidebar.html\" class=\"button margin-"
+"top-25\">Discover Places</a>"
+msgstr ""
+
+#: widgets/class-tax-gallery.php:141
+msgid "Type content description here"
+msgstr ""
+
+#: widgets/class-tax-grid.php:58
+msgid "Taxonomy Grid"
+msgstr ""
+
+#: widgets/class-tax-grid.php:203
+msgid "Default"
+msgstr ""
+
+#: widgets/class-tax-list.php:58
+msgid "Taxonomy List"
+msgstr ""
+
+#: widgets/class-tax-list.php:130
+msgid "List Type "
+msgstr ""
+
+#: widgets/class-tax-list.php:134
+msgid "Group by parents"
+msgstr ""
+
+#: widgets/class-tax-list.php:135
+msgid "Show all categories"
+msgstr ""
+
+#: widgets/class-tax-list.php:136
+msgid "Show only parent categories"
+msgstr ""
+
+#: widgets/class-tax-list.php:137
+msgid "Show only child categories from single parent"
+msgstr ""
+
+#: widgets/class-tax-list.php:177
+msgid "Include "
+msgstr ""
+
+#: widgets/class-tax-list.php:191
+msgid "Exclude "
+msgstr ""
+
+#: widgets/class-tax-list.php:206
+msgid "Parent category "
+msgstr ""
+
+#: widgets/class-tax-list.php:232
+msgid "Name"
+msgstr ""
+
+#: widgets/class-tax-list.php:233
+msgid "Order by term id. "
+msgstr ""
+
+#: widgets/class-tax-list.php:234
+msgid "Order by term order. "
+msgstr ""
+
+#: widgets/class-tax-list.php:235
+msgid "Order by number of listings assinged."
+msgstr ""
+
+#: widgets/class-tax-list.php:236
+msgid "Match the order of the \"Include listing\" param."
+msgstr ""
+
+#: widgets/class-tax-list.php:269
+msgid "Hide empty categories"
+msgstr ""
+
+#: widgets/class-testimonials.php:58
+msgid "Testimonials"
+msgstr ""
+
+#: widgets/class-testimonials.php:192
+msgid "Hide User photo"
+msgstr ""
+
+#: widgets/class-testimonials.php:203
+msgid "Hide User position"
+msgstr ""
+
+#: widgets/class-testimonials.php:214
+msgid "Hide User name"
+msgstr ""
+
+#: widgets/class-widget2.php:57
+msgid "Listeo2"
+msgstr ""
+
+#: widgets/class-widget2.php:120 widgets/class-widget2.php:122
+msgid "Description"
+msgstr ""
+
+#. Plugin Name of the plugin/theme
+msgid "Listeo Elementor"
+msgstr ""
+
+#. Plugin URI of the plugin/theme
+#. Author URI of the plugin/theme
+msgid "http://www.purethemes.net/"
+msgstr ""
+
+#. Description of the plugin/theme
+msgid "Listeo widgets for Elementor"
+msgstr ""
+
+#. Author of the plugin/theme
+msgid "Purethemes.net"
+msgstr ""

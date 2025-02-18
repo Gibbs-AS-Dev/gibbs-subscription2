@@ -1,0 +1,207 @@
+/**
+ * All of the CSS for your public-facing functionality should be
+ * included in this file.
+ */
+
+.element-card {
+    background-color: #fff;
+    padding: 25px;
+    border-radius: 4px;
+}
+
+.graphina-element .graphina-table table {
+    margin: 0;
+}
+
+body div.nested_column-chart-wrapper {
+    display: flex;
+    justify-content: space-between;
+}
+
+body div.nested_column-chart-one,
+body div.nested_column-chart-two {
+    width: 100%;
+    box-shadow: none;
+    padding-left: 0;
+    padding-top: 20px;
+}
+
+body div.nested_column-chart-two {
+    width: 0;
+    opacity: 0;
+    transition: all 1s ease-in-out;
+}
+
+div.nested_column-chart-one.chart-quarter-activated {
+    width: 50%;
+}
+
+div.nested_column-chart-two.active {
+    width: 50%;
+    opacity: 1;
+}
+
+.graphina-card {
+    /*position: relative;*/
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+    -ms-flex-direction: column;
+    flex-direction: column;
+    min-width: 0;
+    word-wrap: break-word;
+    background-color: #fff;
+    background-clip: border-box;
+    border: 1px solid rgba(0, 0, 0, .125);
+    border-radius: .25rem;
+    color: #333333;
+    text-align: center;
+}
+
+.graphina-no-data {
+    margin: 75px auto;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.graphina-card.counter h1, .graphina-card.counter h2, .graphina-card.counter p {
+    margin: 0;
+    padding: 0;
+}
+
+.graphina-card.counter {
+    flex-direction: column;
+}
+
+.graphina-card.layout_5, .graphina-card.layout_6 {
+    display: block;
+}
+
+.graphina-card.layout_5 .main-counter, .graphina-card.layout_6 .main-counter {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+    -ms-flex-direction: column;
+}
+
+.graphina-card.counter.layout_5 .main-counter, .graphina-card.counter.layout_6 .main-counter {
+    flex-direction: row;
+}
+
+.graphina-card.counter.layout_5 .main-counter .part-2, .graphina-card.counter.layout_6 .main-counter .part-2 {
+    width: -moz-available;
+    width: -webkit-fill-available;
+    width: available;
+}
+
+.graphina-table {
+    text-align: center;
+    overflow: hidden;
+    width: 100%;
+    min-height: 180px;
+}
+
+.graphina-table input {
+    border-top: 0;
+    border-left: 0;
+    border-right: 0;
+}
+
+.graphina-table-base .graphina-table-header input {
+    font-weight: bold;
+    color: #000000;
+}
+
+.graphina-table-base .graphina-table-cell {
+    height: 40px;
+    border-color: #000000;
+}
+
+.table-padding-left th, .table-padding-left td {
+    padding: 10px;
+    text-align: left;
+}
+
+.d-none {
+    display: none;
+}
+
+.graphina-table .graphina-no-data {
+    padding-top: 75px;
+    padding-bottom: 75px;
+    display: block;
+}
+
+.graphina-table-body td.graphina-table-no-data {
+    text-align: center !important;
+    font-weight: normal;
+}
+
+.graphina-element input,
+.elementor-element .graphina-table-header th input,
+.elementor-element .graphina-table-body td input {
+    color: #666;
+    background: #fff;
+    background-image: none;
+    background-image: -webkit-linear-gradient(rgba(255, 255, 255, 0), rgba(255, 255, 255, 0));
+    display: block;
+    font-size: 16px;
+    padding: 0.5em;
+    border: 1px solid #bbb;
+    -webkit-border-radius: 3px;
+    border-radius: 3px;
+    width: 100%;
+}
+
+.elementor-element .graphina-table-header th input,
+.elementor-element .graphina-table-body td input {
+    border: 0;
+    border-bottom: 3px solid #bbb;
+}
+
+.graphina-element input.table-filter {
+    margin-bottom: 20px;
+    max-width: 400px;
+    min-width: 200px;
+    width: 25%;
+}
+
+.graphina-table.table-responsive {
+    overflow-x: auto;
+}
+
+@media only screen and (max-width: 767px) {
+    body div.nested_column-chart-one,
+    body div.nested_column-chart-two {
+        height: 100%;
+        width: auto !important;
+    }
+
+    body div.nested_column-chart-wrapper div.nested_column-chart-two {
+        height: 0;
+        opacity: 0;
+        transition: all 1s ease-in-out;
+        min-height: 0 !important;
+    }
+
+    body div.nested_column-chart-wrapper {
+        flex-direction: column;
+    }
+
+    div.nested_column-chart-wrapper div.nested_column-chart-one.chart-quarter-activated {
+        width: auto !important;
+        height: 100%;
+    }
+
+    div.nested_column-chart-wrapper div.nested_column-chart-two.active {
+        width: auto !important;
+        height: 100%;
+        opacity: 1;
+    }
+}

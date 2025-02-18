@@ -1,0 +1,330 @@
+---
+film-video:
+  icons:
+    - screencast
+    - ticket
+  label: Film + Video
+communication:
+  icons:
+    - comment
+    - envelope
+    - paper-plane
+  label: Communication
+buildings:
+  icons:
+    - building
+  label: Buildings
+transportation:
+  icons:
+    - paper-plane
+  label: Transportation
+punctuation-symbols:
+  icons:
+    - check
+    - circle-exclamation
+    - circle-question
+    - minus
+    - plus
+    - question
+  label: Punctuation + Symbols
+time:
+  icons:
+    - bell
+    - calendar
+    - calendar-check
+    - calendar-plus
+    - calendar-week
+    - clock
+  label: Time
+construction:
+  icons:
+    - hammer
+  label: Construction
+arrows:
+  icons:
+    - angle-down
+    - angle-up
+    - arrow-left
+    - arrow-up-right-from-square
+    - chevron-down
+    - chevron-left
+    - chevron-right
+    - chevron-up
+    - circle-arrow-right
+    - download
+    - reply
+    - rotate
+    - share
+  label: Arrows
+music-audio:
+  icons:
+    - music
+    - screencast
+  label: Music + Audio
+editing:
+  icons:
+    - bars
+    - check
+    - circle-check
+    - ellipsis
+    - ellipsis-vertical
+    - gear
+    - link
+    - link-slash
+    - minus
+    - pen-to-square
+    - plus
+    - rotate
+    - square-check
+    - trash
+    - trash-can-undo
+    - wand-magic-sparkles
+    - xmark
+  label: Editing
+medical-health:
+  icons:
+    - plus
+    - receipt
+  label: Medical + Health
+money:
+  icons:
+    - chart-pie
+    - receipt
+    - sack-dollar
+    - wallet
+  label: Money
+spinners:
+  icons:
+    - circle-notch
+    - gear
+    - rotate
+  label: Spinners
+security:
+  icons:
+    - door-closed
+    - door-open
+    - lock
+    - lock-open
+    - shield-check
+    - shield-exclamation
+    - user-shield
+  label: Security
+accessibility:
+  icons:
+    - circle-info
+    - circle-question
+    - question
+  label: Accessibility
+business:
+  icons:
+    - building
+    - bullseye
+    - calendar
+    - chart-pie
+    - copy
+    - copyright
+    - envelope
+    - file
+    - floppy-disk
+    - folder
+    - globe
+    - note-sticky
+    - pen-to-square
+    - table-columns
+    - wallet
+  label: Business
+mathematics:
+  icons:
+    - circle-plus
+    - minus
+    - plus
+    - xmark
+  label: Mathematics
+text-formatting:
+  icons:
+    - check
+    - circle-check
+    - filter-list
+    - list
+    - square-check
+    - table-columns
+  label: Text Formatting
+shopping:
+  icons:
+    - bell
+    - camera
+    - gift
+    - gift-card
+    - receipt
+  label: Shopping
+toggle:
+  icons:
+    - bullseye
+    - circle-check
+  label: Toggle
+media-playback:
+  icons:
+    - music
+    - rotate
+  label: Media Playback
+holidays:
+  icons:
+    - gift
+  label: Holidays
+photos-images:
+  icons:
+    - camera
+  label: Photos + Images
+design:
+  icons:
+    - copy
+    - floppy-disk
+    - layer-group
+    - pen-to-square
+    - wand-magic-sparkles
+  label: Design
+connectivity:
+  icons:
+    - globe
+  label: Connectivity
+social:
+  icons:
+    - bell
+    - camera
+    - comment
+    - envelope
+    - location-dot
+    - share
+    - user
+    - users
+  label: Social
+education:
+  icons:
+    - bell
+    - book-open
+    - music
+  label: Education
+devices-hardware:
+  icons:
+    - camera
+    - download
+    - floppy-disk
+  label: Devices + Hardware
+files:
+  icons:
+    - copy
+    - file
+    - file-arrow-down
+    - file-csv
+    - file-export
+    - file-pdf
+    - floppy-disk
+    - folder
+    - memo
+    - note-sticky
+  label: Files
+users-people:
+  icons:
+    - user
+    - user-shield
+    - users
+  label: Users + People
+coding:
+  icons:
+    - bars
+    - diagram-project
+    - file
+    - filter
+    - folder
+    - gear
+    - shield-check
+  label: Coding
+astronomy:
+  icons:
+    - globe
+  label: Astronomy
+marketing:
+  icons:
+    - bullseye
+    - gift-card
+  label: Marketing
+maps:
+  icons:
+    - bell
+    - building
+    - circle-info
+    - gavel
+    - gift
+    - globe
+    - info
+    - layer-group
+    - location-dot
+    - magnifying-glass
+    - music
+    - plus
+    - ticket
+  label: Maps
+charts-diagrams:
+  icons:
+    - chart-pie
+    - diagram-project
+  label: Charts + Diagrams
+charity:
+  icons:
+    - gift
+    - globe
+  label: Charity
+shapes:
+  icons:
+    - calendar
+    - comment
+    - file
+    - folder
+  label: Shapes
+travel-hotel:
+  icons:
+    - door-closed
+    - door-open
+  label: Travel + Hotel
+alert:
+  icons:
+    - bell
+    - circle-exclamation
+    - question
+    - shield-exclamation
+  label: Alert
+writing:
+  icons:
+    - envelope
+    - file
+    - folder
+    - memo
+    - note-sticky
+    - paper-plane
+    - pen-to-square
+  label: Writing
+science:
+  icons:
+    - filter
+  label: Science
+household:
+  icons:
+    - bell
+    - door-closed
+    - door-open
+  label: Household
+automotive:
+  icons:
+    - gauge-simple-high
+  label: Automotive
+humanitarian:
+  icons:
+    - arrow-up-right-from-square
+    - building
+    - envelope
+    - file
+    - file-csv
+    - file-pdf
+    - hammer
+    - sack-dollar
+  label: Humanitarian

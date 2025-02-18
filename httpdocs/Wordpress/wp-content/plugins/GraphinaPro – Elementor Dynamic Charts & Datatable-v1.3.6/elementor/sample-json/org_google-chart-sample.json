@@ -1,0 +1,44 @@
+
+{
+    "data": [
+      {
+        "name": "Parent",
+        "data": [
+         "Joseph",
+          "Joseph",
+          "Joseph",
+          "Joseph",
+          "Clair",
+          "Cristiano",
+          "Cristiano",
+          "Cristiano"
+        ]
+      },
+      {
+        "name": "Tooltip",
+        "data": [
+         "CEO",
+          "Marketing",
+          "Finance",
+          "HR",
+          "Leader",
+          "Member",
+          "Member",
+          "Member"
+  
+        ]
+      }
+      
+    ],
+    "category": [
+      "Joseph",
+      "Clair",
+      "Elina",
+      "Edward",
+      "Cristiano",
+      "Martin",
+      "Annie",
+      "joy"
+    ]
+  }
+  

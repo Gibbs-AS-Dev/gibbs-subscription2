@@ -1,0 +1,27 @@
+.fieldset {
+    border: 1px solid #ddd;
+    padding: 10px;
+    margin-bottom: 15px;
+}
+
+.fieldset legend {
+    font-weight: bold;
+    padding: 0 5px;
+}
+
+.field-row {
+    margin-bottom: 10px;
+}
+
+.field-row label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.field-row input,
+.field-row select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}

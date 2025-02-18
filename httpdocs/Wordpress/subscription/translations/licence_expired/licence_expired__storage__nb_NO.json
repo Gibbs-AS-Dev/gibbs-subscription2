@@ -1,0 +1,15 @@
+{
+  "js_texts":
+    [
+    ],
+  "php_texts":
+    [
+      "Lisensen er ikke aktiv",
+      "Vi beklager, men din lisens er ikke aktiv. Du har for &oslash;yeblikket ikke tilgang til administrasjonsgrensesnittet, og kundene dine vil f&aring; beskjed om at l&oslash;sningen er midlertidig utilgjengelig.",
+      "Dette kan blant annet skyldes at:",
+      "Lisensen er lagt inn, men ikke aktivert enn&aring;.",
+      "Lisensen er er sagt opp.",
+      "Lisensen er deaktivert p&aring; grunn av manglende betaling, eller av andre &aring;rsaker.",
+      "Vennligst kontakt $0Gibbs kundeservice$1 for &aring; f&aring; aktivert lisensen."
+    ]
+}

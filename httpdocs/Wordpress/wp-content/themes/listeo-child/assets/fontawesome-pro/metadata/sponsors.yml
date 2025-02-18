@@ -1,0 +1,48 @@
+---
+clicdata:
+  icons:
+    - filter-list
+  label: ClicData
+  url: https://www.clicdata.com
+harvard-medical-school:
+  icons:
+    - plus
+  label: Harvard Medical School
+  url: https://hms.harvard.edu
+mylogin-info:
+  icons:
+    - user-shield
+  label: mylogin.info
+  url: https://www.mylogin.info
+rocket-chat:
+  icons:
+    - comment
+  label: Rocket.Chat
+  url: https://rocket.chat
+silicon-barn-inc:
+  icons:
+    - diagram-project
+  label: Silicon Barn Inc
+  url: https://siliconbarn.com
+supple:
+  icons:
+    - bullseye
+    - gift-card
+  label: Supple
+  url: https://supple.com.au
+the-us-sunnah-foundation:
+  icons:
+    - gift
+    - globe
+  label: The us-Sunnah Foundation
+  url: https://www.ussunnah.org
+un-ocha:
+  icons:
+    - arrow-up-right-from-square
+  label: United Nations OCHA
+  url: https://www.unocha.org
+via:
+  icons:
+    - layer-group
+  label: VIA Traffic Software Solutions
+  url: https://www.via.software

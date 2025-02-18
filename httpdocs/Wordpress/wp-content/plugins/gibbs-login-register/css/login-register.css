@@ -1,0 +1,276 @@
+/* Style the tab */
+.tab-gib {
+  overflow: hidden;
+  border: 0px solid #fff;
+  background-color: #fff;
+
+  max-width: 500px;
+}
+
+/* Style the buttons inside the tab */
+.tab-gib button {
+  background-color: inherit;
+  float: left;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 14px 16px;
+  transition: 0.3s;
+  font-size: 17px;
+  
+}
+
+/* Change background color of buttons on hover */
+.tab-gib button:hover {
+  background-color: #00847422;
+}
+
+/* Create an active/current tablink class */
+.tab-gib button.active {
+    background-color: #fff;
+    border-bottom: 3px solid #008474;
+    color: #008474;
+    font-weight: 600;
+    
+}
+
+/* Style the tab content */
+.tabcontent-gib {
+    display: none;
+    padding: 11px 8px;
+    border: 0px solid #fff;
+    border-top: none;
+}
+.user-form {
+    padding-bottom: 20px;
+    padding-top: 10px;
+}
+
+/* .sign-up-form-gibbs .user-form {
+  padding: 30px;
+  border: 1px solid #efefef;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+} */
+
+
+
+.user-form input {
+    height: auto;
+    line-height: 1;
+    padding: 15px;
+    background-color: #F5F8FA;
+    border: 0px;
+    color: #888888;
+    font-weight: 600;
+    margin: 0px;
+}
+.user-form  label {
+    width: 100%;
+}
+.user-form .form-row {
+    padding-bottom: 21px;
+}
+
+.user-form .fr-pw{
+      text-align: right;
+    width: 50%;
+    margin-top: 10px;
+}
+.login-code-btn, .login-password-btn {
+  margin-top: 10px;
+}
+.user-form  .social-login-separator {
+    display: block;
+    text-align: center;
+    border-bottom: 1px solid #e0e0e0;
+    margin-top: 15px;
+    margin-bottom: 15px;
+    line-height: 20px;
+}
+.user-form .social-login-separator span {
+    position: relative;
+    top: 9px;
+    background: #fff;
+    padding: 0 10px;
+    font-size: 16px;
+    font-weight: bold;
+    color: #000 !important;
+}
+.vipps_login_button {
+    background-color: #FE5B24;
+    border: 2px solid #FE5B24;
+}
+.microsoft_login_button {
+    background-color: #008EC2;
+    border: 2px solid #008EC2;
+}
+.google_login_button {
+    background-color: #EF503E;
+    border: 2px solid #EF503E;
+}
+.vipps_login_button, .microsoft_login_button, .google_login_button {
+    margin: 6px 0px;
+    display: block;
+    width: 100% !important;
+    min-height: 40px;
+    border-radius: 6px;
+    padding: 2px;
+    color: #fff;
+    font-weight: 700;
+}
+.notification.error, .notification.error a, .notification.error strong {
+    color: #de5959;
+    background-color: #ffe9e9;
+}
+.notification.success, .notification.success a, .notification.success strong {
+    color: #5f9025;
+    background-color: #EBF6E0;
+}
+.notification.notice, .notification.notice a, .notification.notice strong {
+    color: #3184ae;
+    background-color: #E9F7FE;
+}
+.notification {
+    line-height: 24px;
+    margin-bottom: 15px;
+    position: relative;
+    padding: 20px 26px;
+    padding-right: 50px;
+    border-radius: 3px;
+}
+.btn.btn-primary {
+    background-color: #008474;
+    color: #fff;
+    border: 0px;
+}
+#sign-in-dialog {
+    box-shadow: 0px 0px 20px rgb(0 0 0 / 10%);
+    padding: 40px;
+    border-radius: 8px;
+    max-width: 500px;
+}
+
+.iti {
+    
+    width: 100%;
+}
+.user-form a{
+    color: #008474;
+    text-decoration: none;
+    font-weight: 600;
+    background-color: transparent;
+}
+
+
+.gibbs_lg_modal {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 999999999; /* Sit on top */
+  padding-top:  40px;
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0,0,0); /* Fallback color */
+  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+  padding-bottom: 40px;
+}
+
+/* Modal Content */
+.gibbs_lg_modal .modal-content {
+  position: relative;
+  background-color: #fefefe;
+  margin: auto;
+  padding: 0;
+  border-radius: 20px;
+  width: 100%;
+    max-width: 400px;
+  box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
+  -webkit-animation-name: animatetop;
+  -webkit-animation-duration: 0.4s;
+  animation-name: animatetop;
+  animation-duration: 0.4s;
+}
+
+/* Add Animation */
+@-webkit-keyframes animatetop {
+  from {top:-300px; opacity:0} 
+  to {top:0; opacity:1}
+}
+
+@keyframes animatetop {
+  from {top:-300px; opacity:0}
+  to {top:0; opacity:1}
+}
+
+/* The Close Button */
+.gibbs_lg_modal .close {
+  color: rgb(0, 0, 0);
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+  margin: 15px;
+  position: absolute;
+  z-index: 2000000;
+  right: 20px;
+}
+.gibbs_lg_modal .close:hover,
+.gibbs_lg_modal .close:focus {
+  color: #000;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+ .modal-header {
+  padding: 0px 0px;
+ 
+  color: white;
+}
+
+.gibbs_lg_modal .modal-body {
+  padding: 16px 32px;
+}
+.mfp-hide{
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .custom-gap-right {
+      padding-right: 15px; /* Increase right padding on the first column */
+      padding-left: 0px;
+  }
+  .custom-gap-left {
+      padding-left: 15px; /* Increase left padding on the second column */
+      padding-right: 0px;
+  }
+}
+
+@media (max-width: 768px) {
+  .custom-gap-right {
+      padding-right: 0px; /* Increase right padding on the first column */
+      padding-left: 0px;
+  }
+  .custom-gap-left {
+      padding-left: 0px; /* Increase left padding on the second column */
+      padding-right: 0px;
+  }
+}
+#titlebar{
+  display: none !important;
+}
+
+.head-title-bar h1 {
+  font-size: 1rem!important;
+}
+.justify-content-space-between{
+  justify-content: space-between;
+}
+.psw-div{
+  width: 100%;
+}
+.code-div {
+  width: 100%;
+  margin-bottom: 21px;
+}

@@ -1,0 +1,676 @@
+.main-form-div hr{
+    border-top: 1px solid #EFF2F5;
+    margin-top: 0px;
+    margin-bottom: 0px;
+}
+.main-form-div .form-group .form-select{
+    opacity: 1 !important;
+    height: 51px !important;
+    line-height: normal !important;
+    -webkit-appearance: auto !important;
+    position: relative !important;
+}
+.main-form-div .form-group .form-check-input {
+    width: 1em;
+    height: 1em;
+    margin-top: 0.25em;
+    vertical-align: top;
+    background-color: #fff;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+    border: 1px solid rgba(0, 0, 0, 0.25);
+}
+.d-flex{
+	display: flex;
+}
+.main-form-div  #submit {
+    margin-top: 20px;
+    background-color: #0C7868;
+    top: 0;
+    padding: 9px 20px;
+    color: #fff;
+    position: relative;
+    font-size: 15px;
+    font-weight: 600;
+    display: block;
+    width: 100%;
+    transition: all 0.2s ease-in-out;
+    cursor: pointer;
+    margin-right: 6px;
+    overflow: hidden;
+    border: none;
+    border-radius: 5px;
+}
+.fade-sec {
+    padding: 25px 39px;
+    background: #ffffff;
+    border-radius: 1rem;
+    margin-top: 20px;
+}
+.alert-info {
+    color: #5E6278;
+    background-color: #EFF7FA;
+    border-color: #b6effb;
+}
+.alert-danger {
+    color: #ff0019;
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+}
+.alert {
+  
+    position: relative;
+    padding: 14px !important;
+    margin-bottom: 3rem;
+    border: 1px solid transparent;
+    border-radius: 8px !important;
+	  font-size: 16px;
+}
+
+.user_org_modal {
+display: none; /* Hidden by default */
+position: fixed; /* Stay in place */
+z-index: 99999; /* Sit on top */
+padding-top:  40px;
+left: 0;
+top: 0;
+width: 100%; /* Full width */
+height: 100%; /* Full height */
+overflow: auto; /* Enable scroll if needed */
+background-color: rgb(0,0,0); /* Fallback color */
+background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+/* Modal Content */
+.user_org_modal .modal-content {
+position: relative;
+background-color: #fefefe;
+margin: auto;
+padding: 0;
+border: 1px solid #888;
+width: 50%;
+box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
+-webkit-animation-name: animatetop;
+-webkit-animation-duration: 0.4s;
+animation-name: animatetop;
+animation-duration: 0.4s
+}
+
+/* Add Animation */
+@-webkit-keyframes animatetop {
+from {top:-300px; opacity:0} 
+to {top:0; opacity:1}
+}
+
+@keyframes animatetop {
+from {top:-300px; opacity:0}
+to {top:0; opacity:1}
+}
+
+/* The Close Button */
+.user_org_modal .close {
+color: white;
+float: right;
+font-size: 28px;
+font-weight: bold;
+margin: 15px;
+}
+
+.user_org_modal .close:hover,
+.user_org_modal .close:focus {
+color: #000;
+text-decoration: none;
+cursor: pointer;
+}
+
+.user_org_modal .modal-header {
+  padding: 2px 16px;
+  background-color: #008474;
+  color: white;
+}
+.user_org_modal .modal-header h2{
+color: #fff;
+}
+
+.application_form_new h3{
+    padding-left: 10px;
+    }
+
+.user_org_modal .modal-body {padding: 2px 16px;}
+.alert_error_message {
+  color: #721c24;
+  background-color: #f8d7da;
+  border-color: #f5c6cb;
+  padding: 10px;
+  margin: 12px 0px;
+  border-radius: 5px;
+}
+.alert_success_message {
+  color: #155724;
+  background-color: #d4edda;
+  border-color: #c3e6cb;
+  padding: 10px;
+  margin: 12px 0px;
+  border-radius: 5px;
+}
+.user_org_modal input[type="text"]  .user_org_modal input[type="password"], .user_org_modal input[type="email"], .user_org_modal input[type="number"], .user_org_modal textarea {
+  padding-left: 8px !important;
+  background-color: #F5F8FA !important;
+    border: 1px solid #F5F8FA;
+    box-shadow: 0 1px 3px 0px rgb(0 0 0 / 6%);
+    border-radius: 10px;
+	  font-weight: 700 ;
+}
+
+
+
+
+
+.application_form_new input, input[type="text"], input[type="password"], input[type="email"], input[type="number"], textarea, select {
+
+    background-color: #F5F8FA !important;
+    border: 1px solid #F5F8FA;
+    box-shadow: 0 1px 3px 0px rgb(0 0 0 / 6%);
+    border-radius: 10px;
+	font-weight: 700 ;
+}
+
+
+.user_modalbtn{
+   cursor: pointer;
+}
+.main-form-div .btn-primary {
+    background-color: #0C7868;
+    top: 0;
+    padding: 4px 21px;
+    color: #fff;
+    position: relative;
+    font-size: 15px;
+    font-weight: 600;
+    display: block;
+    transition: all 0.2s ease-in-out;
+    cursor: pointer;
+    margin-right: 6px;
+    overflow: hidden;
+    border: none;
+    border-radius: 5px;
+    margin: 10px 10px 10px 10px;
+}
+.main-form-div .add_new_section {
+    margin: 20px;
+}
+
+.inner-get_day select option:disabled,  .priority_listing select option:disabled {
+    display: none;
+}
+/*.delete_reserve{
+    position: absolute;
+    right: -10px;
+    vertical-align: middle;
+    height: 100%;
+    text-align: center;
+    transform: translate(50%, 47%);
+    top: 0;
+    
+}  */ 
+.inner-get_day {
+    position: relative;
+    background: #ffffff ;
+    border-radius: 12px;
+    margin-bottom: 25px;
+	margin-top: 10px;
+    padding: 20px !important;
+    border: 1px solid #f5f5f5;
+    box-shadow: 0px 0px 15px rgb(204 204 204 / 59%);
+    padding: 16px;
+    
+    border-radius: 12px;
+    
+}
+
+.delete_reserve .trash_ic {
+  color: red;
+} 
+
+
+.empty_div {
+    border: 2px solid #fb0000 !important;
+}
+.justify-content-between {
+    justify-content: space-between;
+    margin-top: -20px;
+    margin-bottom: 10px;
+}
+.delete_application,.delete_reserve {
+    margin-top: 8px;
+    color: #FF0000;
+    cursor: pointer;
+    background: #FFF5F8;
+    border: 0;
+    border-radius: 6px;
+    font-weight: 400;
+    font-size: 14px;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+button.delete_application {
+    height: 42px;
+}
+.delete_reserve {
+    margin-top: 11px;
+    margin-right: 14px;
+    color: #FF0000;
+    cursor: pointer;
+    background: #FFF5F8;
+    border: 0;
+    border-radius: 6px;
+    font-weight: 400;
+}
+
+#user_modalbtn{
+  cursor: pointer;
+}
+.empty_div_checkbox {
+    outline: 2px solid #c00;
+}
+.term_and_condition label {
+    margin-left: 10px;
+}
+.save_as_draft {
+    background: #F9C200 !important;
+}
+.term_and_condition .form-group{
+    justify-content: center;
+    margin-bottom: 16px;
+}
+.save_as_draft_main, .submit_main {
+    justify-content: center;
+    display: flex;
+}
+.save_as_draft_title_main {
+    display: flex;
+    margin-top: 20px;
+    padding-bottom: 14px;
+}
+.delete_form .fa-trash-can {
+    color: red !important;
+}
+
+.main-form-div .delete_form  {
+    background: red !important;
+}
+
+#same_user{
+  cursor: pointer;
+}
+.mb-10 {
+    margin-bottom: 10pt;
+}
+
+.select2-selection ul li{
+   margin-top: 5px;
+}
+.main_get_day_app .inner-get_day:nth-child(1) .delete_reserve {
+    position: relative;
+   /* display: none;*/
+}
+
+.form_list .action-modal1 .dropdown-content {
+    overflow: inherit;
+    z-index: 111;
+    padding: 17px;
+    left: auto !important;
+    right: 0;
+    background: #fff;
+    border: 1px solid #f5f5f5;
+    box-shadow: 0px 0px 15px rgb(204 204 204 / 59%);
+}
+.form_list .search-box-inner.action-modal1.action_btns .dropdown .dropdown-content {
+    max-height: initial;
+}
+.form_list .search-box-inner.action-modal1.action_btns .dropdown-content {
+    padding: 0;
+}
+.form_list .search-box-inner.action-modal1.action_btns .outer-actions1 {
+    padding: 10px;
+    border: 0px;
+    padding-bottom: 2px;
+}
+.form_list .search-box-inner.action-modal1.action_btns .outer-actions1 p {
+    background: #F5F8FA;
+    border-radius: 6px;
+    padding: 8px 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 600;
+    color: #3F4254;
+}
+
+.form_list .search-box-inner.action-modal1.action_btns .outer-actions1 p:hover {
+    background-color: #8BC7BF;
+    color: #01907E;
+    
+}
+
+.form_list .action_btns p {
+    margin-bottom: 7px;
+}
+
+
+.form_list .dataTables_wrapper {
+    min-height: 400px;
+}
+.mt-10{
+    margin-top: 10pt;
+}
+.mt-5{
+    margin-top: 5pt;
+}
+.mb-10{
+    margin-bottom: 10pt; 
+}
+.mb-5{
+    margin-bottom: 5pt;
+}
+
+.outer-drop-btn .ms-options-wrap{
+    padding: 20px;
+    padding-bottom: 0px;
+}
+
+.booking_main_start .row-data-filter .search-box-inner.notes-drop.listing_div .dropdown-content{
+    min-width: 330px;
+}
+
+.listing-outer .outer-drop-btn .ms-options-wrap > button:focus, #listingDropdown .ms-options-wrap > button{
+    background: #F5F8FA;
+    border-radius: 6px;
+    border: 0px;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 10px 15px;
+}
+.listing-outer .outer-drop-btn .ms-options-wrap > button:after{
+    right: 14px;
+}
+.listing-outer .outer-drop-btn .btns-outers{
+    margin: 0px;
+    padding: 20px;
+}
+.listing-outer .outer-drop-btn .btns-outers a{
+    padding: 4px 16px !important;
+    font-size: 15px;
+}
+
+.outer-drop-btn .ms-options-wrap > .ms-options{
+    width: calc(100% - 40px);
+    margin: auto;
+    left: 0;
+    right: 0;
+    border: 0px;
+    box-shadow: 0px 0px 10px rgb(0 0 0 / 20%);
+    border-radius: 10px;
+}
+.outer-drop-btn .ms-options-wrap > .ms-options > .ms-search input{
+    padding: 10px 20px;
+    border: 0px;
+}
+.outer-drop-btn .ms-options-wrap > .ms-options > .ms-search input{
+    margin: 5%;
+    width: calc(100% - 10%);
+}
+.ms-options-wrap{
+   width: 100%;
+}
+.ms-options-wrap input{
+    visibility: hidden;
+}
+.ms-options-wrap ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+.ms-options-wrap ul li label {
+    cursor: pointer;
+}
+
+.ms-search input {
+    visibility: visible;
+}
+.ms-options-wrap > .ms-options > ul label:hover {
+    background-color: #ebf7f6;
+    color: #00937e;
+}
+.ms-options-wrap > .ms-options > ul li.selected label {
+    background-color: #00937e;
+    color: #fff;
+}
+.ms-options-wrap > .ms-options > ul li.selected label:after {
+    content: '\f00c';
+    display: inline-block;
+    color: #fdfdfd;
+    padding: 0 6px 0 0;
+    right: 12px;
+    position: absolute;
+    font-family: "Font Awesome 6 Pro";
+}
+.green_border{
+    border: 1px solid #038103 !important;
+}
+
+/* Tips */
+.main-form-div .tip_app {
+   font-style: normal;
+    position: relative;
+    top: 2px;
+    left: 2px;
+    cursor: help;
+    font-size: 11px;
+    line-height: 0;
+    width: 18px;
+    height: 18px;
+    display: inline-block;
+    border-radius: 50%;
+    color: #fff;
+    text-align: center;
+    padding: 0 !important;
+    font-weight: 500;
+    margin-left: 3px;
+}
+
+.main-form-div .tip-content {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translate(-50%, calc(-100% - 20px));
+    -ms-transform: translate(-50%, -100%);
+    color: #fff;
+    padding: 13px 15px;
+    min-width: 200px;
+    max-width: 200px;
+    font-size: 13px;
+    border-radius: 4px;
+    line-height: 19px;
+    pointer-events: unset !important;
+    z-index: 999;
+    text-align: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s;
+    background: #31a093;
+}
+
+.main-form-div .tip_app.open .tip-content {
+    opacity: 1;
+    visibility: visible;
+    transform: translate(-50%, calc(-100% - 13px));
+    -ms-transform: translate(-50%, -115%);
+    cursor: pointer;
+}
+
+.main-form-div .tip_app:after {
+    font-weight: 900;
+    line-height: 19px;
+    display: inline-block;
+    position: relative;
+    text-align: center;
+    -moz-transform: translateY(-1px);
+    font-size: 22px;
+    
+}
+.main-form-div .info-icon:after{
+   font-family: "Font Awesome 6 Pro"; 
+   content: "\f059";
+   color: #008474;
+   font-size: 16px;
+   margin-left: -8px;
+}
+.main-form-div .important-icon:after{
+   font-family: "Font Awesome 6 Pro";  
+   content: "\f05a"; 
+   color: #F9C200;
+   font-size: 16px;
+   margin-left: -28px;
+}
+.main-form-div .tip-content:after {
+    font-family: "Font Awesome 6 Pro"; font-weight: 900;
+    content:url('caret-down-solid.svg');
+    position: absolute;
+    bottom: 0px;
+    left: 50%;
+    font-size: 22px;
+    color: #333;
+    transform: translate(-50%,50%);
+    width:25px;
+}
+.main-form-div .tip-content .close-tip {
+    position: absolute;
+    top: -13px;
+    right: -8px;
+    border: 1px solid #fff;
+    background: red;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+}
+.tip-content a {
+    color: #fff;
+    border-bottom: 1px solid;
+}
+.main-form-div .tip_app.important-icon {
+    margin-left: 9px;
+}
+
+.reservation_fields .select2-container{
+    margin-bottom: 14px;
+}
+.select2-container{
+    margin-bottom: 16px;
+}
+.iti--separate-dial-code .iti__selected-flag {
+    background-color: #F5F8FA !important;
+}
+
+span.see_the_star {
+	margin-left: 4px;
+	color: #f00;
+}
+
+#toast-container > div {
+    width: 400px !important;
+}
+
+ .select2-container--default .select2-selection--single {
+    background-color: #F5F8FA;
+    border: 1px solid #F5F8FA; 
+    box-shadow: 0 1px 3px 0px rgb(0 0 0 / 6%);
+    font-weight: 500;
+    border-radius: 4px;
+    outline: none;
+    font-size: 14px;
+    border-radius: 10px;
+    
+} 
+span#select2-location_1_0-container{
+    width: 220px;
+}
+span#select2-location_1_-container{
+    min-width: 200px;
+
+}
+.delete_reserve svg, .delete_application svg {
+    pointer-events: none;
+} 
+ .select2-container--default .select2-selection--single {
+    background-color: #F5F8FA;
+    border: 1px solid #F5F8FA; 
+    box-shadow: 0 1px 3px 0px rgb(0 0 0 / 6%);
+    font-weight: 500;
+    border-radius: 4px;
+    outline: none;
+    font-size: 14px;
+    border-radius: 10px;
+    
+} 
+span#select2-location_1_0-container{
+    width: 220px;
+}
+span#select2-location_1_-container{
+    min-width: 200px;
+}
+
+.top_section_title.d-flex.justify-content-between{
+    margin:-15px
+}
+
+
+.main-form-div .form-group .form-select{
+    width: 100%;
+}
+
+
+.application_form_new input, input[type="text"], input[type="password"], input[type="email"], input[type="number"], textarea, select {
+    height: 51px;
+}
+
+h2, .save_as_draft_title_main {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+
+button.delete_application {
+    margin-left: 10px;
+}
+
+.form-check-input {
+    position: relative;
+
+}
+
+.select2-container--default .select2-selection--single .select2-selection__rendered, 
+.application_form_new input, input[type="text"], input[type="password"], input[type="email"], input[type="number"], textarea, select,
+span.select2-selection.select2-selection--multiple, .select2-search__field::placeholder   {
+    color: #000000;
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.select2-container--default::placeholder , .select2-selection--single::placeholder , .select2-selection__rendered::placeholder {
+    color: #000000;
+    font-weight: 600;
+    font-size: 16px;
+    height: 51px;
+}
+
+span.select2-selection__placeholder {
+    color: #000 !important;
+}
+.single_application_title, .top_section_title {
+    width: 100%;
+}
+
+

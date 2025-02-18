@@ -1,0 +1,17 @@
+{
+  "js_texts":
+    [
+    ],
+  "php_texts":
+    [
+      "Alle feltene m&aring; fylles inn.",
+      "Det finnes allerede en konto som bruker denne e-postadressen. Logg inn, eller bruk en annen e-postadresse.",
+      "Brukeren ble registrert, men det oppstod en feil ved innlogging (feilkode $0). Du kan pr&oslash;ve &aring; logge inn, eller kontakte kundeservice.",
+      "Passordet inneholdt ugyldige tegn. Vennligst bruk et annet passord.",
+      "Passordet var for kort. Vennligst bruk et annet passord.",
+      "Ugyldig e-postadresse.",
+      "Registreringen mislyktes. Kontakt kundeservice, eller pr&oslash;v igjen senere.",
+      "Passordfeil.",
+      "Det oppstod en feil ved registrering. Vennligst pr&oslash;v igjen, eller kontakt kundeservice med feilkode $0."
+    ]
+}

@@ -1,0 +1,30 @@
+{
+  "js_texts":
+    [
+      "Det er ikke sendt ut noen meldinger enn&aring;.",
+      "Mottaker",
+      "Lagerbod",
+      "Overskrift",
+      "Innhold",
+      "Tidspunkt",
+      "Levert?",
+      "Feilmelding",
+      "Vis mottaker",
+      "Filter:",
+      "Vis alle",
+      "Levert",
+      "Viser $1 meldinger",
+      "Viser $1 av $2 meldinger",
+      "Velg leveransestatus som skal vises",
+      "Oppdater",
+      "Avbryt",
+      "S&oslash;k",
+      "Lukk"
+    ],
+  "php_texts":
+    [
+      "SMS- og e-postlogg",
+      "['SMS', 'E-post']",
+      "['Nei', 'Ja']"
+    ]
+}

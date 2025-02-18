@@ -1,0 +1,24 @@
+{
+  "js_texts":
+    [
+      "Det oppstod en feil. Vennligst kontakt kundeservice og oppgi feilkode $1. Tidspunkt: $2.",
+      "Det er ikke opprettet noen kategorier enn&aring;.",
+      "",
+      "Navn",
+      "Rediger kategori",
+      "Slett kategori",
+      "Denne kategorien kan ikke slettes, fordi det finnes bodtyper som bruker den.",
+      "Er du sikker på at du vil slette kategori: $1?",
+      "Opprett kategori",
+      "",
+      "Navn:",
+      "Opprett",
+      "Oppdater",
+      "Avbryt"
+    ],
+  "php_texts":
+    [
+      "Kategorier",
+      "Lag ny kategori"
+    ]
+}

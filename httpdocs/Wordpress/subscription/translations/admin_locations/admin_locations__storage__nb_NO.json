@@ -1,0 +1,33 @@
+{
+  "js_texts":
+    [
+      "Navn",
+      "Adresse",
+      "Rediger lager",
+      "Slett lager",
+      "Vis lagerboder",
+      "Er du sikker på at du vil slette lager: $1?",
+      "Det oppstod en feil. Vennligst kontakt kundeservice og oppgi feilkode $1. Tidspunkt: $2.",
+      "Opprett lager",
+      "Rediger lager",
+      "Navn:",
+      "Adresse:",
+      "Opprett",
+      "Oppdater",
+      "Avbryt",
+      "Det er ikke opprettet noen lager enn&aring;.",
+      "Postnr:",
+      "Poststed:",
+      "Land:",
+      "&Aring;pningstider:",
+      "Tjenester:",
+      "&Aring;pningstider",
+      "Tjenester",
+      "Opprett abonnement her"
+    ],
+  "php_texts":
+    [
+      "Lager",
+      "Opprett nytt lager"
+    ]
+}

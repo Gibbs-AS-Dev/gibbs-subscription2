@@ -1,0 +1,31 @@
+{
+  "js_texts":
+    [
+      "An error occurred. Please contact customer service. Error code: $1. Timestamp: $2.",
+      "Name",
+      "E-mail",
+      "Phone number",
+      "Subscription",
+      "Display customer",
+      "Active",
+      "Inactive",
+      "No customers have been created yet.",
+      "Company",
+      "Filter:",
+      "Show all",
+      "Customer type",
+      "Search",
+      "Displaying $1 customers",
+      "Displaying $1 of $2 customers",
+      "Select customer types to be displayed",
+      "Update",
+      "Cancel"
+    ],
+  "php_texts":
+    [
+      "Customers",
+      "Create customer",
+      "['Private individuals', 'Companies']",
+      "['Customers with no active subscriptions', 'Customers with active subscriptions']"
+    ]
+}

@@ -1,0 +1,196 @@
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Listeo ChildTheme\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-09-17 10:14+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: \n"
+"Language: \n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Loco https://localise.biz/\n"
+"X-Loco-Version: 2.4.3; wp-5.5.1"
+
+#: author.php:109
+msgid "'s Listings"
+msgstr ""
+
+#: author.php:97
+msgid "About"
+msgstr ""
+
+#: author.php:88
+msgid ""
+"Account has been verified and belongs to the person or organization "
+"represented."
+msgstr ""
+
+#: template-dashboard.php:57 page-bookinger.php:57
+msgid "An account exists with this email address."
+msgstr ""
+
+#: template-dashboard.php:228 page-bookinger.php:217 page-bookinger.php:285
+msgid "Approved Bookings"
+msgstr ""
+
+#: footer-listing.php:501
+msgid "Book Now"
+msgstr ""
+
+#: template-dashboard.php:242 page-bookinger.php:230
+msgid "Bookings"
+msgstr ""
+
+#: template-dashboard.php:236 page-bookinger.php:225 page-bookinger.php:292
+msgid "Cancelled Bookings"
+msgstr ""
+
+#. Name of the template
+msgid "Dashboard Page"
+msgstr ""
+
+#. Description of the theme
+msgid "Directory WordPress Theme by Purethemes"
+msgstr ""
+
+#: listeo-core/archive-listing-split.php:64
+msgid "Hide Map "
+msgstr ""
+
+#: template-dashboard.php:257 page-bookinger.php:243
+msgid "Home"
+msgstr ""
+
+#. Name of the template
+msgid "Home Page with Search Form"
+msgstr ""
+
+#: template-dashboard.php:221
+msgid "Howdy,"
+msgstr ""
+
+#. URI of the theme
+msgid "http://listeo.pro"
+msgstr ""
+
+#. Author URI of the theme
+msgid "http://themeforest.net/user/purethemes"
+msgstr ""
+
+#. Name of the theme
+msgid "Listeo ChildTheme"
+msgstr ""
+
+#: author.php:187
+msgid "on"
+msgstr ""
+
+#: template-home-search.php:54
+msgid "Or browse featured categories:"
+msgstr ""
+
+#: template-dashboard.php:232
+msgid "Pending Bookings"
+msgstr ""
+
+#: template-dashboard.php:69 page-bookinger.php:69
+msgid "Please accept the Privacy Policy to register account."
+msgstr ""
+
+#: template-dashboard.php:63 page-bookinger.php:63
+msgid "Please check reCAPTCHA checbox to register."
+msgstr ""
+
+#: template-dashboard.php:72 page-bookinger.php:72
+msgid "Please provide your first name"
+msgstr ""
+
+#: template-dashboard.php:75 page-bookinger.php:75
+msgid "Please provide your last name"
+msgstr ""
+
+#: template-dashboard.php:78 page-bookinger.php:78
+msgid "Please provide your user login"
+msgstr ""
+
+#. Author of the theme
+msgid "Purethemes"
+msgstr ""
+
+#: template-dashboard.php:60 page-bookinger.php:60
+msgid "Registering new users is currently not allowed."
+msgstr ""
+
+#: author.php:172
+msgid "Reviews"
+msgstr ""
+
+#: author.php:62
+msgid "reviews"
+msgstr ""
+
+#: footer-listing.php:121
+msgid "Select dates to see prices"
+msgstr ""
+
+#: listeo-core/archive-listing-split.php:64
+msgid "Show Map "
+msgstr ""
+
+#: header-split.php:100 header.php:211
+msgid "Sign In"
+msgstr ""
+
+#: footer-listing.php:119
+msgid "Starting from"
+msgstr ""
+
+#: template-dashboard.php:54 page-bookinger.php:54
+msgid "The email address you entered is not valid."
+msgstr ""
+
+#: template-dashboard.php:35 template-dashboard.php:84 page-bookinger.php:35
+#: page-bookinger.php:84
+#, php-format
+msgid ""
+"The password you entered wasn't quite right. <a href='%s'>Did you forget "
+"your password</a>?"
+msgstr ""
+
+#: author.php:89
+msgid "Verified Account"
+msgstr ""
+
+#: template-dashboard.php:29 page-bookinger.php:29
+msgid ""
+"We don't have any users with that email address. Maybe you used a different "
+"one when signing up?"
+msgstr ""
+
+#: template-dashboard.php:23 page-bookinger.php:23
+msgid "You do have an email address, right?"
+msgstr ""
+
+#: template-dashboard.php:140 page-bookinger.php:140
+#, php-format
+msgid "You have successfully registered to %s."
+msgstr ""
+
+#: template-dashboard.php:145 page-bookinger.php:145
+#, php-format
+msgid ""
+"You have successfully registered to <strong>%s</strong>. We have emailed "
+"your password to the email address you entered."
+msgstr ""
+
+#: template-dashboard.php:26 page-bookinger.php:26
+msgid "You need to enter a password to login."
+msgstr ""
+
+#: template-dashboard.php:66 page-bookinger.php:66
+msgid "You're a bot, aren't you?."
+msgstr ""

@@ -1,5 +1,0 @@
-{
-    "require": {
-        "rlanvin/php-rrule": "^2.3"
-    }
-}

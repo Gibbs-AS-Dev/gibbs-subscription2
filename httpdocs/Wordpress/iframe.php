@@ -1,1 +1,0 @@
-<iframe  id='gibbs_iframe'  src='https://staging5.dev.gibbs.no/giftcard/testdesc/?iframe=true' style='border:0; min-width: 300px; min-height: 800px; max-width: 450px; max-height: 800px;'></iframe><script src='https://www.gibbs.no/iframe.js?ghg'></script>

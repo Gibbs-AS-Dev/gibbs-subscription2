@@ -11,9 +11,14 @@ wp-content/debug.log
 metronic/
 httpdocs
 /httpdocs
-.vscode
+.vscodegit 
 .git--
 sub.zip
+wp-content/
+wp-admin/
+wp-includes/
+pages/
+
 
 
 .DS_Store

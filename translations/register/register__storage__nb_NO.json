@@ -1,0 +1,31 @@
+{
+  "js_texts":
+    [
+    ],
+  "php_texts":
+    [
+      "Registrer ny bruker",
+      "Fornavn:",
+      "Etternavn:",
+      "E-post:",
+      "Telefonnr:",
+      "Passord:",
+      "(minst $0 tegn)",
+      "Registrer bruker",
+      "Det oppstod en feil ved registrering. Vennligst pr&oslash;v igjen, eller kontakt kundeservice med feilkode $0.",
+      "Brukeren ble registrert, men det oppstod en feil ved innlogging (feilkode $0). Du kan pr&oslash;ve &aring; <a href=\"/subscription/html/log_in_to_dashboard.php\">logge inn</a>.",
+      "Alle feltene m&aring; fylles inn.",
+      "Passordet inneholdt ugyldige tegn. Vennligst bruk et annet passord.",
+      "Passordet var for kort. Vennligst bruk et annet passord.",
+      "Ugyldig e-postadresse.",
+      "Det finnes allerede en konto som bruker denne e-postadressen. <a href=\"/subscription/html/log_in_to_dashboard.php\">Logg inn</a> eller bruk en annen e-postadresse.",
+      "Registreringen mislyktes. Kontakt kundeservice, eller pr&oslash;v igjen senere.",
+      "Adresse:",
+      "Postnr:",
+      "Poststed:",
+      "Privatperson",
+      "Bedrift",
+      "Navn:",
+      "Org. nr:"
+    ]
+}

@@ -1,0 +1,12 @@
+{
+  "js_texts":
+    [
+    ],
+  "php_texts":
+    [
+      "You must fill in all the fields.",
+      "The password contained illegal characters. Please enter a valid password.",
+      "Login failed. You may have entered the wrong password.",
+      "Wrong password."
+    ]
+}

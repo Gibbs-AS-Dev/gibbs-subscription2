@@ -1,0 +1,42 @@
+{
+  "js_texts":
+    [
+      "Det oppstod en feil. Vennligst kontakt kundeservice og oppgi feilkode $1. Tidspunkt: $2.",
+      "Det er ikke opprettet noen ordre enn&aring;.",
+      "Ordre-ID",
+      "Betalingsstatus",
+      "Endre status",
+      "Opprettet",
+      "Periode",
+      "Vis kundekort",
+      "Betalingsm&aring;te",
+      "Viser $1 av $2 ordre",
+      "Viser $1 ordre",
+      "Filter:",
+      "Vis alle",
+      "M&aring;ned",
+      "Velg hvilke m&aring;neder som skal vises",
+      "Alle",
+      "Ingen",
+      "Oppdater",
+      "Avbryt",
+      "",
+      "Velg hvilke betalingsstatuser som skal vises",
+      "Betalingsm&aring;te",
+      "Velg hvilke betalingsm&aring;ter som skal vises",
+      "Endre status",
+      "Ny status:",
+      "Lagerbod",
+      "Lager",
+      "Bel&oslash;p",
+      " kr",
+      "Velg hvilke lager som skal vises"
+    ],
+  "php_texts":
+    [
+      "Ordre",
+      "['Ukjent', 'Ikke betalt', 'Betalt', 'Delvis betalt', 'Ikke betalt - forfalt', 'Ikke betalt - betalingsp&aring;minnelse sendt', 'Ikke betalt - purring sendt', 'Ikke betalt - sendt til inkasso', 'Betalt - betalt til inkassoselskap', 'Tapt / kan ikke kreves inn', 'Kreditert', 'Feil hos betalingsselskap', 'Teknisk feil ved betaling', 'Betalt - refundert', 'Omstridt krav', 'Faktura ikke sendt', 'Faktura sendt', 'Betaling startet', 'Slettet']",
+      "['Ukjent', 'Nets (kort)', 'Faktura', 'Kort, s&aring; faktura']",
+      "['Alle', 'Faktura ikke sendt', 'Venter p&aring; betaling', 'Ikke betalt / feil ved betaling', 'Betalt']"
+    ]
+}

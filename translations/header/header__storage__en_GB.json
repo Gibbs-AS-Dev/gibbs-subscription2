@@ -1,0 +1,16 @@
+{
+  "js_texts":
+    [
+    ],
+  "php_texts":
+    [
+      "Image of current user",
+      "My profile",
+      "Log out",
+      "Select department",
+      "customer",
+      "administrator",
+      "; unavailable",
+      "; licence expired"
+    ]
+}

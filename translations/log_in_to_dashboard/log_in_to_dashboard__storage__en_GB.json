@@ -1,0 +1,18 @@
+{
+  "js_texts":
+    [
+    ],
+  "php_texts":
+    [
+      "Log in as administrator",
+      "E-mail:",
+      "Password:",
+      "Wrong password.",
+      "You must fill in all the fields.",
+      "The password contained illegal characters. Please enter a valid password.",
+      "Login failed. You may have entered the wrong password.",
+      "Not a customer? Please <a href=\"/subscription/html/register.php?user_group_id=$0\">register here</a>",
+      "Log in",
+      "Go to your dashboard"
+    ]
+}

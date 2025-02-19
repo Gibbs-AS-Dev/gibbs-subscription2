@@ -1,0 +1,53 @@
+{
+  "js_texts":
+    [
+      "Det oppstod en feil. Vennligst kontakt kundeservice og oppgi feilkode $1. Tidspunkt: $2.",
+      "Det er ikke kommet inn noen foresp&oslash;rsler enn&aring;.",
+      "Kommentar",
+      "Navn",
+      "Beskrivelse:",
+      "Navn:",
+      "&Oslash;nsket lager",
+      "&Oslash;nsket kategori",
+      "&Oslash;nsket startdato",
+      "Status",
+      "Se notater",
+      "Er du sikker på at du vil slette denne forespørselen?",
+      "Rediger foresp&oslash;rsel",
+      "Telefonnummer:",
+      "E-post:",
+      "Adresse:",
+      "Postnummer:",
+      "Poststed:",
+      "&Oslash;nsket lager:",
+      "&Oslash;nsket kategori:",
+      "&Oslash;nsket innflyttingsdato:",
+      "Ikke oppgitt",
+      "Status:",
+      "Oppdater",
+      "Avbryt",
+      "Filter:",
+      "Vis alle",
+      "Viser $1 foresp&oslash;rsler",
+      "Viser $1 av $2 foresp&oslash;rsler",
+      "Velg hvilke statusverdier som skal vises",
+      "Alle",
+      "Ingen",
+      "Selskapets navn:",
+      "S&oslash;k",
+      "Laster notater. Vennligst vent...",
+      "Notater",
+      "Deres private notater om denne kunden. Kunden vil ikke f&aring tilgang til disse.",
+      "Lagre",
+      "Slett foresp&oslash;rsel",
+      "Bestill lagerbod"
+    ],
+  "php_texts":
+    [
+      "Foresp&oslash;rsler",
+      "['Mottatt', 'Trenger info', 'Venter p&aring; info', 'Lag tilbud', 'Venter p&aring; salg', 'Solgt', 'Ikke solgt', 'Ikke kvalifisert']",
+      "['', 'Man', 'Tir', 'Ons', 'Tor', 'Fre', 'L&oslash;r', 'S&oslash;n']",
+      "['Januar', 'Februar', 'Mars', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Desember']",
+      "['januar', 'februar', 'mars', 'april', 'mai', 'juni', 'juli', 'august', 'september', 'oktober', 'november', 'desember']"
+    ]
+}

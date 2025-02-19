@@ -1,0 +1,12 @@
+{
+  "js_texts":
+    [
+    ],
+  "php_texts":
+    [
+      "Alle feltene m&aring; fylles inn.",
+      "Passordet inneholdt ugyldige tegn. Vennligst bruk et gyldig passord.",
+      "Innlogging mislyktes. Dette kan skyldes at du har tastet feil passord.",
+      "Feil passord."
+    ]
+}

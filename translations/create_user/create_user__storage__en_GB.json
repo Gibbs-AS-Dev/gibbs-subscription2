@@ -1,0 +1,17 @@
+{
+  "js_texts":
+    [
+    ],
+  "php_texts":
+    [
+      "You have to fill in all the fields.",
+      "This e-mail is already registered. Please log in, or use another e-mail address.",
+      "The user was registered. However, an error occurred when logging in (error code $0). You can try to log in, or contact customer service.",
+      "The password contained illegal characters. Please use another password.",
+      "The password was too short. Please use another password.",
+      "Invalid e-mail address.",
+      "The registration failed. Please contact customer service, or try again later.",
+      "Password error.",
+      "An error occurred during registration. Please try again, or contact customer service. Error code: $0."
+    ]
+}

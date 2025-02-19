@@ -1,0 +1,31 @@
+{
+  "js_texts":
+    [
+      "Det oppstod en feil. Vennligst kontakt kundeservice og oppgi feilkode $1. Tidspunkt: $2.",
+      "Navn",
+      "E-post",
+      "Telefonnummer",
+      "Abonnement",
+      "Vis kundekort",
+      "Aktiv",
+      "Inaktiv",
+      "Det er ikke opprettet noen kunder enn&aring;.",
+      "Bedrift",
+      "Filter:",
+      "Vis alle",
+      "Kundetype",
+      "S&oslash;k",
+      "Viser $1 kunder",
+      "Viser $1 av $2 kunder",
+      "Velg hvilke kundetyper som skal vises",
+      "Oppdater",
+      "Avbryt"
+    ],
+  "php_texts":
+    [
+      "Kunder",
+      "Opprett ny kunde",
+      "['Privatpersoner', 'Bedrifter']",
+      "['Kunder uten aktive abonnementer', 'Kunder med aktive abonnementer']"
+    ]
+}

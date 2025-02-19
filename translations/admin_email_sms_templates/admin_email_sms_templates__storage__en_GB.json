@@ -1,0 +1,48 @@
+{
+  "js_texts":
+    [
+      "An error occurred. Please contact customer service. Error code: $1. Timestamp: $2.",
+      "No templates have been created yet.",
+      "Name",
+      "Delete template",
+      "Subject",
+      "Content",
+      "Trigger",
+      "Delay [min]",
+      "Active?",
+      "Create template",
+      "Edit template",
+      "Name:",
+      "Displaying $1 templates",
+      "Displaying $1 of $2 templates",
+      "Create",
+      "Update",
+      "Cancel",
+      "Active",
+      "Delay:",
+      "minutes",
+      "The time between an event being triggered and the message being sent.",
+      "Type:",
+      "Trigger:",
+      "Subject:",
+      "Content:",
+      "Delete template: $1. Are you sure?",
+      "Filter:",
+      "Show all",
+      "Message type",
+      "Select message types to be displayed",
+      "Trigger",
+      "Select triggers to be displayed",
+      "All",
+      "None",
+      "Search"
+    ],
+  "php_texts":
+    [
+      "Text and e-mail templates",
+      "Create template",
+      "['New subscription is created', 'New order is created', 'Payment failed', 'Not in use', 'Subscription became inactive', 'Subscription end date set']",
+      "['Description missing', 'Description missing', 'Description missing', 'Description missing', 'Description missing', 'Description missing']",
+      "['Text', 'E-mail']"
+    ]
+}

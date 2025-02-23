@@ -44,7 +44,7 @@
 
     // Handle create, update and delete operations.
     $result_code = $product_data->perform_action();
-    // Read products to be displayed to the user.
+    // Read locations to be displayed to the user.
     $products = $product_data->read();
   }
 ?>
@@ -52,42 +52,40 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title><?= Utility::get_page_title() ?></title>
-    <link rel="stylesheet" type="text/css" href="/subscription/resources/css/fontawesome.css?v=<?= Utility::BUILD_NO ?>" />
-    <link rel="stylesheet" type="text/css" href="/subscription/resources/css/solid.css?v=<?= Utility::BUILD_NO ?>" />
-    <link rel="stylesheet" type="text/css" href="/subscription/resources/css/common.css?v=<?= Utility::BUILD_NO ?>" />
-    <script type="text/javascript" src="/subscription/js/common.js?v=<?= Utility::BUILD_NO ?>"></script>
-    <script type="text/javascript" src="/subscription/components/sorting/sorting.js?v=<?= Utility::BUILD_NO ?>"></script>
-    <script type="text/javascript" src="/subscription/components/menu/popup_menu.js?v=<?= Utility::BUILD_NO ?>"></script>
-    <script type="text/javascript" src="/subscription/js/admin_products.js?v=<?= Utility::BUILD_NO ?>"></script>
+    <title>Gibbs abonnement - lagerboder</title>
+    <link rel="stylesheet" type="text/css" href="/subscription/resources/css/fontawesome.css" />
+    <link rel="stylesheet" type="text/css" href="/subscription/resources/css/solid.css" />
+    <link rel="stylesheet" type="text/css" href="/subscription/css/common.css" />
+    <script type="text/javascript" src="/subscription/js/common.js"></script>
+    <script type="text/javascript" src="/subscription/js/admin_products.js"></script>
     <script type="text/javascript">
 
 <?= $text->get_js_strings() ?>
 
-var BUILD_NO = <?= Utility::BUILD_NO ?>;
 var MAX_PADDING_DIGIT_COUNT = <?= Utility::MAX_PADDING_DIGIT_COUNT ?>;
 
-st.enabled.TEXTS = <?= $text->get(2, "['Inaktiv', 'Aktiv']") ?>;
+st.prod.TEXTS = <?= $text->get(2, "['Ledig (aldri utleid)', 'Ledig (tidligere leieforhold avsluttet)', 'Reservert (aldri utleid f&oslash;r)', 'Reservert (tidligere leieforhold avsluttet)', 'Utleid', 'Blir ledig (n&aring;v&aelig;rende leieforhold oppsagt)', 'Reservert (n&aring;v&aelig;rende leieforhold oppsagt)']") ?>;
+
+st.prod.TEXTS_BRIEF = <?= $text->get(3, "['Ledig', 'Ledig', 'Reservert', 'Reservert', 'Utleid', 'Blir ledig', 'Reservert']") ?>;
 
 var settings = <?= $settings->as_javascript() ?>;
 
 // The current location filter, or null if all products are displayed, regardless of location. The
-// filter is an array of integers, containing IDs of locations that should be displayed.
-var locationFilter = <?= Utility::verify_filter('location_filter') ?>;
+// filter is an array of integers, containing IDs of locations that should be displayed. Note that
+// the parameter must include the brackets, not just a comma separated list of numbers.
+var locationFilter = <?= Utility::read_passed_string('location_filter', 'null') ?>;
 
 // The current product type filter, or null if all products are displayed, regardless of product
 // type. The filter is an array of integers, containing IDs of product types that should be
-// displayed.
-var productTypeFilter = <?= Utility::verify_filter('product_type_filter') ?>;
+// displayed. Note that the parameter must include the brackets, not just a comma separated list of
+// numbers.
+var productTypeFilter = <?= Utility::read_passed_string('product_type_filter', 'null') ?>;
 
-// The current freetext filter, or an empty string if all products are displayed, regardless of
-// their name. If a text is supplied, products will only be displayed if they contain that text, as
-// part of either the location name, product name, product type name or product notes fields.
-var freetextFilter = '<?= Utility::read_passed_string('freetext_filter', '') ?>';
+// The current status filter, or null if all products are displayed, regardless of status. The
+// filter is an array of integers, containing statuses that should be displayed. Note that the
+// parameter must include the brackets, not just a comma separated list of numbers.
+var statusFilter = <?= Utility::read_passed_string('status_filter', 'null') ?>;
 
-<?= Utility::write_initial_sorting() ?>
-
-var TIMESTAMP = '<?= Utility::get_timestamp() ?>';
 var resultCode = <?= $result_code ?>;
 var categories = <?= $categories ?>;
 var productTypes = <?= $product_types ?>;
@@ -97,12 +95,12 @@ var products = <?= $products ?>;
     </script>
   </head>
   <body onload="initialise();">
-    <?= Sidebar::get_admin_sidebar() ?>
-    <?= Header::get_header_with_user_info($access_token, $text->get(0, 'Lagerboder'), 'fa-boxes-stacked') ?>
+    <?= Sidebar::get_expanding_sidebar() ?>
+    <?= Header::get_header_with_user_info($text->get(0, 'Lagerboder'), 'fa-boxes-stacked') ?>
     <div class="content">
       <div class="toolbar">
         <button type="button" class="wide-button" onclick="displayEditProductDialogue(-1);"><i class="fa-solid fa-boxes-stacked"></i> <?= $text->get(1, 'Legg til lagerbod') ?></button>
-        <div id="filterToolbar" class="filter filter-next-to-buttons">
+        <div id="filterToolbar" class="filter">
           &nbsp;
         </div>
       </div>
@@ -111,20 +109,22 @@ var products = <?= $products ?>;
       </div>
     </div>
 
-    <?= Utility::get_spinner() ?>
     <div id="overlay" class="overlay" style="display: none;">
       &nbsp;
     </div>
     <div id="editProductDialogue" class="dialogue edit-product-dialogue" style="display: none;">
       &nbsp;
     </div>
-    <div id="productNotesDialogue" class="dialogue product-notes-dialogue" style="display: none;">
+    <div id="createSubscriptionDialogue" class="dialogue create-subscription-dialogue" style="display: none;">
       &nbsp;
     </div>
     <div id="editLocationFilterDialogue" class="dialogue edit-location-filter-dialogue" style="display: none;">
       &nbsp;
     </div>
     <div id="editProductTypeFilterDialogue" class="dialogue edit-product-type-filter-dialogue" style="display: none;">
+      &nbsp;
+    </div>
+    <div id="editStatusFilterDialogue" class="dialogue edit-status-filter-dialogue" style="display: none;">
       &nbsp;
     </div>
   </body>

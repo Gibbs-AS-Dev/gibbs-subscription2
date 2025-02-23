@@ -3,12 +3,22 @@
 require_once $_SERVER['DOCUMENT_ROOT'] . '/subscription/components/utility/utility.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/subscription/components/data/role_data_manager.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/subscription/components/data/user_data_manager.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/subscription/components/data/licencee_data_manager.php';
 
 class User
 {
   // *******************************************************************************************************************
   // *** Public methods.
+  // *******************************************************************************************************************
+  // If the user is not logged in, or there is no user group ID on the session, send HTTP 401 and redirect to the login
+  // page. Otherwise, take no action. However, Gibbs admins may continue even if there is no user group.
+  public static function verify_logged_in()
+  {
+    if (!is_user_logged_in() || ((self::get_user_group_id() < 0) && !self::is_gibbs_admin()))
+    {
+      self::send_access_denied();
+    }
+  }
+
   // *******************************************************************************************************************
   // Switch to the role with the given ID. If the role was found, and it belongs to the current user, store the user
   // group ID for the new role on the session, redirect to appropriate initial page with HTTP status code 302, and stop
@@ -17,18 +27,9 @@ class User
   // taken.
   public static function switch_to_role_id($role_id)
   {
-    if (is_int($role_id))
+    if (is_int($role_id) && ($role_id >= 0))
     {
-      // If the user asked to be a Gibbs administrator, get the dummy role, and switch to it.
-      if ($role_id === Utility::ROLE_ID_GIBBS_ADMINISTRATOR)
-      {
-        self::switch_to_role(User_Data_Manager::get_gibbs_admin_role());
-      }
-      elseif ($role_id >= 0)
-      {
-        // Read the requested role from the database, and switch to it.
-        self::switch_to_role(User_Data_Manager::get_role($role_id));
-      }
+      self::switch_to_role(User_Data_Manager::get_role($role_id));
     }
   }
 
@@ -41,14 +42,13 @@ class User
     if (isset($role_data) && ($role_data['user_id'] === get_current_user_id()))
     {
       self::set_user_group_id($role_data['user_group_id']);
-      update_user_meta(get_current_user_id(), Utility::ACTIVE_ROLE_ID, $role_data['role_id']);
       Utility::redirect_to(User_Data_Manager::get_role_url($role_data));
     }
   }
 
   // *******************************************************************************************************************
   // If the user is already logged in, redirect to the appropriate initial page with HTTP status code 302, and stop
-  // executing the current script. If he is logged in and is a Gibbs administrator, redirect to the "Gibbs minilager"
+  // executing the current script. If he is logged in and is a Gibbs administrator, redirect to the Gibbs abonnement
   // administration dashboard. If he is logged in, is not a Gibbs administrator, and does not have any roles, redirect
   // him to the dashboard on the main site. If none of the above is the case, return without performing any action.
   //
@@ -57,65 +57,41 @@ class User
   {
     if (is_user_logged_in())
     {
-      // get_primary_role_index will get the user group ID from the session, and use the user's role in that user group,
-      // if he has one. Otherwise, if he has a stored preference, that one will be used.
+        // *** // Should we check here whether the group ID is already stored on the session? If not, write why not.
       $roles = User_Data_Manager::get_user_roles();
       $index = self::get_primary_role_index($roles);
-      if ($index == -2)
-      {
-        // The user was granted a user role, which is not in the $roles table. Reload the roles, and try again.
-        $roles = User_Data_Manager::get_user_roles();
-        $index = self::get_primary_role_index($roles);
-      }
       if ($index < 0)
       {
         self::set_user_group_id(-1);
-        update_user_meta(get_current_user_id(), Utility::ACTIVE_ROLE_ID, -1);
         Utility::redirect_to('/dashbord/');
       }
       else
       {
         self::set_user_group_id(intval($roles[$index]['user_group_id']));
-        update_user_meta(get_current_user_id(), Utility::ACTIVE_ROLE_ID, $roles[$index]['role_id']);
         Utility::redirect_to(User_Data_Manager::get_role_url($roles[$index]));
       }
     }
   }
 
   // *******************************************************************************************************************
-  // Attempt to log in, using credentials posted from the client in fields named "user_name" and "password". If
-  // successful, the action depends on $redirect_on_success. If true, redirect to the appropriate initial page and
-  // exit, in which case script execution will cease. If false, return Result::OK. If login was not successful, the
-  // method returns a result code, so the caller can let the user know what happened. The method can be called even if
-  // the user has not posted credentials, in which case the method returns Result::NO_ACTION_TAKEN.
-  //
+  // Attempt to log in, using credentials from the fields with the given names. The request type must be 'POST'. If
+  // successful, redirect to the appropriate initial page and exit, in which case the function return value is moot. If
+  // not, the function returns a result code, so the caller can let the user know what happened. The method can be
+  // called even if the user has not posted credentials, in which case the method returns Result::NO_ACTION_TAKEN.
   // Possible return values:
-  //   OK                     Login was successful, and $redirect_on_success was false.
-  //   NO_ACTION_TAKEN        The user did not post any of the fields required in order to log in, or was already logged
-  //                          in.
+  //   NO_ACTION_TAKEN          The user did not post any of the fields required in order to log in.
   //   MISSING_INPUT_FIELD    The user submitted some fields, but not all.
   //   INVALID_PASSWORD       The password contained invalid characters.
   //   WORDPRESS_ERROR        Login failed. This is probably due to the user entering the wrong password.
-  public static function log_in($redirect_on_success = true)
+  public static function log_in($user_name_field, $password_field)
   {
-    // If the user is already logged in, redirect to the initial page with HTTP status code 302, or return an
-    // appropriate error code.
-    if ($redirect_on_success)
-    {
-      self::check_login_and_redirect();
-    }
-    else
-    {
-      if (is_user_logged_in())
-      {
-        return Result::NO_ACTION_TAKEN;
-      }
-    }
+    // If the user is already logged in, redirect to the initial page with HTTP status code 302.
+    self::check_login_and_redirect();
 
     // See if the user posted an e-mail and password.
     if ($_SERVER['REQUEST_METHOD'] === 'POST')
     {
-      $data = Utility::read_posted_strings(array('user_name', 'password'));
+      $data = Utility::read_posted_strings(array($user_name_field, $password_field));
 
       // If neither field was posted, we'll just display the login page normally. Otherwise, verify that both fields
       // were posted, and display an error message if they were not.
@@ -128,60 +104,17 @@ class User
       {
         // The user posted both a user name and a password. Verify that the password was not modified due to illegal
         // characters.
-        if ($data['password'] !== $_POST['password'])
+        if ($data[$password_field] !== $_POST[$password_field])
         {
           return Result::INVALID_PASSWORD;
         }
 
-        // Attempt to log in. If successful, the user may be redirected to the initial page, and script execution will
-        // be halted. If not, return a result code.
-        return self::log_in_with($data['user_name'], $data['password'], $redirect_on_success);
+        // Attempt to log in. If successful, the user will be redirected to the initial page, and script execution will
+        // be halted. If not, return an error code.
+        return self::log_in_with($data[$user_name_field], $data[$password_field]);
       }
     }
     return Result::NO_ACTION_TAKEN;
-  }
-
-  // *******************************************************************************************************************
-  // Attempt to log in the Wordpress user with the given $user_name and $password. If successful, the result depends on
-  // the $redirect_on_success flag. If true, redirect to the initial page with HTTP status code 302, and halt script
-  // execution. The initial page may vary, depending on the user's settings. If false, return Result::OK. If login was
-  // not successful, return an error code. 
-  //
-  //  Possible return values:
-  //   OK                     Login succeeded, and the $redirect_on_success flag was false.
-  //   WORDPRESS_ERROR        Login failed. This is probably due to the user entering the wrong password.
-  public static function log_in_with($user_name, $password, $redirect_on_success = true)
-  {
-    // Attempt to log in.
-    $credentials = array(
-      'user_login' => $user_name,
-      'user_password' => $password,
-      'remember' => true
-    );
-    $current_user = wp_signon($credentials, false);
-
-    // If the user was successfully logged in, redirect to the initial page with HTTP status code 302. If not, return an
-    // error message.
-    if (is_wp_error($current_user))
-    {
-      // We do not log this, as it is probably due to the user entering an invalid password. We don't want to fill up
-      // the log.
-      // error_log('Wordpress error during login: ' . $current_user->get_error_message());
-      return Result::WORDPRESS_ERROR;
-    }
-
-    if ($redirect_on_success)
-    {
-      self::check_login_and_redirect();
-    }
-    else
-    {
-      return Result::OK;
-    }
-    // We should never get here. If the user was logged in, script execution should be terminated. If he was not,
-    // Wordpress should report an error in the step above.
-    error_log('The user fell through the world. Please investigate.');
-    return Result::WORDPRESS_ERROR;
   }
 
   // *******************************************************************************************************************
@@ -195,7 +128,7 @@ class User
       return null;
     }
     $data = Utility::read_posted_strings(
-      array('user_name', 'password', 'first_name', 'last_name', 'phone'));
+      array($user_name_field, $password_field, $first_name_field, $last_name_field, $phone_no_field));
 
     // If none of the fields were posted, we'll just display the registration page normally. Otherwise, verify that
     // all fields were posted, and display an error message if they were not.
@@ -207,36 +140,36 @@ class User
     if ($state === Utility::ALL_PRESENT)
     {
       // All fields were posted. Verify that the password was not modified due to illegal characters.
-      if ($data['password'] !== $_POST['password'])
+      if ($data[$password_field] !== $_POST[$password_field])
       {
         return Result::INVALID_PASSWORD;
       }
       // Verify that the password was long enough.
-      if (strlen($data['password']) < Utility::PASSWORD_MIN_LENGTH)
+      if (strlen($data[$password_field]) < Utility::PASSWORD_MIN_LENGTH)
       {
         return Result::PASSWORD_TOO_SHORT;
       }
       // Verify that the provided e-mail is valid.
-      if (!Utility::is_valid_email($data['user_name']))
+      if (!Utility::is_valid_email($data[$user_name_field]))
       {
         return Result::INVALID_EMAIL;
       }
       // See whether the username and e-mail are available.
-      if (username_exists($data['user_name']) || email_exists($data['user_name']))
+      if (username_exists($data[$user_name_field]) || email_exists($data[$user_name_field]))
       {
         return Result::EMAIL_EXISTS;
       }
 
-      // The user posted all required fields. Create a new user. $new_user_id will contain either the user ID of the new
+      // The user posted all required fields. Create a new user. $new_user will contain either the user ID of the new
       // user, or a WP_Error object.
       return array(
-        'user_login' => $data['user_name'],
-        'user_email' => $data['user_name'],
-        'user_pass' => $data['password'],
-        'display_name' => $data['first_name'] . ' ' . $data['last_name'],
-        'first_name' => $data['first_name'],
-        'last_name' => $data['last_name'],
-        'phone' => $data['phone'], // Wordpress will store this, even though it is not in the documentation.
+        'user_login' => $data[$user_name_field],
+        'user_email' => $data[$user_name_field],
+        'user_pass' => $data[$password_field],
+        'display_name' => $data[$first_name_field] . ' ' . $data[$last_name_field],
+        'first_name' => $data[$first_name_field],
+        'last_name' => $data[$last_name_field],
+        'phone' => $data[$phone_no_field], // Wordpress will store this, even though it is not in the documentation.
         'locale' => Utility::DEFAULT_LANGUAGE
       );
     }
@@ -244,15 +177,9 @@ class User
   }
 
   // *******************************************************************************************************************
-  // Register a new user using information posted to the page. The fields must have the following names:
-  //   entity_type, user_name, password, first_name, last_name, company_name, company_id_number, phone, address,
-  //   postcode, area
-  //
-  // password is optional. If not posted, the given $default_password will be used. The resulting password must have a
-  // valid length, and contain valid characters.
-  //
-  // The user's connection to and role in a user group can be modified later. Note that the user will not be logged in
-  // or redirected anywhere as a result of being registered. The method returns an integer result code:
+  // Register a new user. The user's connection to and role in a user group can be modified later. Note that the user
+  // will not be logged in or redirected anywhere as a result of being registered. The method returns an integer result
+  // code:
   //   NO_ACTION_TAKEN        The user did not post any of the fields required in order to do the registration.
   //   OK                     The user submitted valid information, and was registered successfully.
   //   MISSING_INPUT_FIELD    The user submitted some fields, but not all.
@@ -262,189 +189,87 @@ class User
   //   EMAIL_EXISTS           An account with this e-mail address already exists. A new account cannot be registered
   //                          using an existing e-mail address.
   //   WORDPRESS_ERROR        The user submitted valid information, but the Wordpress registration failed.
-  // After the method has run, $new_user_id will contain either the user ID of the new user, or a WP_Error object. In
-  // case of a WORDPRESS_ERROR, you can use $new_user_id->get_error_message() to find out what happened.
-  public static function register(&$new_user_id, $default_password = '')
+  // After the method has run, $new_user will contain either the user ID of the new user, or a WP_Error object. In case
+  // of a WORDPRESS_ERROR, you can use $new_user->get_error_message() to find out what happened.
+  public static function register($user_name_field, $password_field, $first_name_field, $last_name_field,
+    $phone_no_field, &$new_user)
   {
     // See if the user posted registration data.
-    if (($_SERVER['REQUEST_METHOD'] === 'POST') && Utility::integer_posted('entity_type'))
+    if ($_SERVER['REQUEST_METHOD'] === 'POST')
     {
-      $entity_type = Utility::read_posted_integer('entity_type');
-      if (($entity_type < Utility::ENTITY_TYPE_INDIVIDUAL) || ($entity_type > Utility::ENTITY_TYPE_COMPANY))
-      {
-        return Result::MISSING_INPUT_FIELD;
-      }
-      // Read the fields that specify either an individual or a company.
-      if ($entity_type === Utility::ENTITY_TYPE_INDIVIDUAL)
-      {
-        $data = Utility::read_posted_strings(array('user_name', 'password', 'first_name', 'last_name',
-          'phone', 'address', 'postcode', 'area'));
-      }
-      else
-      {
-        $data = Utility::read_posted_strings(array('user_name', 'password', 'company_name', 'company_id_number',
-          'phone', 'address', 'postcode', 'area'));
-      }
+      $data = Utility::read_posted_strings(
+        array($user_name_field, $password_field, $first_name_field, $last_name_field, $phone_no_field));
 
-      // If a password was not posted, use the default value.
-      $password_posted = !empty($data['password']);
-      if (!$password_posted)
-      {
-        $data['password'] = $default_password;
-      }
-
-      // Verify that all fields were posted, and display an error message if they were not.
+      // If none of the fields were posted, we'll just display the registration page normally. Otherwise, verify that
+      // all fields were posted, and display an error message if they were not.
       $state = Utility::verify_fields($data);
-      if ($state !== Utility::ALL_PRESENT)
+      if ($state === Utility::SOME_PRESENT)
       {
         return Result::MISSING_INPUT_FIELD;
       }
+      if ($state === Utility::ALL_PRESENT)
+      {
+        // All fields were posted. Verify that the password was not modified due to illegal characters.
+        if ($data[$password_field] !== $_POST[$password_field])
+        {
+          return Result::INVALID_PASSWORD;
+        }
+        // Verify that the password was long enough.
+        if (strlen($data[$password_field]) < Utility::PASSWORD_MIN_LENGTH)
+        {
+          return Result::PASSWORD_TOO_SHORT;
+        }
+        // Verify that the provided e-mail is valid.
+        if (!Utility::is_valid_email($data[$user_name_field]))
+        {
+          return Result::INVALID_EMAIL;
+        }
+        // See whether the username and e-mail are available.
+        if (username_exists($data[$user_name_field]) || email_exists($data[$user_name_field]))
+        {
+          return Result::EMAIL_EXISTS;
+        }
 
-      // All fields were available. Verify that the password was not modified due to illegal characters.
-      if ($password_posted && ($data['password'] !== $_POST['password']))
-      {
-        return Result::INVALID_PASSWORD;
-      }
-      // Verify that the password was long enough.
-      if (strlen($data['password']) < Utility::PASSWORD_MIN_LENGTH)
-      {
-        return Result::PASSWORD_TOO_SHORT;
-      }
-      // Verify that the provided e-mail is valid.
-      if (!Utility::is_valid_email($data['user_name']))
-      {
-        return Result::INVALID_EMAIL;
-      }
-      // See whether the username and e-mail are available.
-      if (self::email_in_use($data['user_name']))
-      {
-        return Result::EMAIL_EXISTS;
-      }
-
-      // The user posted all required fields.
-      if ($entity_type === Utility::ENTITY_TYPE_INDIVIDUAL)
-      {
-        // Create a user data array for an individual.
-        $data_item = array(
-          'user_login' => $data['user_name'],
-          'user_email' => $data['user_name'],
-          'user_pass' => $data['password'],
-          'display_name' => $data['first_name'] . ' ' . $data['last_name'],
-          'first_name' => $data['first_name'],
-          'last_name' => $data['last_name'],
-          'phone' => $data['phone'], // Wordpress will store this, even though it is not in the documentation.
+        // The user posted all required fields. Create a new user. $new_user will contain either the user ID of the new
+        // user, or a WP_Error object.
+        $new_user = wp_insert_user(array(
+          'user_login' => $data[$user_name_field],
+          'user_email' => $data[$user_name_field],
+          'user_pass' => $data[$password_field],
+          'display_name' => $data[$first_name_field] . ' ' . $data[$last_name_field],
+          'first_name' => $data[$first_name_field],
+          'last_name' => $data[$last_name_field],
+          'phone' => $data[$phone_no_field], // Wordpress will store this, even though it is not in the documentation.
           'locale' => Utility::DEFAULT_LANGUAGE
-        );
-      }
-      else
-      {
-        // Create a user data array for a company.
-        $data_item = array(
-          'user_login' => $data['user_name'],
-          'user_email' => $data['user_name'],
-          'user_pass' => $data['password'],
-          'display_name' => $data['company_name'],
-          'first_name' => $data['company_name'],
-          'last_name' => '',
-          'phone' => $data['phone'], // Wordpress will store this, even though it is not in the documentation.
-          'locale' => Utility::DEFAULT_LANGUAGE
-        );
-      }
-      
-      // Create a new user. $new_user_id will contain either the user ID of the new user, or a WP_Error object.
-      $new_user_id = wp_insert_user($data_item);
+        ));
 
-      // See if the user was created successfully. If not, return an error code.
-      if (is_wp_error($new_user_id))
-      {
-        error_log('Wordpress user registration failed. Error message: ' . $new_user_id->get_error_message() .
-          ' | Entity type: ' . $entity_type . ' | User name: ' . $data['user_name'] . ' | Password: ' .
-          $data['password'] . ' | First name: ' . $data['first_name'] . ' | Last name: ' . $data['last_name'] .
-          ' | Phone no: ' . $data['phone']);
-        return Result::WORDPRESS_ERROR;
+        // See if the user was created successfully. If not, return an error code.
+        if (is_wp_error($new_user))
+        {
+          error_log('Wordpress user registration failed. Error message: ' . $new_user->get_error_message() .
+            ' | User name: ' . $data[$user_name_field] . ' | Password: ' . $data[$password_field] . ' | First name: ' .
+            $data[$first_name_field] . ' | Last name: ' . $data[$last_name_field] . ' | Phone no: ' .
+            $data[$phone_no_field]);
+          return Result::WORDPRESS_ERROR;
+        }
+        return Result::OK;
       }
-
-      // Store entity type and, for a company, the company ID number.
-      update_user_meta($new_user_id, 'profile_type', array('personal', 'company')[$entity_type]);
-      if ($entity_type === Utility::ENTITY_TYPE_COMPANY)
-      {
-        update_user_meta($new_user_id, 'company_number', $data['company_id_number']);
-      }
-
-      // Store address.
-      update_user_meta($new_user_id, 'billing_address_1', $data['address']);
-      update_user_meta($new_user_id, 'billing_postcode', $data['postcode']);
-      update_user_meta($new_user_id, 'billing_city', $data['area']);
-      return Result::OK;
     }
     return Result::NO_ACTION_TAKEN;
   }
 
   // *******************************************************************************************************************
-  // Return true if the given $email is in use in an existing Wordpress account.
-  public static function email_in_use($email)
-  {
-    return username_exists($email) || email_exists($email);
-  }
-
-  // *******************************************************************************************************************
-  // Ensure that the currently logged-in user has at least a user role in the current user group (found on the session).
-  // If he does not, add him. Return an access token with a result code to say whether the operation succeeded. If the
-  // role was granted successfully, the result will be Result::OK. If the user already had a role in the user group, the
-  // result will be Result::NO_ACTION_TAKEN. If the user group did not have a valid licence, the result will be
-  // Result::LICENCE_EXPIRED, and the user will not be added. Other results are possible.
-  public static function ensure_is_user()
-  {
-    // Verify the user group.
-    $user_group_id = self::get_user_group_id();
-    if ($user_group_id < 0)
-    {
-      return new Access_Token($user_group_id, Utility::ROLE_NONE, Result::USER_GROUP_NOT_FOUND);
-    }
-
-    // Verify the user.
-    if (!is_user_logged_in())
-    {
-      return new Access_Token($user_group_id, Utility::ROLE_NONE, Result::ACCESS_DENIED);
-    }
-
-    // Find the user's current role, if any.
-    $licence_expired = false;
-    $role = User_Data_Manager::get_role_in_user_group($user_group_id, $licence_expired);
-    if ($licence_expired)
-    {
-      return new Access_Token($user_group_id, $role, Result::LICENCE_EXPIRED);
-    }
-  
-    // Add the role, if required. A Gibbs administrator does not have a role - but he always has access anyway, so he
-    // doesn't need one.
-    if (($role === Utility::ROLE_NONE) && !self::is_gibbs_admin())
-    {
-      $result_code = self::register_with_user_group($user_group_id, get_current_user_id(), Utility::ROLE_NUMBER_USER);
-      return new Access_Token($user_group_id, Utility::ROLE_USER, $result_code);
-    }
-
-    // The user was logged in, and had a role in the current user group. Nothing needs to be done.
-    return new Access_Token($user_group_id, $role, Result::NO_ACTION_TAKEN);
-  }
-
-  // *******************************************************************************************************************
-  // Give the user with the given $user_id the given $role_number in the user group with the given $user_group_id. For
-  // $role_number, use the ROLE_NUMBER_ constants. The method returns an integer result code:
+  // Give the user with the given ID the given role number in the given user group. For $role_number, use the
+  // ROLE_NUMBER_ constants. The method returns an integer result code:
   //   OK                             The operation was successful.
   //   MISSING_INPUT_FIELD            The user did not pass all the required fields.
   //   DATABASE_QUERY_FAILED          The call to update the Wordpress database failed, for reasons unknown.
-  public static function register_with_user_group($user_group_id, $user_id, $role_number)
+  public static function register_with_user_group($access_token, $user_id, $role_number)
   {
-    $role_data = new Role_Data_Manager(new Access_Token($user_group_id, Utility::ROLE_NONE));
+    $role_data = new Role_Data_Manager($access_token);
     $role_data->set_role_filter($role_number);
     $role_data->set_user_id($user_id);
-    $result = $role_data->create();
-    if ($result === Result::OK)
-    {
-      update_user_meta($user_id, Utility::ACTIVE_ROLE_ID, $role_data->get_created_item_id());
-    }
-    return $result;
+    return $role_data->create();
   }
 
   // *******************************************************************************************************************
@@ -540,17 +365,13 @@ class User
     {
       if ($redirect_on_error)
       {
-        // Redirect to the licence expired page for administrators.
-        self::send_licence_expired_for_admins();
+        // Redirect to licence expired page for admins.
+        Utility::redirect_to('/subscription/html/licence_expired.php');
       }
       else
       {
         return new Access_Token($user_group_id, Utility::ROLE_NONE, Result::LICENCE_EXPIRED);
       }
-    }
-    if ($user_group_id instanceof Access_Token)
-    {
-      return $user_group_id;
     }
     return new Access_Token($user_group_id, Utility::ROLE_COMPANY_ADMIN);
   }
@@ -570,210 +391,24 @@ class User
     {
       if ($redirect_on_error)
       {
-        // Redirect to the licence expired page for users. This will terminate script execution.
-        self::send_licence_expired_for_users();
+        // Redirect to licence expired page for users.
+        Utility::redirect_to('/subscription/html/temporarily_unavailable.php');
       }
-      return new Access_Token($user_group_id, Utility::ROLE_NONE, Result::LICENCE_EXPIRED);
-    }
-    if ($user_group_id instanceof Access_Token)
-    {
-      return $user_group_id;
+      else
+      {
+        return new Access_Token($user_group_id, Utility::ROLE_NONE, Result::LICENCE_EXPIRED);
+      }
     }
     return new Access_Token($user_group_id, Utility::ROLE_USER);
   }
 
   // *******************************************************************************************************************
-  // Check whether the user is logged in, and is an ordinary user in the current user group. If he is, return the access
-  // token. If not, and if a user group ID was passed on the request or found on the session, return an access token
-  // that lets the user use the application anonymously in the specified user group. If $redirect_on_error is true, and
-  // we could not find a usable access token, redirect to the login page with HTTP status code 401. If false, return an
-  // access token with an appropriate error code.
-  public static function verify_is_user_or_anonymous($redirect_on_error = true)
-  {
-    // See if the user is already logged in as an ordinary user. 
-    $access_token = self::verify_is_user(false);
-    if ($access_token->is_error())
-    {
-      // The user was not logged in, or was not a regular user, or perhaps something else went wrong. He can still go
-      // through the booking process, though; he will simply have to register before a subscription is created. We need
-      // to know which user group to use, however. See if a parameter was passed.
-      if (Utility::integer_passed('user_group_id'))
-      {
-        self::log_out();
-        $access_token = self::use_anonymously(Utility::read_passed_integer('user_group_id'), false);
-      }
-      else
-      {
-        // No parameter was passed. See if the user group ID is available on the session.
-        $user_group_id = self::get_user_group_id();
-        if ($user_group_id >= 0)
-        {
-          self::log_out();
-          $access_token = self::use_anonymously($user_group_id, false);
-        }
-      }
-    }
-    else
-    {
-      // The user was already logged in. If a user group ID was passed, the user group in the access token must match.
-      // Otherwise, the user was logged in to the wrong user group, and must be logged out before using the booking
-      // process anonymously.
-      if (Utility::integer_passed('user_group_id'))
-      {
-        $user_group_id = Utility::read_passed_integer('user_group_id');
-        if (($user_group_id >= 0) && ($user_group_id !== $access_token->get_user_group_id()))
-        {
-          self::log_out();
-          $access_token = self::use_anonymously($user_group_id, false);
-        }
-      }
-    }
-    // If we still have an error, and we should redirect on error, send an appropriate HTTP response.
-    if ($redirect_on_error)
-    {
-      $access_token->redirect_on_error();
-    }
-    return $access_token;
-  }
 
-  // *******************************************************************************************************************
-  // If the user is not logged in, or there is no user group ID on the session, report an error as determined by
-  // $redirect_on_error. If true, ensure that the user is logged out, and redirect to the login page with HTTP status
-  // code 401. If false, return an access token with Result::ACCESS_DENIED. If the user is logged in, and there is a
-  // user group ID on the session, take no action except to return an access token with Result::OK. This access token
-  // will have ROLE_NONE, as we do not know here which role the user has in the current user group. Note that Gibbs
-  // admins may continue even if there is no user group ID on the session.
-  public static function verify_logged_in($redirect_on_error = true)
+  public static function is_gibbs_admin()
   {
-    $user_group_id = self::get_user_group_id();
-    if (!is_user_logged_in() || (($user_group_id < 0) && !self::is_gibbs_admin()))
-    {
-      if ($redirect_on_error)
-      {
-        self::send_access_denied();
-      }
-      return new Access_Token($user_group_id, Utility::ROLE_NONE, Result::ACCESS_DENIED);
-    }
-    return new Access_Token($user_group_id, Utility::ROLE_NONE);
-  }
-
-  // *******************************************************************************************************************
-  // Return an access token for the user group with the given $user_group_id. The method does not check the user's role,
-  // assuming that the currently logged-in user, if any, has no role in the user group. If the user group does not
-  // exist, the access token will have result code Result::USER_GROUP_NOT_FOUND. If the user group exists, but does not
-  // have a valid licence, the result code will be Result::LICENCE_EXPIRED. If $redirect_on_error is true, the method
-  // will send an appropriate HTTP response in case of an error, and return the access token only if no error was
-  // encountered. If everything succeeded, the user group ID will be stored on the session.
-  public static function use_anonymously($user_group_id, $redirect_on_error = true)
-  {
-    // Look for the user group, and check its licence.
-    $result_code = Result::USER_GROUP_NOT_FOUND;
-    if ($user_group_id >= 0)
-    {
-      $has_licence = Licencee_Data_Manager::has_active_licence($user_group_id);
-      if ($has_licence === true)
-      {
-        $result_code = Result::OK;
-        self::set_user_group_id($user_group_id);
-      }
-      elseif ($has_licence === false)
-      {
-        $result_code = Result::LICENCE_EXPIRED;
-      }
-    }
-
-    // Create the access token, and send an HTTP response if required. If an HTTP response is sent, script execution
-    // ceases.
-    $access_token = new Access_Token($user_group_id, Utility::ROLE_NONE, $result_code);
-    if ($redirect_on_error)
-    {
-      $access_token->redirect_on_error();
-    }
-    return $access_token;
-  }
-
-  // *******************************************************************************************************************
-  // Return the entity type of the user with the given $user_id, using the ENTITY_TYPE_ constants. $user_id is optional.
-  // If not provided, the currently logged-in user will be used.
-  public static function get_entity_type($user_id = null)
-  {
-    if ($user_id === null)
-    {
       $user_id = get_current_user_id();
-    }
-    $entity_type = get_user_meta($user_id, 'profile_type', true);
-    if ($entity_type === 'company')
-    {
-      return Utility::ENTITY_TYPE_COMPANY;
-    }
-    return Utility::ENTITY_TYPE_INDIVIDUAL;
-  }
-
-  // *******************************************************************************************************************
-  // Return true if the user with the given $user_id is a Gibbs administrator. $user_id is optional. If not provided,
-  // the currently logged-in user will be used.
-  public static function is_gibbs_admin($user_id = null)
-  {
-    if ($user_id === null)
-    {
-      $user_id = get_current_user_id();
-    }
-    $role = get_user_meta($user_id, 'role', true);
-    return $role === 'administrator';
-  }
-
-  // *******************************************************************************************************************
-  // Redirect to the licence expired page for administrators.
-  public static function send_licence_expired_for_admins()
-  {
-    Utility::redirect_to('/subscription/html/licence_expired.php');
-  }
-
-  // *******************************************************************************************************************
-  // Redirect to the licence expired page for users.
-  public static function send_licence_expired_for_users()
-  {
-    Utility::redirect_to('/subscription/html/temporarily_unavailable.php');
-  }
-
-  // *******************************************************************************************************************
-  // The user tried to access a page without being logged in, or was logged in but did not have permission to access
-  // the page. Ensure the user is logged out, then send HTTP 401 and redirect to the login page.
-  public static function send_access_denied()
-  {
-    self::log_out();
-    header('HTTP/1.1 401 Unauthorized');
-    header('Location: /subscription/html/log_in_to_dashboard.php');
-    exit('Du har dessverre ikke tilgang til denne siden. Vennligst <a href="/subscription/html/log_in_to_dashboard.php">logg inn</a> med en bruker som har adgang.');
-    // Alternately, we could use $_SERVER['HTTP_ORIGIN'] or wp_login_url().
-  }
-
-  // *******************************************************************************************************************
-  // Return the ID of the user group of which the current user is a member, or -1 if it could not be found. The user
-  // group ID is read from the session, and is an integer.
-  public static function get_user_group_id()
-  {
-    // Read the user group ID from the session.
-    if (isset($_SESSION['user_group_id']) && is_numeric($_SESSION['user_group_id']))
-    {
-      return intval($_SESSION['user_group_id']);
-    }
-    // The user group ID was nowhere to be found.
-    return -1;
-  }
-
-  // *******************************************************************************************************************
-  // Store the given user group ID on the session. If $new_value is -1 or otherwise invalid, the user group ID will be
-  // removed entirely. Return the stored user group ID, or -1 if it was invalid.
-  public static function set_user_group_id($new_value)
-  {
-    if (is_int($new_value) && ($new_value >= 0))
-    {
-      $_SESSION['user_group_id'] = $new_value;
-      return $new_value;
-    }
-    unset($_SESSION['user_group_id']);
-    return -1;
+        // *** // We may want to find a better way to identify Gibbs administrators. Use user_metadata.
+      return $user_id === 2528;
   }
 
   // *******************************************************************************************************************
@@ -818,79 +453,77 @@ class User
       // Other roles require the $user_group_id to be set.
       if ($user_group_id >= 0)
       {
-        // Consult the database to find the user's actual role, and compare it to the desired $role. The call also
-        // returns information about the licence status.
-        return $role === User_Data_Manager::get_role_in_user_group($user_group_id, $licence_expired);
+        // Consult the database to find the user's role. This also returns information about the licence status.
+        $role_number = User_Data_Manager::get_role_in_user_group($user_group_id, $licence_expired);
+        if ($role_number > 0)
+        {
+          // Verify that the role number in the database matches the required role.
+          if ($role === Utility::ROLE_USER)
+          {
+            return ($role_number === 1);
+          }
+          if ($role === Utility::ROLE_COMPANY_ADMIN)
+          {
+            return ($role_number === 2) || ($role_number === 3);
+          }
+        }
       }
     }
     return false;
   }
 
   // *******************************************************************************************************************
-  // Return the index in the given $roles table of the currently logged-in user's primary role.
-  //
-  // If a user group ID is stored on the session:
-  //   This is taken to mean that we are on that user group's web site, and the customer should not be sent anywhere
-  //   else. If the user already has a role in that user group, that role will be used. Otherwise, he will be given a
-  //   user role in that group. Note that, in that case, the user's role will not exist in the $roles table. Return -2
-  //   to indicate that the caller must reload the user roles and call this method again.
-  //
-  // If a user group ID is not stored on the session:
-  //   This is taken to mean that the user is logging in from a Gibbs website, and is not tied to a particular user
-  //   group. If a role ID is stored in the user's meta information (which happens whenever you visit a user group; the
-  //   stored value will therefore be the last visited user group), that role will be used. Otherwise, the method will
-  //   return the index of the first admin role found. If the user has no admin roles, it will return the index of the
-  //   first user role. If there were no roles at all, the method will return -1. $roles is presumed to be an array of
-  //   roles, as returned by the User_Data_Manager.get_user_roles method.
+  // Attempt to log in the Wordpress user with the given user name and password. If successful, redirect to the initial
+  // page with HTTP status code 302, and halt script execution. If not, return an error code. The initial page may vary,
+  // depending on the user's settings. Possible return values:
+  //   WORDPRESS_ERROR        Login failed. This is probably due to the user entering the wrong password.
+  protected static function log_in_with($user_name, $password)
+  {
+    // Attempt to log in.
+    $credentials = array(
+      'user_login' => $user_name,
+      'user_password' => $password,
+      'remember' => true
+    );
+    $current_user = wp_signon($credentials, false);
+
+    // If the user was successfully logged in, redirect to the initial page with HTTP status code 302. If not, return an
+    // error message.
+    if (is_wp_error($current_user))
+    {
+      // We do not log this, as it is probably due to the user entering an invalid password. We don't want to fill up
+      // the log.
+      // error_log('Wordpress error during login: ' . $current_user->get_error_message());
+      return Result::WORDPRESS_ERROR;
+    }
+
+    self::check_login_and_redirect();
+    // We should never get here. If the user was logged in, script execution should be terminated. If he was not,
+    // Wordpress should report an error in the step above.
+    error_log('The user fell through the world. Please investigate.');
+    return Result::WORDPRESS_ERROR;
+  }
+
+  // *******************************************************************************************************************
+  // Return the index in the given $roles table of the user's primary role. The method will return the index of the
+  // first admin role found. If the user has no admin roles, it will return the index of the first user role. If there
+  // were no roles at all, the method will return -1. $roles is presumed to be an array of roles, as returned by the
+  // User_Data_Manager.get_user_roles method.
   protected static function get_primary_role_index($roles)
   {
     if (is_array($roles) && !empty($roles))
     {
-      // Look for a user group ID on the session. If the user has a role in that user group, use it.
-      $user_group_id = self::get_user_group_id();
-      if ($user_group_id >= 0)
-      {
-        // Look for an existing role.
-        foreach ($roles as $index3 => $role_data3)
-        {
-          if ($role_data3['user_group_id'] === $user_group_id)
-          {
-            return $index3;
-          }
-        }
-        // No role was found. Assign a user role.
-        $role_result_code = self::register_with_user_group($user_group_id, get_current_user_id(),
-          Utility::ROLE_NUMBER_USER);
-        if (($role_result_code === Result::MISSING_INPUT_FIELD) ||
-          ($role_result_code === Result::DATABASE_QUERY_FAILED))
-        {
-          error_log('Failed to give user role when logging in to a particular user group. Error code: ' .
-            strval($role_result_code));
-          return -1;
-        }
-      }
-
-      // Look for a current user group setting.
-      $active_role_id = get_user_meta(get_current_user_id(), Utility::ACTIVE_ROLE_ID, true);
-      if (($active_role_id !== false) && is_numeric($active_role_id))
-      {
-        $active_role_id = intval($active_role_id);
-        if ($active_role_id >= 0)
-        {
-          foreach ($roles as $index2 => $role_data2)
-          {
-            if ($role_data2['role_id'] === $active_role_id)
-            {
-              return $index2;
-            }
-          }
-        }
-      }
- 
       // Look for admin roles.
       foreach ($roles as $index => $role_data)
       {
+        // The role is stored as a tinyint in the database, which might mean it's returned as a string. Convert to a
+        // number, just to be sure.
         $role_number = $role_data['role_number'];
+        if (!isset($role_number) || !is_numeric($role_number))
+        {
+          continue;
+        }
+        $role_number = intval($role_number);
         if (($role_number === Utility::ROLE_NUMBER_LOCAL_ADMIN) ||
           ($role_number === Utility::ROLE_NUMBER_COMPANY_ADMIN) ||
           ($role_number === Utility::ROLE_NUMBER_GIBBS_ADMINISTRATOR))
@@ -902,6 +535,47 @@ class User
       return 0;
     }
     // There were no roles at all.
+    return -1;
+  }
+
+  // *******************************************************************************************************************
+  // The user tried to access a page without being logged in, or was logged in but did not have permission to access
+  // the page. Ensure the user is logged out, then send HTTP 401 and redirect to the login page.
+  protected static function send_access_denied()
+  {
+    self::log_out();
+    header('HTTP/1.1 401 Unauthorized');
+    header('Location: /subscription/html/log_in.php');
+    exit('Du har dessverre ikke tilgang til denne siden. Vennligst <a href="/subscription/html/log_in.php">logg inn</a> med en bruker som har adgang.');
+    // Alternately, we could use $_SERVER['HTTP_ORIGIN'] or wp_login_url().
+  }
+
+  // *******************************************************************************************************************
+  // Return the ID of the user group of which the current user is a member, or -1 if it could not be found. The user
+  // group ID is read from the session, and is an integer.
+  protected static function get_user_group_id()
+  {
+    // Read the user group ID from the session.
+    $user_group_id = $_SESSION['user_group_id'];
+    if (isset($user_group_id) && is_numeric($user_group_id))
+    {
+      return intval($user_group_id);
+    }
+    // The user group ID was nowhere to be found.
+    return -1;
+  }
+
+  // *******************************************************************************************************************
+  // Store the given user group ID on the session. If $new_value is -1 or otherwise invalid, the user group ID will be
+  // removed entirely. Return the stored user group ID, or -1 if it was invalid.
+  protected static function set_user_group_id($new_value)
+  {
+    if (is_int($new_value) && ($new_value >= 0))
+    {
+      $_SESSION['user_group_id'] = $new_value;
+      return $new_value;
+    }
+    unset($_SESSION['user_group_id']);
     return -1;
   }
 

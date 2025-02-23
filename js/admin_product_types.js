@@ -7,18 +7,12 @@
 // *************************************************************************************************
 
 // Pointers to user interface elements.
-var productTypesBox, editProductTypeDialogue;
+var categoriesBox, productTypesBox, editCategoryDialogue, editProductTypeDialogue;
 
 // Pointers to dynamically generated user interface elements. These will be populated once the HTML
 // code to display them has been generated.
-var editProductTypeForm, productTypeSubmitButton, productTypeCategoryCombo, productTypeNameEdit,
-  productTypePriceEdit;
-
-// The sorting object that controls the sorting of the product types table.
-var sorting;
-
-// The popup menu for the product types table.
-var menu;
+var editCategoryForm, categorySubmitButton, categoryNameEdit, editProductTypeForm,
+  productTypeSubmitButton, productTypeCategoryCombo, productTypeNameEdit, productTypePriceEdit;
 
 // *************************************************************************************************
 // *** Functions.
@@ -27,122 +21,219 @@ var menu;
 function initialise()
 {
   // Obtain pointers to user interface elements.
-  Utility.readPointers(['productTypesBox', 'editProductTypeDialogue']);
+  Utility.readPointers(['categoriesBox', 'productTypesBox', 'editCategoryDialogue',
+    'editProductTypeDialogue']);
 
-  // Create the popup menu.
-  menu = new PopupMenu(getPopupMenuContents);
-
-  // Initialise sorting.
-  sorting = new Sorting(productTypes,
-      [
-        Sorting.createUiColumn(c.typ.CATEGORY_ID, Sorting.SORT_AS_STRING,
-          function (productType)
-          {
-            // Sort on category and, within that, name.
-            return Utility.getCategoryName(productType[c.typ.CATEGORY_ID]) + ' ' +
-              productType[c.typ.NAME]; 
-          }),
-        Sorting.createUiColumn(c.typ.NAME, Sorting.SORT_AS_STRING),
-        Sorting.createUiColumn(c.typ.PRICE, Sorting.SORT_AS_INTEGER),
-        Sorting.createUiColumn(Sorting.DO_NOT)
-      ],
-      doDisplayProductTypes
-    );
-  // Set the initial product types sorting. If that didn't cause product types to be displayed, do
-  // so now.
-  if (!sorting.sortOn(initialUiColumn, initialDirection))
-    doDisplayProductTypes();
+  displayCategories();
+  displayProductTypes();
 
   // Display the results of a previous operation, if required.
-  if (Utility.isError(resultCode))
-    alert(getText(0, 'Det oppstod en feil. Vennligst kontakt kundeservice og oppgi feilkode $1. Tidspunkt: $2.',
-      [String(resultCode), TIMESTAMP]));
+  if (resultCode >= 0)
+    alert('Det oppstod en feil. Vennligst kontakt kundeservice og oppgi feilkode ' +
+      String(resultCode) + '.');
+/*
+    alert(getText(, 'Det oppstod en feil. Vennligst kontakt kundeservice og oppgi feilkode $1.',
+      [String(resultCode)]));
+*/
 }
 
 // *************************************************************************************************
-// Return hidden form elements that specify the current state of the page, including sorting, search
-// and filter settings. These should be included whenever a request is submitted to the current
-// page, so that the state is maintained when the page is reloaded.
-function getPageStateFormElements()
+// *** Category functions.
+// *************************************************************************************************
+
+function displayCategories()
 {
-  return sorting.getPageStateFormElements();
+  var o, p, i;
+  
+  if (categories.length <= 0)
+  {
+    categoriesBox.innerHTML = '<div class="form-element">Det er ikke opprettet noen kategorier enn&aring;.</div>';
+    // categoriesBox.innerHTML = '<div class="form-element">' +
+    //  getText(, 'Det er ikke opprettet noen kategorier enn&aring;.') + '</div>';
+    return;
+  }
+
+  o = new Array((categories.length * 9) + 2);
+  p = 0;
+  
+  o[p++] = '<table cellspacing="0" cellpadding="0"><thead><tr><th>Navn</th><th>Rediger</th><th>Slett</th></tr></thead><tbody>';
+  for (i = 0; i < categories.length; i++)
+  {
+    o[p++] = '<tr><td>';
+    o[p++] = categories[i][c.cat.NAME];
+    o[p++] = '</td><td><button type="button" class="icon-button" onclick="displayEditCategoryDialogue(';
+    o[p++] = String(i);
+    o[p++] = ');"><i class="fa-solid fa-pen-to-square"></i></button></td><td><button type="button" class="icon-button" onclick="deleteCategory(';
+    o[p++] = String(i);
+    o[p++] = ');"><i class="fa-solid fa-trash"></i></button></td></tr>';
+  }
+  o[p++] = '</tbody></table>';
+
+  categoriesBox.innerHTML = o.join('');
+}
+
+// *************************************************************************************************
+// Return true if the category with the given index in the categories table is referenced by any
+// product type.
+function categoryInUse(index)
+{
+  var i;
+
+  index = parseInt(index, 10);
+  if (Utility.isValidIndex(index, categories))
+  {
+    for (i = 0; i < productTypes.length; i++)
+    {
+      if (productTypes[i][c.typ.CATEGORY_ID] === categories[index][c.cat.ID])
+        return true;
+    }
+  }
+  return false;
+}
+
+// *************************************************************************************************
+
+function deleteCategory(index)
+{
+  var o, p;
+
+  index = parseInt(index, 10);
+  if (!Utility.isValidIndex(index, categories))
+    return;
+  if (categoryInUse(index))
+  {
+    alert('Denne kategorien kan ikke slettes, fordi det finnes bodtyper som bruker den.');
+    return;
+  }
+
+  if (confirm('Er du sikker på at du vil slette kategorien ' + categories[index][c.cat.NAME] + '?'))
+  {
+    o = new Array(3);
+    p = 0;
+
+    o[p++] = '<form id="deleteCategoryForm" action="/subscription/html/admin_product_types.php" method="post"><input type="hidden" name="action" value="delete_category" /><input type="hidden" name="id" value="';
+    o[p++] = String(categories[index][c.cat.ID]);
+    o[p++] = '" /></form>';
+    editCategoryDialogue.innerHTML = o.join('');
+    document.getElementById('deleteCategoryForm').submit();
+  }
+}
+
+// *************************************************************************************************
+
+function displayEditCategoryDialogue(index)
+{
+  var o, p, isNew;
+  
+  index = parseInt(index, 10);
+  isNew = index === -1;
+  if (!(isNew || Utility.isValidIndex(index, categories)))
+    return;
+  o = new Array(14);
+  p = 0;
+  
+  o[p++] = '<div class="dialogue-header"><h1>';
+  if (isNew)
+    o[p++] = 'Opprett kategori';
+  else
+    o[p++] = 'Rediger kategori';
+  o[p++] = '</h1></div><div class="dialogue-content"><form id="editCategoryForm" action="/subscription/html/admin_product_types.php" method="post"><div class="form-element">';
+  if (isNew)
+    o[p++] = '<input type="hidden" name="action" value="create_category" />';
+  else
+  {
+    o[p++] = '<input type="hidden" name="action" value="update_category" /><input type="hidden" name="id" value="';
+    o[p++] = String(categories[index][c.cat.ID]);
+    o[p++] = '" />';
+  }
+  o[p++] = '<label for="categoryNameEdit" class="standard-label">Navn:</label> <input type="text" id="categoryNameEdit" name="name" class="long-text" onkeyup="enableCategorySubmitButton();" onchange="enableCategorySubmitButton();"';
+  if (!isNew)
+  {
+    o[p++] = ' value="';
+    o[p++] = categories[index][c.cat.NAME];
+    o[p++] = '"';
+  }
+  o[p++] = ' /></div></form></div><div class="dialogue-footer"><button type="button" id="categorySubmitButton" onclick="editCategoryForm.submit();"><i class="fa-solid fa-check"></i> ';
+  if (isNew)
+    o[p++] = 'Opprett';
+  else
+    o[p++] = 'Oppdater';
+  o[p++] = '</button> <button type="button" onclick="closeCategoryDialogue();"><i class="fa-solid fa-xmark"></i> Avbryt</button></div>';
+
+  editCategoryDialogue.innerHTML = o.join('');
+
+  // Obtain pointers to user interface elements.
+  Utility.readPointers(['editCategoryForm', 'categorySubmitButton', 'categoryNameEdit']);
+
+  Utility.display(overlay);
+  Utility.display(editCategoryDialogue);
+  enableCategorySubmitButton();
+}
+
+// *************************************************************************************************
+
+function closeCategoryDialogue()
+{
+  Utility.hide(editCategoryDialogue);
+  Utility.hide(overlay);
+}
+
+// *************************************************************************************************
+
+function enableCategorySubmitButton()
+{
+  categorySubmitButton.disabled = (categoryNameEdit.value === '');
+}
+
+// *************************************************************************************************
+
+function getCategoryName(id)
+{
+  var i;
+
+  for (i = 0; i < categories.length; i++)
+    if (categories[i][c.cat.ID] === id)
+      return categories[i][c.cat.NAME];
+  return '&nbsp;';
 }
 
 // *************************************************************************************************
 // *** Product type functions.
 // *************************************************************************************************
-// Display the spinner. Once visible, display product types.
-function displayProductTypes()
-{
-  Utility.displaySpinnerThen(doDisplayProductTypes);
-}
 
-// *************************************************************************************************
-// Display the list of product types.
-function doDisplayProductTypes()
+function displayProductTypes()
 {
   var o, p, i;
   
   if (productTypes.length <= 0)
   {
-    productTypesBox.innerHTML = '<div class="form-element">' +
-      getText(2, 'Det er ikke opprettet noen bodtyper enn&aring;.') + '</div>';
-    Utility.hideSpinner();
+    productTypesBox.innerHTML = '<div class="form-element">Det er ikke opprettet noen bodtyper enn&aring;.</div>';
+    // categoriesBox.innerHTML = '<div class="form-element">' +
+    //  getText(, 'Det er ikke opprettet noen bodtyper enn&aring;.') + '</div>';
     return;
   }
 
-  o = new Array((productTypes.length * 9) + 7);
+  o = new Array((productTypes.length * 9) + 2);
   p = 0;
   
-  // Header.
-  o[p++] = '<table cellspacing="0" cellpadding="0"><thead><tr>';
-  o[p++] = sorting.getTableHeader(0, getText(14, 'Kategori'));
-  o[p++] = sorting.getTableHeader(1, getText(3, 'Navn'));
-  o[p++] = sorting.getTableHeader(2, getText(15, 'Pris'));
-  o[p++] = sorting.getTableHeader(3, '&nbsp;');
-  o[p++] = '</tr></thead><tbody>';
+  o[p++] = '<table cellspacing="0" cellpadding="0"><thead><tr><th>Kategori</th><th>Navn</th><th>Pris</th><th>Rediger</th><th>Slett</th></tr></thead><tbody>';
   for (i = 0; i < productTypes.length; i++)
   {
-    // Category name.
     o[p++] = '<tr><td>';
-    o[p++] = Utility.getCategoryName(productTypes[i][c.typ.CATEGORY_ID]);
-    // Product type name.
+    o[p++] = getCategoryName(productTypes[i][c.typ.CATEGORY_ID]);
     o[p++] = '</td><td>';
     o[p++] = productTypes[i][c.typ.NAME];
-    // Base price.
     o[p++] = '</td><td>';
     o[p++] = String(productTypes[i][c.typ.PRICE]);
-    // Buttons.
-    o[p++] = ',-</td><td>';
-    o[p++] = menu.getMenuButton(i);
-    o[p++] = '</td></tr>';
+    o[p++] = ',-</td><td><button type="button" class="icon-button" onclick="displayEditProductTypeDialogue(';
+    o[p++] = String(i);
+    o[p++] = ');"><i class="fa-solid fa-pen-to-square"></i></button></td><td><button type="button" class="icon-button" onclick="deleteProductType(';
+    o[p++] = String(i);
+    o[p++] = ');"><i class="fa-solid fa-trash"></i></button></td></tr>';
   }
   o[p++] = '</tbody></table>';
 
   productTypesBox.innerHTML = o.join('');
-  Utility.hideSpinner();
-}
-
-// *************************************************************************************************
-// Return HTML for the contents of the popup menu for the item with the given index. This function
-// will be called when one of the menu buttons is clicked.
-function getPopupMenuContents(sender, index)
-{
-  var o, p;
-
-  index = parseInt(index, 10);
-  if (!Utility.isValidIndex(index, productTypes))
-    return '';
-  o = new Array(2);
-  p = 0;
-
-  // Edit product type button.
-  o[p++] = sender.getMenuItem(getText(4, 'Rediger bodtype'), 'fa-pen-to-square', true,
-    'displayEditProductTypeDialogue(' + String(index) + ');');
-  // Delete product type button.
-  o[p++] = sender.getMenuItem(getText(5, 'Slett bodtype'), 'fa-trash', true,
-    'deleteProductType(' + String(index) + ');');
-  return o.join('');
 }
 
 // *************************************************************************************************
@@ -153,18 +244,17 @@ function deleteProductType(index)
 
   index = parseInt(index, 10);
   if (Utility.isValidIndex(index, productTypes) &&
-    confirm(getText(16, 'Er du sikker på at du vil slette bodtype: $1? Merk at en bodtype ikke kan slettes hvis det finnes lagerboder av denne typen.',
-      [productTypes[index][c.typ.NAME]])))
+    confirm('Er du sikker på at du vil slette bodtype ' + productTypes[index][c.typ.NAME] +
+      '? Merk at en bodtype ikke kan slettes hvis det finnes lagerboder av denne typen.'))
   {
-    o = new Array(4);
+    o = new Array(3);
     p = 0;
 
-    o[p++] = '<form id="deleteProductTypeForm" action="/subscription/html/admin_product_types.php" method="post"><input type="hidden" name="action" value="delete_product_type" />';
-    o[p++] = getPageStateFormElements();
-    o[p++] = Utility.getHidden('id', productTypes[index][c.typ.ID]);
-    o[p++] = '</form>';
+    o[p++] = '<form id="deleteProductTypeForm" action="/subscription/html/admin_product_types.php" method="post"><input type="hidden" name="action" value="delete_product_type" /><input type="hidden" name="id" value="';
+    o[p++] = String(productTypes[index][c.typ.ID]);
+    o[p++] = '" /></form>';
     editProductTypeDialogue.innerHTML = o.join('');
-    Utility.displaySpinnerThenSubmit(document.getElementById('deleteProductTypeForm'));
+    document.getElementById('deleteProductTypeForm').submit();
   }
 }
 
@@ -181,31 +271,28 @@ function displayEditProductTypeDialogue(index)
     return;
   if (isNew && (categories.length <= 0))
   {
-    alert(getText(1, 'Du må ha minst én kategori før du kan opprette bodtyper. Lag en kategori først.'));
+    alert('Du må ha minst én kategori før du kan opprette bodtyper. Lag en kategori først.');
     return;
   }
 
-  o = new Array((categories.length * 7) + 29);
+  o = new Array((categories.length * 7) + 20);
   p = 0;
   
   o[p++] = '<div class="dialogue-header"><h1>';
   if (isNew)
-    o[p++] = getText(6, 'Opprett bodtype');
+    o[p++] = 'Opprett bodtype';
   else
-    o[p++] = getText(4, 'Rediger bodtype');
+    o[p++] = 'Rediger bodtype';
   o[p++] = '</h1></div><div class="dialogue-content"><form id="editProductTypeForm" action="/subscription/html/admin_product_types.php" method="post"><div class="form-element">';
-  o[p++] = getPageStateFormElements();
   if (isNew)
     o[p++] = '<input type="hidden" name="action" value="create_product_type" />';
   else
   {
-    o[p++] = '<input type="hidden" name="action" value="update_product_type" />';
-    o[p++] = Utility.getHidden('id', productTypes[index][c.typ.ID]);
+    o[p++] = '<input type="hidden" name="action" value="update_product_type" /><input type="hidden" name="id" value="';
+    o[p++] = String(productTypes[index][c.typ.ID]);
+    o[p++] = '" />';
   }
-  o[p++] = '<label for="productTypeCategoryCombo" class="standard-label">';
-  o[p++] = getText(8, 'Kategori:');
-  o[p++] = Utility.getMandatoryMark();
-  o[p++] = '</label> <select id="productTypeCategoryCombo" name="category_id" class="long-text" onchange="enableProductTypeSubmitButton();">';
+  o[p++] = '<label for="productTypeCategoryCombo" class="standard-label">Kategori:</label> <select id="productTypeCategoryCombo" name="category_id" class="long-text" onchange="enableProductTypeSubmitButton();">';
   for (i = 0; i < categories.length; i++)
   {
     o[p++] = '<option value="';
@@ -217,34 +304,26 @@ function displayEditProductTypeDialogue(index)
     o[p++] = categories[i][c.cat.NAME];
     o[p++] = '</option>';
   }
-  o[p++] = '</select></div><div class="form-element"><label for="productTypeNameEdit" class="standard-label">';
-  o[p++] = getText(10, 'Navn:');
-  o[p++] = Utility.getMandatoryMark();
-  o[p++] = '</label> <input type="text" id="productTypeNameEdit" name="name" class="long-text" onkeyup="enableProductTypeSubmitButton();" onchange="enableProductTypeSubmitButton();"';
+  o[p++] = '</select></div><div class="form-element"><label for="productTypeNameEdit" class="standard-label">Navn:</label> <input type="text" id="productTypeNameEdit" name="name" class="long-text" onkeyup="enableProductTypeSubmitButton();" onchange="enableProductTypeSubmitButton();"';
   if (!isNew)
   {
     o[p++] = ' value="';
     o[p++] = productTypes[index][c.typ.NAME];
     o[p++] = '"';
   }
-  o[p++] = ' /></div><div class="form-element"><label for="productTypePriceEdit" class="standard-label">';
-  o[p++] = getText(9, 'Pris:');
-  o[p++] = Utility.getMandatoryMark();
-  o[p++] = '</label> <input type="text" id="productTypePriceEdit" name="price" class="long-text" onkeyup="enableProductTypeSubmitButton();" onchange="enableProductTypeSubmitButton();"';
+  o[p++] = ' /></div><div class="form-element"><label for="productTypePriceEdit" class="standard-label">Pris:</label> <input type="text" id="productTypePriceEdit" name="price" class="long-text" onkeyup="enableProductTypeSubmitButton();" onchange="enableProductTypeSubmitButton();"';
   if (!isNew)
   {
     o[p++] = ' value="';
     o[p++] = String(productTypes[index][c.typ.PRICE]);
     o[p++] = '"';
   }
-  o[p++] = ' /></div></form></div><div class="dialogue-footer"><button type="button" id="productTypeSubmitButton" onclick="Utility.displaySpinnerThenSubmit(editProductTypeForm);"><i class="fa-solid fa-check"></i> ';
+  o[p++] = ' /></div></form></div><div class="dialogue-footer"><button type="button" id="productTypeSubmitButton" onclick="editProductTypeForm.submit();"><i class="fa-solid fa-check"></i> ';
   if (isNew)
-    o[p++] = getText(11, 'Opprett');
+    o[p++] = 'Opprett';
   else
-    o[p++] = getText(12, 'Oppdater');
-  o[p++] = '</button> <button type="button" onclick="closeProductTypeDialogue();"><i class="fa-solid fa-xmark"></i> ';
-  o[p++] = getText(13, 'Avbryt');
-  o[p++] = '</button></div>';
+    o[p++] = 'Oppdater';
+  o[p++] = '</button> <button type="button" onclick="closeProductTypeDialogue();"><i class="fa-solid fa-xmark"></i> Avbryt</button></div>';
 
   editProductTypeDialogue.innerHTML = o.join('');
 

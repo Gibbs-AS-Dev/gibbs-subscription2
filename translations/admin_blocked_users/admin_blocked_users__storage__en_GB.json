@@ -1,10 +1,10 @@
 {
   "js_texts":
     [
-      "An error occurred. Please contact customer service. Error code: $1. Timestamp: $2."
+      "An error occurred. Please contact customer service. Error code: $1."
     ],
   "php_texts":
     [
-      "Blocked customers"
+      "Blocked users"
     ]
 }

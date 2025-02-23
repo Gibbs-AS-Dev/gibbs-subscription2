@@ -43,7 +43,8 @@ class Category_Data_Manager extends Single_Table_Data_Manager
         $table .= $category->name;
         $table .= "'],";
       }
-      $table = Utility::remove_final_comma($table);
+      // Remove final comma.
+      $table = substr($table, 0, -1);
     }
     $table .= "]";
     return $table;

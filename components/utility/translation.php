@@ -101,19 +101,10 @@ class Translation
 
   // *******************************************************************************************************************
   // Return a Javascript array declaration that holds all the strings that are intended to be available to Javascript
-  // code. The array will be named "text". Also, include a variable "currentLanguage" that holds the currently selected
-  // language.
+  // code. The array will be named "text".
   public function get_js_strings()
   {
-    if (isset($this->texts['js_texts']))
-    {
-      $code = "var texts = " . json_encode($this->texts['js_texts']) . ";\n";
-    }
-    else
-    {
-      $code = "var texts = [];\n";
-    }
-    return $code . "var currentLanguage = '" . Utility::get_current_language() . "';";
+    return 'var texts = ' . json_encode($this->texts['js_texts']) . ';';
   }
 
   // *******************************************************************************************************************

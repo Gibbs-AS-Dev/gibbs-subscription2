@@ -28,32 +28,6 @@ class Settings_Data_Manager extends Single_Table_Data_Manager
   // *******************************************************************************************************************
   // *** Public methods.
   // *******************************************************************************************************************
-  // Return the Nets secret key for the current user group from the database, or null if it was not found. The secret
-  // key is a string.
-/*
-  public function read_nets_secret_key()
-  {
-    global $wpdb;
-
-    $results = $wpdb->get_results("
-      SELECT
-        setting_id AS `value`
-      FROM
-        {$this->database_table}
-      WHERE
-        ({$this->id_db_name} = {$this->get_user_group_id()}) AND
-        (setting_key = 'nets_secret_key');
-    ", ARRAY_A);
-    if (!Utility::array_with_one($results))
-    {
-      return null;
-    }
-
-    return $results[0]['value'];
-  }
-*/
-
-  // *******************************************************************************************************************
   // Read all settings stored for the current user group from the database. Return them as a Settings object.
   public function read()
   {
@@ -138,13 +112,8 @@ class Settings_Data_Manager extends Single_Table_Data_Manager
       return Result::DATABASE_QUERY_FAILED;
     }
 
-    // All operations succeeded. Commit the changes.
-    if ($wpdb->query('COMMIT') === false)
-    {
-      error_log('Commit failed while updating settings: ' . $wpdb->last_error);
-      $wpdb->query('ROLLBACK');
-      return Result::DATABASE_QUERY_FAILED;
-    }
+    // All operations succeeded.
+    $wpdb->query('COMMIT');
     return Result::OK;
   }
 
@@ -171,8 +140,7 @@ class Settings_Data_Manager extends Single_Table_Data_Manager
       return $result;
     }
     // Delete the data item, and report the result.
-    $sql = $wpdb->prepare("DELETE FROM {$this->database_table} WHERE {$this->id_db_name} = %d;", $id);
-    $result = $wpdb->query($sql);
+    $result = $wpdb->query("DELETE FROM {$this->database_table} WHERE {$this->id_db_name} = {$id};");
     if ($result === false)
     {
       error_log("Error while deleting settings for user group {$id}: {$wpdb->last_error}.");

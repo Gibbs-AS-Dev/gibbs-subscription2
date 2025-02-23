@@ -17,8 +17,7 @@ class Single_Table_Data_Manager extends Live_Data_Manager
   protected $id_db_name = 'id';
 
   // The ID of the item that was last inserted into the database using the create function, or similar functions that
-  // also insert things into the database. The value is -1 if no item has been created. If more than one item was
-  // inserted at once, the value may be an array of IDs.
+  // also insert things into the database. The value is -1 if no item has been created.
   protected $created_item_id = -1;
 
   // *******************************************************************************************************************
@@ -99,11 +98,7 @@ class Single_Table_Data_Manager extends Live_Data_Manager
         return Result::MISSING_INPUT_FIELD;
       }
     }
-    if (isset($id) && is_numeric($id))
-    {
-      $id = intval($id);
-    }
-    else
+    if (!isset($id))
     {
       if (!Utility::integer_posted($this->id_posted_name))
       {
@@ -144,11 +139,7 @@ class Single_Table_Data_Manager extends Live_Data_Manager
     global $wpdb;
 
     // Ensure the ID is available.
-    if (isset($id) && is_numeric($id))
-    {
-      $id = intval($id);
-    }
-    else
+    if (!isset($id))
     {
       if (!Utility::integer_posted($this->id_posted_name))
       {
@@ -156,14 +147,12 @@ class Single_Table_Data_Manager extends Live_Data_Manager
       }
       $id = Utility::read_posted_integer($this->id_posted_name);
     }
-
     // Ensure the data item with that ID can be deleted.
     $result = $this->can_delete($id);
     if ($result !== Result::OK)
     {
       return $result;
     }
-
     // Delete the data item, and report the result.
     $result = $wpdb->delete($this->database_table, array($this->id_db_name => $id));
     if ($result === false)
@@ -215,9 +204,7 @@ class Single_Table_Data_Manager extends Live_Data_Manager
   // *******************************************************************************************************************
   // *** Property servicing methods.
   // *******************************************************************************************************************
-  // Return the created_item_id property. If no item has been inserted, the value will be -1. If more than one item was
-  // inserted at once, it will be an array of IDs. Otherwise, it will be an integer that holds the ID of the last
-  // inserted item.
+
   public function get_created_item_id()
   {
     return $this->created_item_id;

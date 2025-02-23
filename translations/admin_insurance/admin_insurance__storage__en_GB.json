@@ -1,0 +1,37 @@
+{
+  "js_texts":
+    [
+      "An error occurred. Please contact customer service. Error code: $1.",
+      "No insurance products have been created yet.",
+      "Name",
+      "Description",
+      "Price",
+      "For storage room types",
+      "For warehouses",
+      "Edit",
+      "Delete",
+      "All storage room types",
+      "$1 of $2 storage room types",
+      "All warehouses",
+      "$1 of $2 warehouses",
+      "Delete insurance: $1. Are you sure?",
+      "Create insurance",
+      "Edit insurance",
+      "Create",
+      "Update",
+      "Cancel",
+      "Name:",
+      "Description:",
+      "For all storage room types",
+      "For some storage room types",
+      "This insurance is offered:",
+      "At all warehouses",
+      "At some warehouses",
+      "Monthly price:"
+    ],
+  "php_texts":
+    [
+      "Insurance",
+      "Create insurance"
+    ]
+}

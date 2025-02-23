@@ -1,0 +1,11 @@
+{
+  "js_texts":
+    [
+    ],
+  "php_texts":
+    [
+      "Subscription created",
+      "Thank you for your order! Your subscription has been registered and paid for, and we have sent an e-mail with the receipt to <span class=\"status-blue\">$0</span>. Your subscription will appear in the list on the next page.",
+      "Continue"
+    ]
+}

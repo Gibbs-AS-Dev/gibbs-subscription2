@@ -1,0 +1,282 @@
+.content-area h1 {
+    text-align: center;
+    padding: 20px 0px 0px 0px;
+}
+/*.content-2 {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    align-items: center;
+    padding: 0px 25px;
+}*/
+.card_body {
+    padding: 20px 30px;
+}
+.content-main .card {
+    background-color: #fff;
+    border-radius: 18px;
+    margin: 0px auto 20px;
+}
+.form-field {
+    display: grid;
+    width: 100%;
+    margin-bottom: 20px;
+}
+.content-form {
+    padding:20px;
+        border-radius: 10px;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+}
+.content-inner {
+    width: 80%;
+    margin: 0 auto;
+}
+.bottom-area {
+    display: flex;
+    justify-content: space-between;
+}
+.content-area {
+    padding-bottom: 20px;
+}
+.form-field select, .form-field input {
+    height: 40px;
+    background: #F2F3F7;
+    border: none;
+    padding: 0px 9px;
+      border-radius: 5px;
+    width: 100%;  
+}
+.form-field textarea {
+    border: none;
+    background: #F2F3F7;
+    padding: 5px 10px;
+    border-radius: 5px;
+}
+.form-card{
+    width: 60%;
+}
+  .custom-select-wrapper {
+    position: relative;
+    display: inline-block;
+    width: 100%; /* Adjust width as needed */
+  }
+
+  .custom-select {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    appearance: none; /* Remove default appearance */
+  }
+
+  .custom-icon {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    width: 21px;
+}
+input::placeholder,textarea::placeholder{
+    color: #000;
+}
+ .required::after {
+        content: '*';
+        color: red;
+        margin-left: 3px;
+    }
+    .center-btn {
+    text-align: center;
+    padding-bottom: 40px;
+}
+.center-btn button {
+    color: #fff;
+    background: #009b88;
+    width: 200px;
+}
+.center-btn button:hover {
+    background: #027466;
+}
+.form-field label {
+    padding-bottom: 6px;
+}
+.success-message {
+    background-color: #dff0d8;
+    border-color: #d6e9c6;
+    color: #3c763d;
+    padding: 15px;
+    margin-bottom: 20px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    text-align: center;
+}
+.status-btn {
+    color: #ffffff;
+    background: #ffc800;
+    display: inline-block;
+    padding: 5px 10px;
+    font-size: 15px;
+    border-radius: 6px;
+    margin-left: 0px;
+    text-transform: capitalize;
+}
+.waiting{
+ background: #ffc800;
+}
+.approved{
+ background: #49ca84;
+}
+.cancelled{
+ background: #f62323;
+}
+.main-table-bk th,td {
+    padding: 12px 20px !important;
+    font-size: 16px;
+    color: #3F4254;
+    vertical-align: middle;
+    font-weight: 500;
+}
+.select-items {
+    font-size: 16px;
+    border: none;
+    padding: 6px 12px;
+    font-weight: 600;
+}
+
+body div.dt-container .dt-paging .dt-paging-button.current, div.dt-container .dt-paging .dt-paging-button.current:hover {
+    padding: 0px 0px;
+    margin: 0px 2px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s, color 0.3s;
+    width: auto;
+    border: 1px solid #008474 !important;
+    background-color: #585858;
+    background: linear-gradient(to bottom, #008474 0%, #008474 100%) !important;
+    color: #fff!important;
+    border-radius: 5px;
+    height: 25px;
+}
+body div.dt-container .dt-paging .dt-paging-button.disabled, div.dt-container .dt-paging .dt-paging-button.disabled:hover, div.dt-container .dt-paging .dt-paging-button.disabled:active {
+    padding: 0;
+}
+body div.dt-container .dt-paging .dt-paging-button.current, div.dt-container .dt-paging .dt-paging-button.current:hover {
+    color:#fff !important;
+}
+body div.dt-container .dt-paging button{
+    font-weight: bold;
+    border-radius: 5px!important;
+    padding: 2px 12px!important;
+    margin: 0px 1px;
+    color: #008474!important;
+    text-decoration: none
+    }
+button.dt-paging-button {
+    width: 50px;
+    width: auto;
+    height: auto;
+    line-height: normal;
+    padding: 0px 12px!important;
+}
+table.dataTable th.dt-type-numeric, table.dataTable th.dt-type-date, table.dataTable td.dt-type-numeric, table.dataTable td.dt-type-date{
+    text-align: left !important;
+}
+div.dt-container .dt-paging .dt-paging-button:hover {
+    border: 1px solid #008474 !important;
+    background-color: #585858;
+    background: linear-gradient(to bottom, #008474 0%, #008474 100%) !important;
+    color: #fff;
+}
+div.dt-container .dt-paging .dt-paging-button.disabled, div.dt-container .dt-paging .dt-paging-button.disabled:hover{
+    color: #fff!important;
+}
+
+.has-search {
+    position: relative;
+}
+.has-search input {
+    height: 42px;
+    width: 130px;
+    border: none;
+    background: #f6f7f8;
+    color: #000;
+    font-weight: 600;
+    border-radius: 5px;
+    outline: none;
+    font-size: 16px;
+}
+.has-search .form-control-feedback {
+    color: #000!important;
+    top: 3px;
+}
+.dt-search {
+    display: none;
+}
+
+.inputcontainer {
+  position: relative;
+}
+
+
+.icon-container {
+  position: absolute;
+  right: 10px;
+  top: calc(50% - 10px);
+}
+.loader {
+  position: relative;
+  height: 20px;
+  width: 20px;
+  display: inline-block;
+  animation: around 5.4s infinite;
+}
+
+@keyframes around {
+  0% {
+    transform: rotate(0deg)
+  }
+  100% {
+    transform: rotate(360deg)
+  }
+}
+
+.loader::after, .loader::before {
+  content: "";
+  position: absolute;
+  display: inline-block;
+  width: 100%;
+  height: 100%;
+  border-width: 2px;
+  border-color: #333 #333 transparent transparent;
+  border-style: solid;
+  border-radius: 20px;
+  box-sizing: border-box;
+  top: 0;
+  left: 0;
+  animation: around 0.7s ease-in-out infinite;
+}
+
+.loader::after {
+  animation: around 0.7s ease-in-out 0.1s infinite;
+  background: transparent;
+}
+.dt-paging .disabled {
+    display: none !important;
+}
+.comment {
+    width: 20%;
+}
+body .requests .card{
+    border: none;
+}
+@media only screen and (max-width: 767px) 
+{
+    .content-inner {
+        width: 90%;
+    }
+    .content-main .card {
+        width: 100%;
+    }
+
+}

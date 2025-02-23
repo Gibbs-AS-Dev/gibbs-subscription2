@@ -1,0 +1,20 @@
+{
+  "js_texts":
+    [
+      "An error occurred. Please contact customer service. Error code: $1.",
+      "Use predefined test data, rather than dynamic data from the database",
+      "Usage:",
+      "Production",
+      "Evaluation",
+      "Automated tests",
+      "Save",
+      "Number of storage rooms:",
+      "&quot;Few available&quot; limit:",
+      "Nets secret key:",
+      "Nets public key:"
+    ],
+  "php_texts":
+    [
+      "Settings"
+    ]
+}

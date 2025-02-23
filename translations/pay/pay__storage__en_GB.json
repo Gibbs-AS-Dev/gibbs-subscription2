@@ -1,0 +1,10 @@
+{
+  "js_texts":
+    [
+      "An error occurred during payment. Please try again, or contact customer service."
+    ],
+  "php_texts":
+    [
+      "Payment"
+    ]
+}

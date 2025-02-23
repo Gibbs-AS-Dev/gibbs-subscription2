@@ -1,0 +1,15 @@
+{
+  "js_texts":
+    [
+    ],
+  "php_texts":
+    [
+      "Licence inactive",
+      "We are sorry, but your licence is currently inactive. Until this is remedied, you may not access the aministration application, and your customers will be informed that the site is temporarily unavailable.",
+      "Possible reasons:",
+      "Your licence has been created, but not yet activated.",
+      "You have cancelled your licence.",
+      "The licence has been deactivated due to missed payments, or for other reasons.",
+      "Please contact <a href=\"https://www.gibbs.no/kontakt-oss/\">Gibbs customer service</a> in order to activate the licence."
+    ]
+}

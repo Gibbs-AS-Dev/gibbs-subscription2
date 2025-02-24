@@ -21,41 +21,6 @@ class Product_Type_Data_Manager extends Single_Table_Data_Manager
   // *******************************************************************************************************************
   // *** Public methods.
   // *******************************************************************************************************************
-  // Return the product type with the given $id as an object with the following fields:
-  //   id
-  //   name
-  //   price
-  //   category_id
-  // If an error occurred, the method will return null.
-  public function get_product_type($id)
-  {
-    global $wpdb;
-
-    $sql = $wpdb->prepare("
-        SELECT
-          id,
-          name,
-          price,
-          category_id
-        FROM
-          {$this->database_table}
-        WHERE
-          owner_id = {$this->get_user_group_user_id()} AND
-          id = %d;
-      ",
-      $id
-    );
-    $results = $wpdb->get_results($sql, OBJECT);
-    if (!Utility::array_with_one($results))
-    {
-      return null;
-    }
-    $product_type = $results[0];
-    self::validate_product_type($product_type);
-    return $product_type;
-  }
-
-  // *******************************************************************************************************************
   // Return an array of product type objects, each of which has the following fields:
   //   id
   //   name
@@ -66,21 +31,17 @@ class Product_Type_Data_Manager extends Single_Table_Data_Manager
   {
     global $wpdb;
 
-    $results = $wpdb->get_results("
+    $result = $wpdb->get_results("
       SELECT id, name, price, category_id
       FROM {$this->database_table}
       WHERE owner_id = {$this->get_user_group_user_id()}
       ORDER BY name;
     ", OBJECT);
-    if (!is_array($results))
+    if (!is_array($result))
     {
       return array();
     }
-    foreach ($results as &$product_type)
-    {
-      self::validate_product_type($product_type);
-    }
-    return $results;
+    return $result;
   }
 
   // *******************************************************************************************************************
@@ -104,7 +65,8 @@ class Product_Type_Data_Manager extends Single_Table_Data_Manager
         $table .= $product_type->category_id;
         $table .= "],";
       }
-      $table = Utility::remove_final_comma($table);
+      // Remove final comma.
+      $table = substr($table, 0, -1);
     }
     $table .= "]";
     return $table;
@@ -113,8 +75,6 @@ class Product_Type_Data_Manager extends Single_Table_Data_Manager
   // *******************************************************************************************************************
   // Return the price of the product type with the given $id. The value will be an integer. Return -1 if the product
   // type was not found.
-    // *** // Currently unused.
-/*
   public static function get_price($id)
   {
     global $wpdb;
@@ -124,22 +84,18 @@ class Product_Type_Data_Manager extends Single_Table_Data_Manager
       error_log('Failed to get price for product type with ID ' . strval($id));
       return -1;
     }
-    $sql = $wpdb->prepare("SELECT price FROM subscription_product_type WHERE id = %d;", $id);
-    $results = $wpdb->get_results($sql, ARRAY_A);
+    $results = $wpdb->get_results("SELECT price FROM subscription_product_type WHERE id = {$id};", ARRAY_A);
     if (!Utility::array_with_one($results) || !is_array($results[0]) || !is_numeric($results[0]['price']))
     {
-      error_log("Failed to get price for product type {$id}. Result: " . print_r($results, true));
+      error_log("Failed to get price for product type {$id}. Result: {print_r($results, true)}.");
       return -1;
     }
     return intval($results[0]['price']);
   }
-*/
 
   // *******************************************************************************************************************
   // Return the price stored in the product type of the product with the given $id. The value will be an integer.
   // Return -1 if the product was not found.
-    // *** // Currently unused.
-/*
   public static function get_price_for_product($id)
   {
     global $wpdb;
@@ -149,7 +105,6 @@ class Product_Type_Data_Manager extends Single_Table_Data_Manager
       error_log('Failed to get price for product with ID ' . strval($id));
       return -1;
     }
-    $id = intval($id);
     $results = $wpdb->get_results("
       SELECT
         pt.price
@@ -162,12 +117,12 @@ class Product_Type_Data_Manager extends Single_Table_Data_Manager
     ", ARRAY_A);
     if (!Utility::array_with_one($results) || !is_array($results[0]) || !is_numeric($results[0]['price']))
     {
-      error_log("Failed to get price from product type for product {$id}. Result: " . print_r($results, true));
+      error_log("Failed to get price from product type for product {$id}. Result: {print_r($results, true)}.");
       return -1;
     }
     return intval($results[0]['price']);
   }
-*/
+
   // *******************************************************************************************************************
   // If the given $result_row has a field called "product_type_id", add the value of that field to the array in the
   // given $item stored under the key "for_product_types". If necessary, create the array. The product type ID is stored
@@ -190,10 +145,9 @@ class Product_Type_Data_Manager extends Single_Table_Data_Manager
   }
 
   // *******************************************************************************************************************
-  // Read product type IDs posted to the server. Return false if insufficient information was posted. Return null if all
-  // product type IDs were posted. The null value typically signifies that the entity in question applies to all product
-  // types. Otherwise, return an array of product type IDs. Note that the array might be empty. The method expects the
-  // following fields to be posted:
+  // Read product type IDs posted to the server. Return false if insufficient information was posted. Return null if no
+  // product type IDs were posted. This typically signifies that the entity in question applies to all product types.
+  // Otherwise, return an array of product type IDs. The method expects the following fields to be posted:
   //   for_all_product_types : integer            1 for true, 0 for false. Remaining fields are only present if this
   //                                              value is 0.
   //   product_type_count : integer               The total number of product types in existence - not the number of
@@ -236,11 +190,6 @@ class Product_Type_Data_Manager extends Single_Table_Data_Manager
         }
         // If the product type was not selected, the value will not be posted. This does not indicate an error.
       }
-      // If all product types were posted, return null.
-      if (count($for_product_types) === $product_type_count)
-      {
-        return null;
-      }
       return $for_product_types;
     }
     return false;
@@ -248,15 +197,6 @@ class Product_Type_Data_Manager extends Single_Table_Data_Manager
 
   // *******************************************************************************************************************
   // *** Protected methods.
-  // *******************************************************************************************************************
-  // Ensure the values of the given $product_type are valid and have the correct data type.
-  protected static function validate_product_type(&$product_type)
-  {
-    $product_type->id = intval($product_type->id);
-    $product_type->price = intval($product_type->price);
-    $product_type->category_id = intval($product_type->category_id);
-  }
-
   // *******************************************************************************************************************
   // Return an array that describes a product type, using the information posted to the server. The owner_id field will
   // be set to the current user, and updated_at to the current time. The created_at field will not be set. If either of

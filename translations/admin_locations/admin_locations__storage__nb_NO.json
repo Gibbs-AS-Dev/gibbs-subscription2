@@ -3,11 +3,11 @@
     [
       "Navn",
       "Adresse",
-      "Rediger lager",
-      "Slett lager",
-      "Vis lagerboder",
+      "Rediger",
+      "Slett",
+      "Se lagerboder",
       "Er du sikker på at du vil slette lager: $1?",
-      "Det oppstod en feil. Vennligst kontakt kundeservice og oppgi feilkode $1. Tidspunkt: $2.",
+      "Det oppstod en feil. Vennligst kontakt kundeservice og oppgi feilkode $1.",
       "Opprett lager",
       "Rediger lager",
       "Navn:",
@@ -16,14 +16,13 @@
       "Oppdater",
       "Avbryt",
       "Det er ikke opprettet noen lager enn&aring;.",
-      "Postnr:",
+      "Postnummer:",
       "Poststed:",
       "Land:",
       "&Aring;pningstider:",
       "Tjenester:",
       "&Aring;pningstider",
-      "Tjenester",
-      "Opprett abonnement her"
+      "Tjenester"
     ],
   "php_texts":
     [

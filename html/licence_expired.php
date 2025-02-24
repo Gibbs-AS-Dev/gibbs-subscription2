@@ -3,7 +3,6 @@
   session_start();
   require_once $_SERVER['DOCUMENT_ROOT'] . '/wp-load.php';
   // Load components.
-  require_once $_SERVER['DOCUMENT_ROOT'] . '/subscription/components/utility/utility.php';
   require_once $_SERVER['DOCUMENT_ROOT'] . '/subscription/components/utility/translation.php';
   require_once $_SERVER['DOCUMENT_ROOT'] . '/subscription/components/header/header.php';
   require_once $_SERVER['DOCUMENT_ROOT'] . '/subscription/components/sidebar/sidebar.php';
@@ -15,13 +14,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title><?= Utility::get_page_title() ?></title>
-    <link rel="stylesheet" type="text/css" href="/subscription/resources/css/common.css?v=<?= Utility::BUILD_NO ?>" />
-    <script type="text/javascript" src="/subscription/js/common.js?v=<?= Utility::BUILD_NO ?>"></script>
+    <title>Gibbs abonnement - inaktiv lisens</title>
+    <link rel="stylesheet" type="text/css" href="/subscription/css/common.css" />
+    <script type="text/javascript" src="/subscription/js/common.js"></script>
   </head>
   <body>
     <?= Sidebar::get_simple_sidebar() ?>
-    <?= Header::get_header_with_user_info(null, $text->get(0, 'Lisensen er ikke aktiv')) ?>
+    <?= Header::get_header_with_user_info($text->get(0, 'Lisensen er ikke aktiv')) ?>
     <div class="content">
       <div class="form-element">
         <p>
@@ -36,11 +35,9 @@
           </ul>
         </p>
         <p>
-          <?= $text->get(6, 'Vennligst kontakt $0Gibbs kundeservice$1 for &aring; f&aring; aktivert lisensen.', array('<a href="javascript:void(0);" onclick="Utility.displaySpinnerThenGoTo(\'https://www.gibbs.no/kontakt-oss/\');">', '</a>')) ?>
+          <?= $text->get(6, 'Vennligst kontakt <a href="https://www.gibbs.no/kontakt-oss/">Gibbs kundeservice</a> for &aring; f&aring; aktivert lisensen.') ?>
         </p>
       </div>
     </div>
-
-    <?= Utility::get_spinner(false) ?>
   </body>
 </html>

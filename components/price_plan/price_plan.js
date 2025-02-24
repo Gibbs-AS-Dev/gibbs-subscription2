@@ -37,13 +37,9 @@ static getPriceFromPricePlan(subscriptions, index, pricePlanIndex, referenceDate
     // The dates are stored as strings in ISO format, and can be compared alphabetically.
     if (referenceDate < planLines[i][c.sub.LINE_START_DATE])
     {
-      // The reference date is before this line in the price plan comes into effect, so this line
-      // does not currently apply. If we already had a price, that does apply, so return that.
-      if (price >= 0)
-        return price;
-      // We didn't have a price already, so this is the first one. Use it, even though it doesn't
-      // technically apply yet.
-      return planLines[i][c.sub.LINE_PRICE];
+      // The reference date is before this line in the price plan comes into effect. Return the last
+      // price we had.
+      return price;
     }
     // The reference date is equal to or after this line in the price plan, so this price applies.
     // Store the price. It might be superseded by later lines, but in that case the price will be
@@ -71,7 +67,7 @@ static getPricePlanLines(subscriptions, index, pricePlanIndex)
 
 // *************************************************************************************************
 // Return the index of the product price plan - that is, the price plan for renting the storage
-// unit - for the subscription with the given index, or -1 if it could not be found.
+// room - for the subscription with the given index, or -1 if it could not be found.
 static getProductPricePlan(subscriptions, index)
 {
   return PricePlan._getPricePlanForType(subscriptions, index, -1);

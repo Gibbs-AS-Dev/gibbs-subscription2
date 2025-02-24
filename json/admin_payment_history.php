@@ -46,8 +46,10 @@
       }
       else
       {
-        // Read the payment history from the database.
+        // Read the payment history from the database. We need to set the user ID; otherwise the data manager will use
+        // the currently logged-in user.
         $order_data = new Order_Data_Manager($access_token);
+        $order_data->set_user_id($user_id);
         $order_data->set_subscription_id($subscription_id);
         $payment_history = $order_data->read();
         $result_code = Result::OK;

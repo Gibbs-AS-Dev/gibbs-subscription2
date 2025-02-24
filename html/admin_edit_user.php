@@ -6,8 +6,7 @@
   require_once $_SERVER['DOCUMENT_ROOT'] . '/subscription/components/utility/utility.php';
   require_once $_SERVER['DOCUMENT_ROOT'] . '/subscription/components/settings/settings_manager.php';
   require_once $_SERVER['DOCUMENT_ROOT'] . '/subscription/components/data/test_data_manager.php';
-  require_once $_SERVER['DOCUMENT_ROOT'] . '/subscription/components/data/user_subscription_data_manager.php';
-  require_once $_SERVER['DOCUMENT_ROOT'] . '/subscription/components/data/product_type_data_manager.php';
+  require_once $_SERVER['DOCUMENT_ROOT'] . '/subscription/components/data/subscription_data_manager.php';
   require_once $_SERVER['DOCUMENT_ROOT'] . '/subscription/components/data/location_data_manager.php';
   require_once $_SERVER['DOCUMENT_ROOT'] . '/subscription/components/utility/translation.php';
   require_once $_SERVER['DOCUMENT_ROOT'] . '/subscription/components/user/user.php';
@@ -16,9 +15,6 @@
 
   // If the user is not logged in as an administrator, redirect to the login page with HTTP status code 401.
   $access_token = User::verify_is_admin();
-
-  // Get translated texts.
-  $text = new Translation('', 'storage', '');
 
   // Read ID parameter. If the parameter does not specify an existing customer, a new customer will be created once the
   // admin has filled in the information. If an existing customer is specified, display information on that customer.
@@ -29,8 +25,8 @@
   $settings = Settings_Manager::read_settings($access_token);
   if ($is_new_user)
   {
-    $result_code = Result::NO_ACTION_TAKEN;
-    $user = User_Data_Manager::get_empty_user();
+    $result_code = Result::OK;
+    $user = 'null';
     $subscriptions = 'null';
   }
   else
@@ -39,11 +35,11 @@
     {
       $result_code = Result::NO_ACTION_TAKEN;
       $user = Test_Data_Manager::USER;
-      $subscriptions = Test_Data_Manager::USER_SUBSCRIPTIONS;
+      $subscriptions = Test_Data_Manager::SUBSCRIPTIONS;
     }
     else
     {
-      $subscription_data = new User_Subscription_Data_Manager($access_token);
+      $subscription_data = new Subscription_Data_Manager($access_token);
       $subscription_data->set_user_id($user_id);
 
       // Handle create, update and delete operations.
@@ -58,7 +54,6 @@
       }
       else
       {
-        // Cancel subscriptions.
         $result_code = $subscription_data->perform_action();
       }
       // Read user information and subscriptions to be displayed to the user.
@@ -69,15 +64,12 @@
 
   if ($settings->get_use_test_data())
   {
-    $product_types = Test_Data_Manager::PRODUCT_TYPES;
     $locations = Test_Data_Manager::LOCATIONS;
   }
   else
   {
-    $product_type_data = new Product_Type_Data_Manager($access_token);
     $location_data = new Location_Data_Manager($access_token);
-    // Read product types and locations to be displayed to the user.
-    $product_types = $product_type_data->read();
+    // Read locations to be displayed to the user.
     $locations = $location_data->read();
   }
 ?>
@@ -85,45 +77,35 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title><?= Utility::get_page_title() ?></title>
-    <link rel="stylesheet" type="text/css" href="/subscription/resources/css/fontawesome.css?v=<?= Utility::BUILD_NO ?>" />
-    <link rel="stylesheet" type="text/css" href="/subscription/resources/css/solid.css?v=<?= Utility::BUILD_NO ?>" />
-    <link rel="stylesheet" type="text/css" href="/subscription/resources/css/common.css?v=<?= Utility::BUILD_NO ?>" />
-    <script type="text/javascript" src="/subscription/js/common.js?v=<?= Utility::BUILD_NO ?>"></script>
-    <script type="text/javascript" src="/subscription/components/sorting/sorting.js?v=<?= Utility::BUILD_NO ?>"></script>
-    <script type="text/javascript" src="/subscription/components/calendar/calendar.js?v=<?= Utility::BUILD_NO ?>"></script>
-    <script type="text/javascript" src="/subscription/components/menu/popup_menu.js?v=<?= Utility::BUILD_NO ?>"></script>
-    <script type="text/javascript" src="/subscription/components/price_plan/price_plan.js?v=<?= Utility::BUILD_NO ?>"></script>
-    <script type="text/javascript" src="/subscription/js/admin_edit_user.js?v=<?= Utility::BUILD_NO ?>"></script>
+    <title>Gibbs abonnement - brukerinformasjon og abonnementer</title>
+    <link rel="stylesheet" type="text/css" href="/subscription/resources/css/fontawesome.css" />
+    <link rel="stylesheet" type="text/css" href="/subscription/resources/css/solid.css" />
+    <link rel="stylesheet" type="text/css" href="/subscription/css/common.css" />
+    <script type="text/javascript" src="/subscription/js/common.js"></script>
+    <script type="text/javascript" src="/subscription/components/price_plan/price_plan.js"></script>
+    <script type="text/javascript" src="/subscription/js/admin_edit_user.js"></script>
     <script type="text/javascript">
 
-st.sub.TEXTS = <?= $text->get(4, "['Feil ved bestilling', 'Avsluttet', 'L&oslash;pende', 'Sagt opp', 'Bestilt']") ?>;
-var PAYMENT_STATUS_TEXTS = <?= $text->get(5, "['Ukjent', 'Ikke betalt', 'Betalt', 'Delvis betalt', 'Ikke betalt - forfalt', 'Ikke betalt - betalingsp&aring;minnelse sendt', 'Ikke betalt - purring sendt', 'Ikke betalt - sendt til inkasso', 'Betalt - betalt til inkassoselskap', 'Tapt / kan ikke kreves inn', 'Kreditert', 'Feil hos betalingsselskap', 'Teknisk feil ved betaling', 'Betalt - refundert', 'Omstridt krav', 'Faktura ikke sendt', 'Faktura sendt', 'Betaling startet', 'Slettet']") ?>;
-var PAYMENT_METHOD_TEXTS = <?= $text->get(7, "['Ukjent', 'Nets (kort)', 'Faktura', 'Kort, s&aring; faktura']") ?>;
-var ADDITIONAL_PRODUCT_TEXTS = <?= $text->get(6, "['', 'forsikring']") ?>;
-var DAY_NAMES = <?= $text->get(8, "['', 'Man', 'Tir', 'Ons', 'Tor', 'Fre', 'L&oslash;r', 'S&oslash;n']") ?>;
-var MONTH_NAMES = <?= $text->get(9, "['Januar', 'Februar', 'Mars', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Desember']") ?>;
-var MONTH_NAMES_IN_SENTENCE = <?= $text->get(10, "['januar', 'februar', 'mars', 'april', 'mai', 'juni', 'juli', 'august', 'september', 'oktober', 'november', 'desember']") ?>;
-
-<?= $text->get_js_strings() ?>
+var SUB_TEXTS = ['Avsluttet', 'L&oslash;pende', 'Sagt opp', 'Bestilt'];
+/*< ?= $text->get(, "['Avsluttet', 'L&oslash;pende', 'Sagt opp', 'Bestilt']") ? >;*/
+var PAYMENT_STATUS_TEXTS = ['Ukjent', 'Ikke betalt', 'Betalt', 'Delvis betalt', 'Ikke betalt - forfalt', 'Ikke betalt - betalingsp&aring;minnelse sendt', 'Ikke betalt - purring sendt', 'Ikke betalt - sendt til inkasso', 'Betalt - betalt til inkassoselskap', 'Tapt / kan ikke kreves inn', 'Kreditert', 'Feil hos betalingsselskap', 'Teknisk feil ved betaling', 'Betalt - refundert', 'Omstridt krav'];
+/*< ?= $text->get(4, "['Ukjent', 'Ikke betalt', 'Betalt', 'Delvis betalt', 'Ikke betalt - forfalt', 'Ikke betalt - betalingsp&aring;minnelse sendt', 'Ikke betalt - purring sendt', 'Ikke betalt - sendt til inkasso', 'Betalt - betalt til inkassoselskap', 'Tapt / kan ikke kreves inn', 'Kreditert', 'Feil hos betalingsselskap', 'Teknisk feil ved betaling', 'Betalt - refundert', 'Omstridt krav']") ? >;*/
+var ADDITIONAL_PRODUCT_TEXTS = ['', 'forsikring'];
+/*< ?= $text->get(5, "['', 'forsikring']") ?>;*/
 
 var displayExpiredSubscriptions = true;
 
-<?= Utility::write_initial_sorting() ?>
-
-var TIMESTAMP = '<?= Utility::get_timestamp() ?>';
 var resultCode = <?= $result_code ?>;
 var isNewUser = <?= var_export($is_new_user, true) ?>;
 var user = <?= $user ?>;
-var productTypes = <?= $product_types ?>;
 var locations = <?= $locations ?>;
 var subscriptions = <?= $subscriptions ?>;
 
     </script>
   </head>
   <body onload="initialise();">
-    <?= Sidebar::get_admin_sidebar() ?>
-    <?= Header::get_header_with_user_info($access_token, $text->get(0, 'Kundekort'), 'fa-user') ?>
+    <?= Sidebar::get_expanding_sidebar() ?>
+    <?= Header::get_header_with_user_info('Brukerinformasjon og abonnementer', 'fa-repeat') ?>
     <div class="content">
       <div id="userInfoBox">
         &nbsp;
@@ -131,13 +113,13 @@ var subscriptions = <?= $subscriptions ?>;
     </div>
     <div id="subscriptionsFrame" class="content">
       <div class="toolbar">
-        <h3><?= $text->get(1, 'Abonnementer') ?></h3>
+        <h3>Brukerens abonnementer</h3>
         <br />
-        <button type="button" class="button wide-button" onclick="Utility.displaySpinnerThenGoTo('/subscription/html/admin_book_subscription.php?initial_user_id=<?= $user_id ?>');"><i class="fa-solid fa-boxes-stacked"></i> <?= $text->get(2, 'Opprett abonnement') ?></button>
-        <div class="filter filter-next-to-buttons">
+        <a href="/subscription/html/book_subscription.php" class="button wide-button"><i class="fa-solid fa-boxes-stacked"></i> Bestill lagerbod</a>
+        <div class="filter">
           <label id="expiredSubscriptionsLine" for="expiredSubscriptionsCheckbox">
             <input id="expiredSubscriptionsCheckbox" type="checkbox" onchange="toggleExpiredSubscriptions();" checked="checked" />
-            <?= $text->get(3, 'Vis avsluttede avtaler') ?>
+            Vis avsluttede avtaler
           </label>
         </div>
       </div>
@@ -146,21 +128,15 @@ var subscriptions = <?= $subscriptions ?>;
       </div>
     </div>
 
-    <?= Utility::get_spinner() ?>
     <div id="overlay" class="overlay" style="display: none;">
       &nbsp;
     </div>
-    <div id="userNotesDialogue" class="dialogue user-notes-dialogue" style="display: none;">
-      &nbsp;
-    </div>
-    <div id="pricePlanDialogue" class="dialogue price-plan-dialogue-admin" style="display: none;">
+    <div id="pricePlanDialogue" class="dialogue price-plan-dialogue" style="display: none;">
       &nbsp;
     </div>
     <div id="paymentHistoryDialogue" class="dialogue payment-history-dialogue" style="display: none;">
       &nbsp;
     </div>
-    <div id="cancelSubscriptionDialogue" class="dialogue cancel-subscription-dialogue" style="display: none;">
-      &nbsp;
-    </div>
   </body>
 </html>
+

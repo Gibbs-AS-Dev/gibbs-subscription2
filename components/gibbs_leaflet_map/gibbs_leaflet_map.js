@@ -47,6 +47,7 @@ displayAddress(address)
   // address, and center the map on that location.
   fetch('https://nominatim.openstreetmap.org/search?format=json&q=' + encodeURI(address))
     .then(Utility.extractJson)
+    .catch(this._logNominatimError.bind(this))
     .then(this._displayMarker.bind(this))
     .catch(this._logNominatimError.bind(this));
 }

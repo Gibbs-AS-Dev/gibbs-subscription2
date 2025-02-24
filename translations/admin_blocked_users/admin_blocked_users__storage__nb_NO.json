@@ -1,10 +1,10 @@
 {
   "js_texts":
     [
-      "Det oppstod en feil. Vennligst kontakt kundeservice og oppgi feilkode $1. Tidspunkt: $2."
+      "Det oppstod en feil. Vennligst kontakt kundeservice og oppgi feilkode $1."
     ],
   "php_texts":
     [
-      "Blokkerte kunder"
+      "Blokkerte brukere"
     ]
 }

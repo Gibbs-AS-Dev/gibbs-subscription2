@@ -1,432 +1,231 @@
-﻿// *************************************************************************************************
+// *************************************************************************************************
 // *** Gibbs © 2023-2024
 // *************************************************************************************************
 
 // *************************************************************************************************
 // *** Variables.
 // *************************************************************************************************
-// Pointers to user interface elements.
-var subscriptionsBox, expiredSubscriptionsCheckbox, expiredSubscriptionsLine, overlay,
-  pricePlanDialogue, paymentHistoryDialogue;
 
-// Array of information about the maps displayed in the list of subscriptions. The array has an
-// entry for each location displayed in the list. Each entry is an object with the following format:
-//   {
-//     index : integer
-//     id : string
-//     map : GibbsLeafletMap
-//   }
-// index is the index of the location in the locations table. id is the ID of the HTML element that
-// will hold the map. map is the GibbsLeafletMap instance that displays the map of that location in
-// the list of subscriptions.
-var maps = [];
+// Pointers to user interface elements.
+var subscriptionsBox, overlay, cancelSubscriptionDialogue, cancelSubscriptionDialogueContent,
+  paymentHistoryDialogue;
+
+// The index in the subscriptions table of the subscription which is currently being cancelled, or
+// -1 if the cancel subscription dialogue is not displayed.
+var cancellingIndex = -1;
 
 // *************************************************************************************************
 // *** Functions.
 // *************************************************************************************************
-// Initialise the page by caching pointers and displaying subscriptions.
+// Initialise the page by caching pointers and displaying the first page of the progress tabset.
 function initialise()
 {
   // Obtain pointers to user interface elements.
-  Utility.readPointers(['subscriptionsBox', 'expiredSubscriptionsCheckbox',
-    'expiredSubscriptionsLine', 'overlay', 'pricePlanDialogue', 'paymentHistoryDialogue']);
+  Utility.readPointers(['subscriptionsBox', 'overlay', 'cancelSubscriptionDialogue',
+    'cancelSubscriptionDialogueContent', 'paymentHistoryDialogue']);
 
-  expiredSubscriptionsCheckbox.checked = displayExpiredSubscriptions;
-  displaySubscriptions();
-
-  // Display the results of a previous operation, if required.
-  if (resultCode === result.PRODUCT_ALREADY_BOOKED)
-    alert(getText(23,
-      'Beklager! Alle lagerbodene av typen du valgte er nå bestilt. Vennligst prøv igjen!'));
-  else
-    if (resultCode >= 0)
-      alert(getText(1, 'Det oppstod en feil. Vennligst kontakt kundeservice og oppgi feilkode $1.',
-        [String(resultCode)]));
-}
-
-// *************************************************************************************************
-// Display a confirmation dialogue asking the user to cancel the subscription with the given ID. The
-// confirmation will display appropriate information on when the subscription will end, depending on
-// the current date. If the user confirms, ask the server to cancel the subscription.
-//
-// The information presented to the user depends on the time and date being set correctly on the
-// client. However, the server has the last word on when the subscription actually ends.
-function cancelSubscription(id)
-{
-  var index, approved, o, p;
-
-  index = Utility.getSubscriptionIndex(id);
-  if (index >= 0)
-  {
-    // Display confirmation dialogue with correct information, depending on today's date.
-    if (Utility.canCancelThisMonth())
-      approved = confirm(getText(0,
-        'Er du sikker på at du vil si opp $1? Du beholder lagerboden til og med siste dag i inneværende måned.',
-        [subscriptions[index][c.sub.NAME]]));
-    else
-      approved = confirm(getText(14,
-        'Er du sikker på at du vil si opp $1? Du trekkes for neste måned, og beholder lagerboden til og med siste dag neste måned.',
-        [subscriptions[index][c.sub.NAME]]));
-    if (approved)
-    {
-      o = new Array(3);
-      p = 0;
-
-      o[p++] = '<form id="cancelSubscriptionForm" action="/subscription/html/user_dashboard.php" method="post"><input type="hidden" name="action" value="cancel_subscription" /><input type="hidden" name="id" value="';
-      o[p++] = String(subscriptions[index][c.sub.ID]);
-      o[p++] = '" /></form>';
-      paymentHistoryDialogue.innerHTML = o.join('');
-      document.getElementById('cancelSubscriptionForm').submit();
-    }
-  }
-}
-
-// *************************************************************************************************
-// Display or hide subscriptions that have been cancelled, depending on the current setting.
-function toggleExpiredSubscriptions()
-{
-  displayExpiredSubscriptions = expiredSubscriptionsCheckbox.checked;
+  // Display the list of subscriptions.
   displaySubscriptions();
 }
 
 // *************************************************************************************************
-// Return true if all of the user's subscriptions are expired. If the user has no subscriptions, the
-// method will return false.
-function allSubscriptionsExpired()
-{
-  var i;
 
-  if (subscriptions.length <= 0)
-    return false;
-  for (i = 0; i < subscriptions.length; i++)
-  {
-    if (subscriptions[i][c.sub.STATUS] !== st.sub.EXPIRED)
-      return false;
-  }
-  return true;
-}
-
-// *************************************************************************************************
-// Return a Javascript array of indexes (into the subscriptions table) of subscriptions at the
-// location with the given index (in the locations table). If displayExpiredSubscriptions is
-// false, expired subscriptions will not be included in the returned array.
-function listSubscriptionsAtLocation(locationId)
-{
-  var i, result;
-
-  result = [];
-  for (i = 0; i < subscriptions.length; i++)
-  {
-    // If the subscription is at the correct location, and the subscription is either not expired,
-    // or we want to include expired subscriptions, add the subscription index to the list of
-    // indexes to be displayed.
-    if ((subscriptions[i][c.sub.LOCATION_ID] === locationId) &&
-      ((subscriptions[i][c.sub.STATUS] !== st.sub.EXPIRED) || displayExpiredSubscriptions))
-      result.push(i);
-  }
-  return result;
-}
-
-// *************************************************************************************************
-// Display all of the user's subscriptions. Cancelled subscriptions may be concealed, depending on
-// the displayExpiredSubscriptions flag. Subscriptions are grouped by location, and information
-// about each location will be displayed. This includes a map.
 function displaySubscriptions()
 {
-  var o, p, i;
-  
-  // If the user has no subscriptions, active or inactive, just display a message to that effect.
+  var o, p, i, locationIndex, isOngoing, rent, insurance, price;
+
+  o = new Array((subscriptions.length * 60) + 3);
+  p = 0;
+
+  for (i = 0; i < subscriptions.length; i++)
+  {
+    locationIndex = Utility.getLocationIndex(subscriptions[i][c.sub.LOCATION_ID]);
+    isOngoing = subscriptions[i][c.sub.STATUS] === st.sub.ONGOING;
+    // Subscription box.
+    o[p++] = '<div class="button-box">';
+    // Header.
+    o[p++] = '<div class="button-box-left subscription-left';
+    if (isOngoing)
+      o[p++] = '-ongoing';
+    o[p++] = '"><h3>';
+    // Location name.
+    o[p++] = locations[locationIndex][c.loc.NAME];
+    o[p++] = '</h3>';
+    // Location address.
+    o[p++] = Utility.getAddress(locations[locationIndex]);
+    o[p++] = '</div>';
+    // Cancel button.
+    if (isOngoing)
+    {
+      o[p++] = '<div class="button-box-right subscription-right-ongoing"><button type="button" class="low-profile" onclick="displayCancelSubscriptionDialogue(';
+      o[p++] = String(i);
+      o[p++] = ');"><i class="fa-solid fa-hand-wave"></i>&nbsp;&nbsp;';
+      o[p++] = getText(2, 'Si opp');
+      o[p++] = '</button></div>';
+    }
+    // Content.
+    o[p++] = '<div class="button-box-bottom subscription-bottom"><table cellspacing="0" cellpadding="0"><tbody>';
+    // Product name.
+    o[p++] = '<tr><td class="subscription-caption">';
+    o[p++] = getText(3, 'Lagerbod');
+    o[p++] = '</td><td class="subscription-data">';
+    o[p++] = subscriptions[i][c.sub.PRODUCT_NAME];
+    o[p++] = '</td></tr>';
+    // Storage unit type name.
+    o[p++] = '<tr><td class="subscription-caption">';
+    o[p++] = getText(4, 'Bodtype');
+    o[p++] = '</td><td class="subscription-data">';
+    o[p++] = Utility.getProductTypeName(subscriptions[i][c.sub.PRODUCT_TYPE_ID]);
+    o[p++] = '</td></tr>';
+    // Start date.
+    o[p++] = '<tr><td class="subscription-caption">';
+    o[p++] = getText(5, 'Fra dato');
+    o[p++] = '</td><td class="subscription-data">';
+    o[p++] = subscriptions[i][c.sub.START_DATE];
+    o[p++] = '</td></tr>';
+    // Status and end date.
+    o[p++] = '<tr><td class="subscription-caption">';
+    o[p++] = getText(6, 'Status');
+    o[p++] = '</td><td class="subscription-data">';
+    o[p++] = Utility.getStatusLabel(st.sub.TEXTS, st.sub.COLOURS, subscriptions[i][c.sub.STATUS]);
+    if (subscriptions[i][c.sub.END_DATE] !== '')
+    {
+      o[p++] = getText(7, ' Siste&nbsp;dag:&nbsp;');
+      o[p++] = subscriptions[i][c.sub.END_DATE];
+    }
+    o[p++] = '</td></tr>';
+    // Current price. This includes both rent and insurance.
+    o[p++] = '<tr><td class="subscription-caption">';
+    o[p++] = getText(8, 'Pris');
+    o[p++] = '</td><td class="subscription-data">';
+    rent = PricePlan.getPriceFromPricePlan(subscriptions, i,
+      PricePlan.getProductPricePlan(subscriptions, i));
+    if (rent >= 0)
+      price = rent;
+    else
+      price = 0;
+    insurance = PricePlan.getPriceFromPricePlan(subscriptions, i,
+      PricePlan.getInsurancePricePlan(subscriptions, i));
+    if (insurance >= 0)
+      price += insurance;
+    if ((rent >= 0) || (insurance >= 0))
+    {
+      o[p++] = String(price);
+      o[p++] = getText(9, ' kr');
+    }
+    else
+      o[p++] = '&nbsp;';
+    o[p++] = '</td></tr>';
+    // Order history.
+    o[p++] = '<tr><td class="subscription-caption">';
+    o[p++] = getText(10, 'Betalinger');
+    o[p++] = '</td><td class="subscription-data"><button type="button" class="low-profile wide-button" onclick="loadPaymentHistory(';
+    o[p++] = String(i);
+    o[p++] = ');"><i class="fa-solid fa-file-invoice"></i>&nbsp;&nbsp;';
+    o[p++] = getText(11, 'Se betalinger');
+    o[p++] = '</button></td></tr>';
+    // Access code.
+    if ((subscriptions[i][c.sub.STATUS] === st.sub.ONGOING) || (subscriptions[i][c.sub.STATUS] === st.sub.CANCELLED))
+    {
+      o[p++] = '<tr><td class="subscription-caption">';
+      o[p++] = getText(12, 'Adgangskode');
+      o[p++] = '</td><td class="subscription-data">';
+      if ((subscriptions[i][c.sub.ACCESS_CODE] === '') &&
+        (subscriptions[i][c.sub.ACCESS_LINK] === ''))
+        o[p++] = getText(13, 'Lås ikke aktiv');
+      else
+      {
+        if (subscriptions[i][c.sub.ACCESS_CODE] !== '')
+          o[p++] = subscriptions[i][c.sub.ACCESS_CODE];
+        if (subscriptions[i][c.sub.ACCESS_LINK] !== '')
+        {
+          o[p++] = '&nbsp;&nbsp;&nbsp;&nbsp;<button type="button" onclick="window.open(\'';
+          o[p++] = subscriptions[i][c.sub.ACCESS_LINK];
+          o[p++] = '\', \'_blank\');"><i class="fa-solid fa-key"></i>&nbsp;&nbsp;';
+          o[p++] = getText(35, 'Åpne');
+          o[p++] = '</button>';
+        }
+      }
+      o[p++] = '</td></tr>';
+    }
+    // End of content. End of subscription box.
+    o[p++] = '</tbody></table></div></div>';
+  }
+  // Text to say there are no subscriptions.
   if (subscriptions.length <= 0)
   {
-    subscriptionsBox.innerHTML = '<div class="form-element"><p>' +
-      getText(9, 'Velkommen som bruker av Gibbs minilager! Du har ingen lagerboder i &oslash;yeblikket. Klikk Bestill lagerbod for &aring; komme i gang.') + '</p></div>'
-    Utility.hide(expiredSubscriptionsLine);
-    return;
+    o[p++] = '<div class="button-box"><div class="form-element">';
+    o[p++] = getText(15, 'Velkommen som bruker av Gibbs minilager! Du har ingen lagerboder i øyeblikket. Hvis du allerede har sendt forespørsel, er det bare å vente til vi kontakter deg. Hvis ikke, klikk Bestill lagerbod for å komme i gang.');
+    o[p++] = '</div></div>';
   }
-  if (!displayExpiredSubscriptions && allSubscriptionsExpired())
-  {
-    subscriptionsBox.innerHTML = '<div class="form-element"><p>' +
-      getText(8, 'Alle dine avtaler er avsluttet. Kryss av i boksen for &quot;avsluttede avtaler&quot; for &aring; vise dem.') +
-      '</p></div>'
-    Utility.display(expiredSubscriptionsLine);
-    return;
-  }
+  // Button to book subscriptions.
+  o[p++] = '<div class="create-subscription-button-box"><button type="button" class="wide-button" onclick="Utility.displaySpinnerThenGoTo(\'/subscription/html/select_booking_type.php\');"><i class="fa-solid fa-boxes-stacked"></i>&nbsp;&nbsp;';
+  o[p++] = getText(14, 'Bestill lagerbod');
+  o[p++] = '</button></div>';
 
-  // The user has subscriptions. Note that none may be displayed, if the user has opted to not
-  // display expired subscriptions.
-  Utility.display(expiredSubscriptionsLine);
-
-  // Clear the list of map components. The code generated below will replace it.
-  maps = [];
-  
-  // Display subscriptions for each location in turn.
-  o = new Array(locations.length);
-  p = 0;
-
-  for (i = 0; i < locations.length; i++)
-    o[p++] = displayLocationSubscriptions(i);
   subscriptionsBox.innerHTML = o.join('');
-
-  // Create all required maps.
-  for (i = 0; i < maps.length; i++)
-  {
-    maps[i].map = new GibbsLeafletMap(maps[i].id);
-    maps[i].map.displayAddress(Utility.getAddress(locations[maps[i].index]));
-  }
+  Utility.hideSpinner();
 }
 
 // *************************************************************************************************
-// Return HTML code to display all of the user's subscriptions at the location with the given index
-// in the locations table. Cancelled subscriptions may be concealed, depending on the
-// displayExpiredSubscriptions flag. If the user has no displayable subscriptions at the given
-// location, return an empty string.
-function displayLocationSubscriptions(index)
+// *** Cancel subscription functions.
+// *************************************************************************************************
+// Display a dialogue to allow the user to delete the subscription with the given index in the
+// subscriptions table.
+function displayCancelSubscriptionDialogue(index)
 {
-  var o, p, subscriptionIndexes;
+  var o, p;
 
+  // Write the cancel subscription dialogue contents.
   index = parseInt(index, 10);
-  if (!Utility.isValidIndex(index, locations))
-    return '';
-
-  // See if the user has displayable subscriptions.
-  subscriptionIndexes = listSubscriptionsAtLocation(locations[index][c.loc.ID]);
-  if (subscriptionIndexes.length <= 0)
-    return '';
-
-  // Add an entry to the list of maps, to signal that a map must be created here.
-  mapId = 'mapOfLocation' + String(index);
-  maps.push({index: index, id: mapId, map: null});
-
-  // Display location information, including a placeholder for the map.
-  o = new Array(25);
-  p = 0;
-
-  o[p++] = '<div class="location-box"><div class="column-container"><div class="column"><div id="';
-  o[p++] = mapId;
-  o[p++] = '" class="map">&nbsp;</div></div><div class="column"><table cellspacing="0" cellpadding="0"><thead><tr><th colspan="2"><h3>';
-  o[p++] = locations[index][c.loc.NAME];
-  o[p++] = '</h3></th></tr></thead><tbody><tr><td>';
-  o[p++] = getText(11, 'Adresse:');
-  o[p++] = '</td><td>';
-  o[p++] = Utility.getAddress(locations[index]);
-  o[p++] = '</td></tr><tr><td>';
-  o[p++] = getText(12, '&Aring;pningstider:');
-  o[p++] = '</td><td>';
-  o[p++] = locations[index][c.loc.OPENING_HOURS];
-  o[p++] = '</td></tr><tr><td>';
-  o[p++] = getText(13, 'Tjenester:');
-  o[p++] = '</td><td>';
-  o[p++] = locations[index][c.loc.SERVICES];
-  o[p++] = '</td></tr>';
-  if (locations[index][c.loc.ACCESS_CODE] !== '')
-  {
-    o[p++] = '<tr><td>';
-    o[p++] = getText(2, 'Adgangskode:');
-    o[p++] = '</td><td class="access-code">';
-    o[p++] = locations[index][c.loc.ACCESS_CODE];
-    o[p++] = '</td></tr>';
-  }
-  o[p++] = '</tbody></table></div></div>';
-
-  // Display subscriptions at this location.
-  o[p++] = displaySubscriptionSet(subscriptionIndexes);
-  o[p++] = '</div>';
-  return o.join('');
-}
-
-// *************************************************************************************************
-// Return HTML code to display a table of subscriptions. The indexes array holds the indexes in the
-// subscriptions table of the subscriptions to be displayed.
-function displaySubscriptionSet(indexes)
-{
-  var o, p, i, index;
-
-  o = new Array((indexes.length * 23) + 18);
-  p = 0;
-  
-  o[p++] = '<table cellspacing="0" cellpadding="0"><thead><tr><th>';
-  o[p++] = getText(3, 'Lagerbod');
-  o[p++] = '</th><th>';
-  o[p++] = getText(4, 'Bodtype');
-  o[p++] = '</th><th>';
-  o[p++] = getText(21, 'Status');
-  o[p++] = '</th><th>';
-  o[p++] = getText(5, 'Fra dato');
-  o[p++] = '</th><th>';
-  o[p++] = getText(6, 'Til dato');
-  o[p++] = '</th><th>';
-  o[p++] = getText(24, 'Forsikring');
-  o[p++] = '</th><th>';
-  o[p++] = getText(10, 'Betalingshistorikk');
-  o[p++] = '</th><th>';
-  o[p++] = getText(7, 'Si opp');
-  o[p++] = '</th></tr></thead><tbody>';
-  for (i = 0; i < indexes.length; i++)
-  {
-    index = parseInt(indexes[i], 10);
-    if ((!Utility.isValidIndex(index, subscriptions)) ||
-      (!displayExpiredSubscriptions && (subscriptions[index][c.sub.STATUS] === st.sub.EXPIRED)))
-      continue;
-
-    o[p++] = '<tr><td>';
-    o[p++] = subscriptions[index][c.sub.NAME];
-    o[p++] = getPriceButton(index, PricePlan.getProductPricePlan(subscriptions, index));
-    o[p++] = '</td><td>';
-    o[p++] = subscriptions[index][c.sub.PRODUCT_TYPE];
-    o[p++] = '</td><td><span class="status-label ';
-    o[p++] = st.sub.COLOURS[subscriptions[index][c.sub.STATUS]];
-    o[p++] = '">';
-    o[p++] = SUB_TEXTS[subscriptions[index][c.sub.STATUS]];
-    o[p++] = '</span></td><td>';
-    o[p++] = subscriptions[index][c.sub.START_DATE];
-    o[p++] = '</td><td>';
-    if (subscriptions[index][c.sub.END_DATE] === '')
-      o[p++] = '&nbsp;';
-    else
-      o[p++] = subscriptions[index][c.sub.END_DATE];
-    o[p++] = '</td><td>';
-    if (subscriptions[index][c.sub.INSURANCE_NAME] === '')
-      o[p++] = '&nbsp;';
-    else
-    {
-      o[p++] = subscriptions[index][c.sub.INSURANCE_NAME];
-      o[p++] = getPriceButton(index, PricePlan.getInsurancePricePlan(subscriptions, index));
-    }
-    o[p++] = '</td><td><button type="button" class="icon-button" onclick="loadPaymentHistory(';
-    o[p++] = String(index);
-    o[p++] = ');"><i class="fa-solid fa-file-invoice-dollar"></i></button></td><td>';
-    if (subscriptions[index][c.sub.STATUS] === st.sub.ONGOING)
-    {
-      o[p++] = '<button type="button" class="icon-button" onclick="cancelSubscription(';
-      o[p++] = subscriptions[index][c.sub.ID];
-      o[p++] = ');"><i class="fa-solid fa-trash"></i></button>';
-    }
-    else  
-      o[p++] = '&nbsp;';
-    o[p++] = '</td></tr>';
-  }
-  o[p++] = '</tbody></table>';
-
-  return o.join('');
-}
-
-// *************************************************************************************************
-// *** Price plan functions.
-// *************************************************************************************************
-// Return HTML code for a button to open a price plan window for the price plan with the given
-// pricePlanIndex, for the subscription with the given index. The button displays the current price.
-// If the price is -1, it will not be displayed.
-function getPriceButton(index, pricePlanIndex)
-{
-  var o, p, price;
-
-  if (pricePlanIndex < 0)
-    return '';
-  o = new Array(8);
-  p = 0;
-
-  o[p++] = '<button type="button" class="table-button" onclick="displayPricePlan(';
-  o[p++] = String(index);
-  o[p++] = ', ';
-  o[p++] = String(pricePlanIndex);
-  o[p++] = ');">';
-  price = PricePlan.getPriceFromPricePlan(subscriptions, index, pricePlanIndex);
-  if (price >= 0)
-  {
-    o[p++] = String(price);
-    o[p++] = ',-';
-  }
-  else
-    o[p++] = getText(31, 'Pris');
-  o[p++] = '</button>';
-  return o.join('');
-}
-
-// *************************************************************************************************
-// Open a dialogue box that displays the price plan with the given pricePlanIndex, for the
-// subscription with the given index.
-function displayPricePlan(index, pricePlanIndex)
-{
-  var o, p, i, planType, planLines;
-
-  planLines = PricePlan.getPricePlanLines(subscriptions, index, pricePlanIndex);
-  if (planLines === null)
+  if (!Utility.isValidIndex(index, subscriptions))
     return;
-  o = new Array((planLines.length * 9) + 19);
+  cancellingIndex = index;
+  o = new Array(3);
   p = 0;
 
-  o[p++] = '<div class="dialogue-header"><h1>';
-  planType = subscriptions[index][c.sub.PRICE_PLANS][pricePlanIndex][c.sub.PLAN_TYPE];
-  if (planType < 0)
-    o[p++] = getText(32, 'Prishistorikk, leie');
+  // Display confirmation dialogue with correct information, depending on today's date.
+  o[p++] = '<div class="form-element">';
+  if (Utility.canCancelThisMonth())
+    o[p++] = getText(0,
+      'Er du sikker på at du vil si opp $1? Du beholder lagerboden til og med siste dag i inneværende måned.',
+      [subscriptions[index][c.sub.PRODUCT_NAME]]);
   else
-    o[p++] = getText(33, 'Prishistorikk, $1', [ADDITIONAL_PRODUCT_TEXTS[planType]]);
-  o[p++] = '</h1></div><div class="dialogue-content"><table cellspacing="0" cellpadding="0"><thead><tr><th>';
-  o[p++] = getText(5, 'Fra dato');
-  o[p++] = '</th><th>';
-  o[p++] = getText(6, 'Til dato');
-  o[p++] = '</th><th>';
-  o[p++] = getText(31, 'Pris');
-  o[p++] = '</th><th>';
-  o[p++] = getText(35, 'Beskrivelse');
-  o[p++] = '</th></tr></thead><tbody>';
-  for (i = 0; i < planLines.length; i++)
-  {
-    o[p++] = '<tr><td>';
-    o[p++] = planLines[i][c.sub.LINE_START_DATE];
-    o[p++] = '</td><td>';
-    o[p++] = getEndDate(planLines, i, subscriptions[index][c.sub.END_DATE]);
-    o[p++] = '</td><td>';
-    o[p++] = String(planLines[i][c.sub.LINE_PRICE]);
-    o[p++] = ',-</td><td>';
-    if (planLines[i][c.sub.LINE_DESCRIPTION] === '')
-      o[p++] = '&nbsp;';
-    else
-      o[p++] = planLines[i][c.sub.LINE_DESCRIPTION];
-    o[p++] = '</td></tr>';
-  }
-  if (subscriptions[index][c.sub.END_DATE] !== '')
-  {
-    o[p++] = '<tr><td>';
-    o[p++] = subscriptions[index][c.sub.END_DATE];
-    o[p++] = '</td><td>&nbsp;</td><td>&nbsp;</td><td>';
-    o[p++] = getText(36, 'Abonnementet avsluttet');
-    o[p++] = '</td></tr>';
-  }
-  o[p++] = '</tbody></table></div><div class="dialogue-footer"><button type="button" onclick="closePricePlanDialogue();"><i class="fa-solid fa-check"></i> ';
-  o[p++] = getText(22, 'Lukk');
-  o[p++] = '</button></div></form>';
+    o[p++] = getText(1,
+      'Er du sikker på at du vil si opp $1? Du trekkes for neste måned, og beholder lagerboden til og med siste dag neste måned.',
+      [subscriptions[index][c.sub.PRODUCT_NAME]]);
+  o[p++] = '</div>';
+  cancelSubscriptionDialogueContent.innerHTML = o.join('');
 
-  pricePlanDialogue.innerHTML = o.join('');
+  // Display the cancel subscription dialogue.
   Utility.display(overlay);
-  Utility.display(pricePlanDialogue);
+  Utility.display(cancelSubscriptionDialogue);
 }
 
 // *************************************************************************************************
-// Return the end date of the price plan with the given index, in the given array of price plan
-// lines. The end date is the day before the start date of the next line. If there is no next line,
-// the price will apply until further notice, unless the subscription itself has an end date - as
-// given in subscriptionEndDate. If the subscription has no end date, subscriptionEndDate should be
-// an empty string.
-function getEndDate(planLines, index, subscriptionEndDate)
+// Cancel the subscription with the index stored in cancellingIndex.
+function cancelSubscription()
 {
-  if (index >= (planLines.length - 1))
+  var o, p;
+
+  if (cancellingIndex >= 0)
   {
-    // This is the last element in the price plan. If the subscription will, that's the end date.
-    // Otherwise, the price applies until further notice.
-    if (subscriptionEndDate !== '')
-      return subscriptionEndDate;
-    return getText(34, 'Inntil videre');
+    o = new Array(3);
+    p = 0;
+
+    o[p++] = '<form id="cancelSubscriptionForm" action="/subscription/html/user_dashboard.php" method="post"><input type="hidden" name="action" value="cancel_subscription" />';
+    o[p++] = Utility.getHidden('id', subscriptions[cancellingIndex][c.sub.ID]);
+    o[p++] = '</form>';
+    cancelSubscriptionDialogueContent.innerHTML = o.join('');
+    Utility.displaySpinnerThenSubmit(document.getElementById('cancelSubscriptionForm'));
   }
-  // The price ends the day before the next price in the price plan takes effect.
-  return Utility.getDayBefore(planLines[index + 1][c.sub.LINE_START_DATE]);
 }
 
 // *************************************************************************************************
-// Close the price plan dialogue box.
-function closePricePlanDialogue()
+// Close the cancel subscription dialogue.
+function closeCancelSubscriptionDialogue()
 {
-  Utility.hide(pricePlanDialogue);
+  Utility.hide(cancelSubscriptionDialogue);
   Utility.hide(overlay);
 }
 
@@ -438,6 +237,8 @@ function closePricePlanDialogue()
 // the server and display it when received.
 function loadPaymentHistory(index)
 {
+  var o, p;
+
   index = parseInt(index, 10);
   if (Utility.isValidIndex(index, subscriptions))
   {
@@ -447,14 +248,19 @@ function loadPaymentHistory(index)
     else
     {
       // Fetch the payment history from the server, then store and display it.
-      paymentHistoryDialogue.innerHTML = '<p>' +
-        getText(25, 'Laster betalingshistorikk. Vennligst vent...') + '</p>';
+      o = new Array(5);
+      p = 0;
+      o[p++] = '<div class="dialogue-header"><h2>';
+      o[p++] = getText(16, 'Ordrehistorikk');
+      o[p++] = '</h2></div><div class="dialogue-content"><div class="form-element">';
+      o[p++] = getText(17, 'Laster ordrehistorikk. Vennligst vent...');
+      o[p++] = '</div></div><div class="dialogue-footer"></div>';
+      paymentHistoryDialogue.innerHTML = o.join('');
       Utility.display(overlay);
       Utility.display(paymentHistoryDialogue);
       fetch('/subscription/json/payment_history.php?subscription_id=' +
         String(subscriptions[index][c.sub.ID]))
         .then(Utility.extractJson)
-        .catch(logPaymentHistoryError)
         .then(storePaymentHistory)
         .catch(logPaymentHistoryError);
     }
@@ -477,7 +283,7 @@ function storePaymentHistory(data)
 
   if (data && data.resultCode)
   {
-    if (data.resultCode >= 0)
+    if (Utility.isError(data.resultCode))
     {
       console.error('Error fetching payment history: result code: ' + String(data.resultCode));
       closePaymentHistoryDialogue();
@@ -515,91 +321,57 @@ function storePaymentHistory(data)
 }
 
 // *************************************************************************************************
-// Display the payment history for the subscription with the given index in the subscriptions table.
-// This method assumes that the payment history is available in the subscriptions table.
+// Display the payment history and price plans for the subscription with the given index in the
+// subscriptions table. These are all intertwined, in order to give a single timeline of changes.
+// The displayed list of payments and price changes is sorted with the most recent event on top.
+// Price changes apply on the day they are introduced, and are thus displayed below any payments
+// that occurred on the same day. This method assumes that the payment history has been loaded, and
+// is available in the subscriptions table.
 function displayPaymentHistory(index)
 {
-  var o, p, i, paymentHistory, style, amount;
+  var o, p, data, item;
 
   index = parseInt(index, 10);
   if (!Utility.isValidIndex(index, subscriptions))
     return;
-  paymentHistory = subscriptions[index][c.sub.PAYMENT_HISTORY];
-  o = new Array((paymentHistory.length * 38) + 20);
+
+  data = new PaymentHistoryData(subscriptions, index);
+  o = new Array(data.itemCount + 16);
   p = 0;
 
-  o[p++] = '<div class="dialogue-header"><h1>';
-  o[p++] = getText(15, 'Betalingshistorikk for $1, $2',
-    [subscriptions[index][c.sub.NAME], Utility.getLocationName(subscriptions[index][c.sub.LOCATION_ID])]);
-  o[p++] = '</h1></div><div class="dialogue-content"><table cellspacing="0" cellpadding="0"><thead><tr><th>&nbsp;</th><th>';
-  o[p++] = getText(16, 'Type');
-  o[p++] = '</th><th>';
-  o[p++] = getText(17, 'Fakturanr');
-  o[p++] = '</th><th>';
-  o[p++] = getText(18, 'Betalingsm&aring;te');
-  o[p++] = '</th><th>';
-  o[p++] = getText(19, 'Utstedt');
-  o[p++] = '</th><th>';
-  o[p++] = getText(20, 'Forfallsdato');
-  o[p++] = '</th><th>';
-  o[p++] = getText(21, 'Status');
-  o[p++] = '</th><th>';
-  o[p++] = getText(29, 'Sum');
-  o[p++] = '</th></tr></thead><tbody>';
-  for (i = 0; i < paymentHistory.length; i++)
+  // Header.
+  o[p++] = '<div class="dialogue-header payment-history-header"><button type="button" class="low-profile close-button" onclick="closePaymentHistoryDialogue();"><i class="fa-solid fa-xmark"></i></button><h2>';
+  o[p++] = getText(16, 'Ordrehistorikk');
+  o[p++] = '</h2>';
+  o[p++] = Utility.getLocationName(subscriptions[index][c.sub.LOCATION_ID]);
+  o[p++] = ', '
+  o[p++] = subscriptions[index][c.sub.PRODUCT_NAME];
+  o[p++] = '</div>';
+  // Content.
+  o[p++] = '<div class="dialogue-content list-background">';
+  // Display subscription end date, if it has one.
+  if (data.hasEndDate)
   {
-    if (paymentHistory[i][c.pay.OPEN])
-      style = ' class="payment-details-open"';
-    else
-      style = '';
-    o[p++] = '<tr><td';
-    o[p++] = style;
-    o[p++] = '><button type="button" class="icon-button" onclick="togglePaymentLine(';
-    o[p++] = String(index);
-    o[p++] = ', ';
-    o[p++] = String(i);
-    o[p++] = ');">';
-    if (paymentHistory[i][c.pay.OPEN])
-      o[p++] = '<i class="fa-solid fa-minus"></i>';
-    else
-      o[p++] = '<i class="fa-solid fa-plus"></i>';
-    o[p++] = '</button></td><td';
-    o[p++] = style;
-    o[p++] = '>';
-    o[p++] = paymentHistory[i][c.pay.NAME];
-    o[p++] = '</td><td';
-    o[p++] = style;
-    o[p++] = '>';
-    o[p++] = paymentHistory[i][c.pay.ID];
-    o[p++] = '</td><td';
-    o[p++] = style;
-    o[p++] = '>';
-    o[p++] = getText(30, 'Ukjent');
-    o[p++] = '</td><td';
-    o[p++] = style;
-    o[p++] = '>';
-    o[p++] = paymentHistory[i][c.pay.ORDER_DATE];
-    o[p++] = '</td><td';
-    o[p++] = style;
-    o[p++] = '>';
-    o[p++] = paymentHistory[i][c.pay.PAY_BY_DATE];
-    o[p++] = '</td><td';
-    o[p++] = style;
-    o[p++] = '><span class="status-label ';
-    o[p++] = PAYMENT_STATUS_COLOURS[paymentHistory[i][c.pay.PAYMENT_STATUS]];
-    o[p++] = '">';
-    o[p++] = PAYMENT_STATUS_TEXTS[paymentHistory[i][c.pay.PAYMENT_STATUS]];
-    o[p++] = '</span></td><td class="currency">';
-    amount = getOrderAmount(index, i);
-    o[p++] = String(amount);
-    o[p++] = ',-</td></tr>';
-    // Write table of order lines, if the user has opened the box.
-    if (paymentHistory[i][c.pay.OPEN])
-      o[p++] = getOrderLines(paymentHistory, i, amount);
+    o[p++] = '<div class="button-box"><div class="form-element">';
+    o[p++] = data.subscriptionEndDate;
+    o[p++] = getText(18, ': Abonnementet avsluttet');
+    o[p++] = '</div></div>';
   }
-  o[p++] = '</tbody></table></div><div class="dialogue-footer"><button type="button" onclick="closePaymentHistoryDialogue();"><i class="fa-solid fa-check"></i> ';
-  o[p++] = getText(22, 'Lukk');
-  o[p++] = '</button></div></form>';
+  // Payments and price changes. The getNextItem method will return null when all items have been
+  // displayed.
+  while (true)
+  {
+    item = getNextItem(data);
+    if (item === null)
+      break;
+    o[p++] = item;
+  }
+  // End of content.
+  o[p++] = '</div>';
+  // Footer.
+  o[p++] = '<div class="dialogue-footer"><button type="button" onclick="closePaymentHistoryDialogue();"><i class="fa-solid fa-xmark"></i>&nbsp;&nbsp;';
+  o[p++] = getText(19, 'Lukk');
+  o[p++] = '</button></div>';
 
   paymentHistoryDialogue.innerHTML = o.join('');
   Utility.display(overlay);
@@ -607,86 +379,225 @@ function displayPaymentHistory(index)
 }
 
 // *************************************************************************************************
-// Return HTML code for a table line that contains a box that displays order lines for the order
-// with the given index in the given payment history. amount is the total amount for the order.
-function getOrderLines(paymentHistory, orderIndex, amount)
+// Inspect both the two price plans and the orders list, and choose the newest undisplayed item for
+// display. The orders list is sorted in descending order, so we examine the first undisplayed item
+// in the list. Price plans are sorted in ascending order, so we examine the last undisplayed item.
+// Return null when there are no more items to be displayed. Otherwise, return a string with HTML
+// code to display the next item.
+function getNextItem(data)
 {
-  var o, p, i, orderLines;
+  var itemType;
 
-  orderLines = paymentHistory[orderIndex][c.pay.ORDER_LINES];
-  o = new Array((orderLines.length * 7) + 12);
+  itemType = data.getNextItemType();
+  switch (itemType)
+  {
+    case PaymentHistoryData.DISPLAY_PAYMENT:
+      return getPayment(data.nextItem);
+
+    case PaymentHistoryData.DISPLAY_INITIAL_BOOKING:
+      return getInitialBooking(data.nextItem.rentPricePlanLine,
+        data.nextItem.insurancePricePlanLine);
+
+    case PaymentHistoryData.DISPLAY_INITIAL_RENT:
+    case PaymentHistoryData.DISPLAY_RENT_PRICE_CHANGE:
+      return getRentEntry(data.nextItem, itemType === PaymentHistoryData.DISPLAY_INITIAL_RENT);
+
+    case PaymentHistoryData.DISPLAY_INITIAL_INSURANCE:
+    case PaymentHistoryData.DISPLAY_INSURANCE_PRICE_CHANGE:
+      return getInsuranceEntry(data.nextItem,
+        itemType === PaymentHistoryData.DISPLAY_INITIAL_INSURANCE);
+  }
+  // The display data object returned DISPLAY_NOTHING, or some other value.
+  return null;
+}
+
+// *************************************************************************************************
+// Return HTML code to display a box that contains information about the given payment.
+function getPayment(payment)
+{
+  var o, p;
+
+  o = new Array(32);
   p = 0;
 
-  // Headline.
-  o[p++] = '<tr class="payment-details"><td colspan="8" class="payment-details"><div class="payment-details"><table cellspacing="0" cellpadding="0"><thead><tr><th>';
-  o[p++] = getText(26, 'Beskrivelse');
-  o[p++] = '</th><th>';
-  o[p++] = getText(27, 'Produkt-ID');
-  o[p++] = '</th><th>';
-  o[p++] = getText(28, 'Bel&oslash;p');
-  o[p++] = '</th></tr></thead><tbody>';
+  // Payment.
+  o[p++] = '<div class="button-box">';
+  // Payment header.
+  o[p++] = '<div class="button-box-left payment-history-left"><h3>';
+  o[p++] = payment[c.pay.NAME];
+  o[p++] = '</h3></div>';
+  // Payment content.
+  o[p++] = '<div class="button-box-bottom payment-history-bottom"><table cellspacing="0" cellpadding="0"><tbody>';
+  // Status.
+  o[p++] = '<tr><td class="payment-history-caption">';
+  o[p++] = getText(6, 'Status');
+  o[p++] = '</td><td class="subscription-data">';
+  o[p++] = Utility.getStatusLabel(PAYMENT_STATUS_TEXTS, PAYMENT_STATUS_COLOURS,
+    payment[c.pay.PAYMENT_STATUS]);
+  o[p++] = '</td></tr>';
+  // Invoice number.
+  o[p++] = '<tr><td class="payment-history-caption">';
+  o[p++] = getText(20, 'Fakturanummer');
+  o[p++] = '</td><td class="subscription-data">';
+  o[p++] = String(payment[c.pay.ID]);
+  o[p++] = '</td></tr>';
+  // Payment method.
+  o[p++] = '<tr><td class="payment-history-caption">';
+  o[p++] = getText(21, 'Betalingsmåte');
+  o[p++] = '</td><td class="subscription-data">';
+  o[p++] = PAYMENT_METHOD_TEXTS[payment[c.pay.PAYMENT_METHOD]];
+  o[p++] = '</td></tr>';
+  // Order date.
+  o[p++] = '<tr><td class="payment-history-caption">';
+  o[p++] = getText(22, 'Utstedt');
+  o[p++] = '</td><td class="subscription-data">';
+  o[p++] = payment[c.pay.ORDER_DATE];
+  o[p++] = '</td></tr>';
+  // Pay by date.
+  o[p++] = '<tr><td class="payment-history-caption">';
+  o[p++] = getText(23, 'Forfallsdato');
+  o[p++] = '</td><td class="subscription-data">';
+  o[p++] = payment[c.pay.PAY_BY_DATE];
+  o[p++] = '</td></tr></tbody></table>';
   // Order lines.
-  for (i = 0; i < orderLines.length; i++)
-  {
-    o[p++] = '<tr><td>';
-    o[p++] = orderLines[i][c.pay.LINE_TEXT];
-    o[p++] = '</td><td>';
-    o[p++] = String(orderLines[i][c.pay.LINE_ID]);
-    o[p++] = '</td><td class="currency">';
-    o[p++] = String(orderLines[i][c.pay.LINE_AMOUNT]);
-    o[p++] = ',-</td></tr>';
-  }
-  // Sum.
-  o[p++] = '<tr><td colspan="2" class="sum">';
-  o[p++] = getText(29, 'Sum');
-  o[p++] = '</td><td class="sum currency">';
-  o[p++] = String(amount);
-  o[p++] = ',-</td></tr></tbody></table></div></td></tr>';
+  o[p++] = getOrderLines(payment);
+  // End of payment content. End of payment.
+  o[p++] = '</div></div>';
   return o.join('');
 }
 
 // *************************************************************************************************
-// Return the total amount paid for an order. The order is specified by the given index into the
-// subscription table, and then the given orderIndex for that subscription.
-function getOrderAmount(subscriptionIndex, orderIndex)
+// Return HTML code for a div tag that contains a table that displays order lines for the given
+// payment.
+function getOrderLines(payment)
 {
-  var paymentHistory, orderLines, i, amount;
+  var o, p, i, orderLines, amount;
 
+  orderLines = payment[c.pay.ORDER_LINES];
+  o = new Array((orderLines.length * 6) + 11);
+  p = 0;
+
+  // Header row.
+  o[p++] = '<div class="payment-details"><table cellspacing="0" cellpadding="0"><thead><tr><th>';
+  o[p++] = getText(24, 'Ordrelinjer');
+  o[p++] = '</th><th>';
+  o[p++] = getText(25, 'Beløp');
+  o[p++] = '</th></tr></thead><tbody>';
+  // Order lines.
   amount = 0;
-  subscriptionIndex = parseInt(subscriptionIndex, 10);
-  if (Utility.isValidIndex(subscriptionIndex, subscriptions))
+  for (i = 0; i < orderLines.length; i++)
   {
-    paymentHistory = subscriptions[subscriptionIndex][c.sub.PAYMENT_HISTORY];
-
-    orderIndex = parseInt(orderIndex, 10);
-    if (Utility.isValidIndex(orderIndex, paymentHistory))
-    {
-      orderLines = paymentHistory[orderIndex][c.pay.ORDER_LINES];
-      for (i = 0; i < orderLines.length; i++)
-        amount += orderLines[i][c.pay.LINE_AMOUNT];
-    }
+    o[p++] = '<tr><td>';
+    o[p++] = orderLines[i][c.pay.LINE_TEXT];
+    o[p++] = '</td><td class="currency">';
+    o[p++] = String(orderLines[i][c.pay.LINE_AMOUNT]);
+    amount += orderLines[i][c.pay.LINE_AMOUNT];
+    o[p++] = getText(9, ' kr');
+    o[p++] = '</td></tr>';
   }
-  return amount;
+  // Sum.
+  o[p++] = '<tr><td class="sum">';
+  o[p++] = getText(26, 'Sum');
+  o[p++] = '</td><td class="sum currency">';
+  o[p++] = String(amount);
+  o[p++] = getText(9, ' kr');
+  o[p++] = '</td></tr></tbody></table></div>';
+  return o.join('');
 }
 
 // *************************************************************************************************
-
-function togglePaymentLine(subscriptionIndex, orderIndex)
+// Return HTML code to display a price plan line that describes a change to the rent price.
+function getRentEntry(pricePlanLine, isInitialBooking)
 {
-  var paymentHistory;
+  var o, p;
 
-  subscriptionIndex = parseInt(subscriptionIndex, 10);
-  if (Utility.isValidIndex(subscriptionIndex, subscriptions))
-  {
-    paymentHistory = subscriptions[subscriptionIndex][c.sub.PAYMENT_HISTORY];
+  o = new Array(10);
+  p = 0;
 
-    orderIndex = parseInt(orderIndex, 10);
-    if (Utility.isValidIndex(orderIndex, paymentHistory))
-    {
-      paymentHistory[orderIndex][c.pay.OPEN] = !paymentHistory[orderIndex][c.pay.OPEN];
-      displayPaymentHistory(subscriptionIndex);
-    }
-  }
+  // Rent price change caption.
+  o[p++] = '<div class="button-box"><div class="form-element">';
+  o[p++] = pricePlanLine[c.sub.LINE_START_DATE];
+  if (isInitialBooking)
+    o[p++] = getText(27, ': Bestilt lagerbod');
+  else
+    o[p++] = getText(28, ': Prisendring, lagerbod');
+  o[p++] = '<br>&nbsp;&nbsp;&nbsp;&nbsp;';
+  // New price.
+  if (isInitialBooking)
+    o[p++] = getText(29, 'Pris: ');
+  else
+    o[p++] = getText(30, 'Ny pris: ');
+  o[p++] = String(pricePlanLine[c.sub.LINE_PRICE]);
+  o[p++] = getText(9, ' kr');
+  // Description.
+  o[p++] = ' (';
+  o[p++] = pricePlanLine[c.sub.LINE_DESCRIPTION];
+  o[p++] = ')</div></div>';
+  return o.join('');
+}
+
+// *************************************************************************************************
+// Return HTML code to display a price plan line that describes a change to the insurance price.
+function getInsuranceEntry(pricePlanLine, isInitialBooking)
+{
+  var o, p;
+
+  o = new Array(10);
+  p = 0;
+
+  // Insurance price change caption.
+  o[p++] = '<div class="button-box"><div class="form-element">';
+  o[p++] = pricePlanLine[c.sub.LINE_START_DATE];
+  if (isInitialBooking)
+    o[p++] = getText(31, ': Bestilt forsikring');
+  else
+    o[p++] = getText(32, ': Prisendring, forsikring');
+  o[p++] = '<br>&nbsp;&nbsp;&nbsp;&nbsp;';
+  // New price.
+  if (isInitialBooking)
+    o[p++] = getText(29, 'Pris: ');
+  else
+    o[p++] = getText(30, 'Ny pris: ');
+  o[p++] = String(pricePlanLine[c.sub.LINE_PRICE]);
+  o[p++] = getText(9, ' kr');
+  // Description.
+  o[p++] = ' (';
+  o[p++] = pricePlanLine[c.sub.LINE_DESCRIPTION];
+  o[p++] = ')</div></div>';
+  return o.join('');
+}
+
+// *************************************************************************************************
+// Return HTML code to display two price plan lines that represent the initial subscription booking.
+function getInitialBooking(rentPricePlanLine, insurancePricePlanLine)
+{
+  var o, p;
+
+  o = new Array(16);
+  p = 0;
+
+  // Rent price change caption.
+  o[p++] = '<div class="button-box"><div class="form-element">';
+  o[p++] = rentPricePlanLine[c.sub.LINE_START_DATE];
+  o[p++] = getText(27, ': Bestilt lagerbod');
+  o[p++] = '<br>&nbsp;&nbsp;&nbsp;&nbsp;';
+  // Rent.
+  o[p++] = getText(33, 'Leie: ');
+  o[p++] = String(rentPricePlanLine[c.sub.LINE_PRICE]);
+  o[p++] = getText(9, ' kr');
+  // Rent description.
+  o[p++] = ' (';
+  o[p++] = rentPricePlanLine[c.sub.LINE_DESCRIPTION];
+  o[p++] = ')<br>&nbsp;&nbsp;&nbsp;&nbsp;';
+  // Insurance.
+  o[p++] = getText(34, 'Forsikring: ');
+  o[p++] = String(insurancePricePlanLine[c.sub.LINE_PRICE]);
+  o[p++] = getText(9, ' kr');
+  // Insurance description.
+  o[p++] = ' (';
+  o[p++] = insurancePricePlanLine[c.sub.LINE_DESCRIPTION];
+  o[p++] = ')</div></div>';
+  return o.join('');
 }
 
 // *************************************************************************************************
@@ -698,3 +609,339 @@ function closePaymentHistoryDialogue()
 }
 
 // *************************************************************************************************
+// *** Payment history data class.
+// *************************************************************************************************
+// The PaymentHistoryData gathers the information to be displayed in the payment history dialogue.
+// This includes the list of orders (payments), and the price plans for rent and insurance. These
+// need to be intertwined, in order to give a single timeline of changes.
+//
+// This class will ensure that the displayed list of payments and price changes is sorted with the
+// most recent event on top. Price changes apply on the day they are introduced, and are thus
+// displayed below any payments that occurred on the same day.
+//
+// Note that price changes that occur after the end of the subscription will not be displayed.
+class PaymentHistoryData
+{
+
+// *************************************************************************************************
+// *** Constants.
+// *************************************************************************************************
+// Constants to say which type of item, if any, should be displayed next.
+static DISPLAY_NOTHING = -1;
+static DISPLAY_PAYMENT = 0;
+static DISPLAY_RENT_PRICE_CHANGE = 1;
+static DISPLAY_INITIAL_RENT = 2;
+static DISPLAY_INSURANCE_PRICE_CHANGE = 3;
+static DISPLAY_INITIAL_INSURANCE = 4;
+static DISPLAY_INITIAL_BOOKING = 5;
+
+// *************************************************************************************************
+// *** Constructors.
+// *************************************************************************************************
+
+constructor(subscriptions, index)
+{
+  // The subscription's end date, if any, is stored to prevent price plan entries that occur after
+  // that date from being displayed.
+  this._subscriptionEndDate = subscriptions[index][c.sub.END_DATE];
+  this._hasEndDate = this._subscriptionEndDate !== '';
+
+  // Initialise payment history fields. The counter points to the start of the list, which is sorted
+  // with most recent events first.
+  this._paymentHistory = subscriptions[index][c.sub.PAYMENT_HISTORY];
+  this._hasPayments = this._paymentHistory !== null;
+  this._nextPaymentIndex = (this._hasPayments ? 0 : -1);
+
+  // Initialise rent price plan fields. The counter points to the end of the list, which is sorted
+  // from first to last. We want to display the last entry at the top, so we start at the end.
+  this._rentPricePlanLines = PricePlan.getPricePlanLines(subscriptions, index,
+    PricePlan.getProductPricePlan(subscriptions, index));
+  this._hasRent = this._rentPricePlanLines !== null;
+  this._nextRentPriceChangeIndex = this._getMostRecentDisplayableRentPriceChangeIndex();
+
+  // Initialise insurance price plan fields. The counter points to the end of the list, which is
+  // sorted from first to last. We want to display the last entry at the top, so we start at the
+  // end.
+  this._insurancePricePlanLines = PricePlan.getPricePlanLines(subscriptions, index,
+    PricePlan.getInsurancePricePlan(subscriptions, index));
+  this._hasInsurance = this._insurancePricePlanLines !== null;
+  this._nextInsurancePriceChangeIndex = this._getMostRecentDisplayableInsurancePriceChangeIndex();
+
+  // Initialise the allDisplayed flag to be true if we didn't find anything to display at all. If
+  // _allDisplayed is set, that means there is nothing more to be displayed, and the list is
+  // complete.
+  this._allDisplayed = !(this._hasPayments || this._hasRent || this._hasInsurance);
+
+  // The next item to be displayed, or null if it has not yet been calculated. If the next item type
+  // is DISPLAY_INITIAL_BOOKING, this field will hold an object with the following fields:
+  //   rentPricePlanLine
+  //   insurancePricePlanLine
+  // Otherwise, the field will hold either a payment or a price plan line.
+  this._nextItem = null;
+  // Flag that says whether _nextItem contains the first entry in a price plan, representing the
+  // initial booking.
+  this._isInitialBooking = false;
+}
+
+// *************************************************************************************************
+// *** Public methods.
+// *************************************************************************************************
+// Return the next type of item to be displayed (payment, rent price change or insurance price
+// change), using the DISPLAY_ constants in this class.
+getNextItemType()
+{
+  var paymentDate, rentDate, insuranceDate;
+
+  // See if we are already finished.
+  if (this._getAllDisplayed())
+    return PaymentHistoryData.DISPLAY_NOTHING;
+
+  // We're not finished. Figure out what to display next. Find the dates of the next payments and
+  // price plan entries, if there are any.
+  paymentDate = this._getNextPaymentDate();
+  rentDate = this._getNextRentDate();
+  insuranceDate = this._getNextInsuranceDate();
+
+  // In a day, price plan changes always occur first, and then payments use the updated price.
+  // We are displaying newest first, so display payments before price plan changes.
+  if (!this._hasFinishedPayments() && (paymentDate >= rentDate) && (paymentDate >= insuranceDate))
+  {
+    this._nextItem = this._getNextPayment();
+    return PaymentHistoryData.DISPLAY_PAYMENT;
+  }
+
+  // The payment should not be displayed. See if we should display an insurance price change.
+  // Insurance happens as a result of the subscription, so its events are displayed above.
+  if (!this._hasFinishedRent() && (insuranceDate >= rentDate))
+  {
+    this._nextItem = this._getNextInsurancePriceChange();
+    if (this._isInitialBooking)
+    {
+      // This is the initial insurance price. If we are also ready to display the initial rent
+      // price, combine the two.
+      if (this._nextRentPriceChangeIndex === 0)
+      {
+        this._nextItem =
+          {
+            rentPricePlanLine: this._getNextRentPriceChange(),
+            insurancePricePlanLine: this._nextItem
+          };
+        return PaymentHistoryData.DISPLAY_INITIAL_BOOKING;
+      }
+      return PaymentHistoryData.DISPLAY_INITIAL_INSURANCE;
+    }
+    return PaymentHistoryData.DISPLAY_INSURANCE_PRICE_CHANGE;
+  }
+
+  // None of the others take precedence. Display rent price change.
+  this._nextItem = this._getNextRentPriceChange();
+  if (this._isInitialBooking)
+    return PaymentHistoryData.DISPLAY_INITIAL_RENT;
+  return PaymentHistoryData.DISPLAY_RENT_PRICE_CHANGE;
+}
+
+// *************************************************************************************************
+// *** Protected methods.
+// *************************************************************************************************
+// Return the index in the _rentPricePlanLines table of the most recent price change that will
+// actually be displayed. Price changes that occur after the subscription has ended will not be
+// displayed.
+_getMostRecentDisplayableRentPriceChangeIndex()
+{
+  var index;
+
+  // If we don't have a rent price plan, return -1 to signify that.
+  if (!this._hasRent)
+    return -1;
+
+  // Use the last entry in the price plan.
+  index = this._rentPricePlanLines.length - 1;
+
+  // If the subscription ends, skip any changes that occur after the end date.
+  if (this._hasEndDate)
+  {
+    while ((index >= 0) &&
+      (this._rentPricePlanLines[index][c.sub.LINE_START_DATE] >= this._subscriptionEndDate))
+      index--;
+  }
+  return index;
+}
+
+// *************************************************************************************************
+// Return the index in the _insurancePricePlanLines table of the most recent price change that will
+// actually be displayed. Price changes that occur after the subscription has ended will not be
+// displayed.
+_getMostRecentDisplayableInsurancePriceChangeIndex()
+{
+  var index;
+
+  // If we don't have an insurance price plan, return -1 to signify that.
+  if (!this._hasInsurance)
+    return -1;
+
+  // Use the last entry in the price plan.
+  index = this._insurancePricePlanLines.length - 1;
+
+  // If the subscription ends, skip any changes that occur after the end date.
+  if (this._hasEndDate)
+  {
+    while ((index >= 0) &&
+      (this._insurancePricePlanLines[index][c.sub.LINE_START_DATE] >= this._subscriptionEndDate))
+      index--;
+  }
+  return index;
+}
+
+// *************************************************************************************************
+// Return true if the payment history has been completely displayed. This is the case if there is no
+// table (the _hasPayments flag is false), or if the _nextPaymentIndex index is beyond the end of the
+// _paymentHistory table.
+_hasFinishedPayments()
+{
+  return !this._hasPayments || (this._nextPaymentIndex >= this._paymentHistory.length);
+}
+
+// *************************************************************************************************
+// Return true if the rent price plan has been completely displayed. This is the case if there is no
+// table (the _hasRent flag is false), or if the _nextRentPriceChangeIndex index is before the start
+// of the _rentPricePlanLines table.
+_hasFinishedRent()
+{
+  return !this._hasRent || (this._nextRentPriceChangeIndex < 0);
+}
+
+// *************************************************************************************************
+// Return true if the insurance price plan has been completely displayed. This is the case if there
+// is no table (the _hasInsurance flag is false), or if the _nextInsurancePriceChangeIndex index is
+// before the start of the _insurancePricePlanLines table.
+_hasFinishedInsurance()
+{
+  return !this._hasInsurance || (this._nextInsurancePriceChangeIndex < 0);
+}
+
+// *************************************************************************************************
+// Return the next payment date, if any. The value is a string with a date in "yyyy-mm-dd" format,
+// or an empty string if there are no more payments to be displayed.
+_getNextPaymentDate()
+{
+  if (this._hasFinishedPayments())
+    return '';
+  return this._paymentHistory[this._nextPaymentIndex][c.pay.PAY_BY_DATE];
+}
+
+// *************************************************************************************************
+// Return the next rent date, if any. The value is a string with a date in "yyyy-mm-dd" format, or
+// an empty string if there are no more rent price plan elements to be displayed.
+_getNextRentDate()
+{
+  if (this._hasFinishedRent())
+    return '';
+  return this._rentPricePlanLines[this._nextRentPriceChangeIndex][c.sub.LINE_START_DATE];
+}
+
+// *************************************************************************************************
+// Return the next insurance date, if any. The value is a string with a date in "yyyy-mm-dd" format,
+// or an empty string if there are no more insurance price plan elements to be displayed.
+_getNextInsuranceDate()
+{
+  if (this._hasFinishedInsurance())
+    return '';
+  return this._insurancePricePlanLines[this._nextInsurancePriceChangeIndex][c.sub.LINE_START_DATE];
+}
+
+// *************************************************************************************************
+// Return the next payment to be displayed, and update the counter to reflect the fact that it has
+// been displayed. This method assumes that there is another item to be displayed.
+_getNextPayment()
+{
+  var index;
+
+  index = this._nextPaymentIndex;
+  this._nextPaymentIndex++;
+  this._isInitialBooking = false;
+  return this._paymentHistory[index];
+}
+
+// *************************************************************************************************
+// Return the next line to be displayed in the rent price plan, and update the counter to reflect
+// the fact that it has been displayed. This method assumes that there is another item to be
+// displayed.
+_getNextRentPriceChange()
+{
+  var index;
+
+  index = this._nextRentPriceChangeIndex;
+  this._nextRentPriceChangeIndex--;
+  this._isInitialBooking = index === 0;
+  return this._rentPricePlanLines[index];
+}
+
+// *************************************************************************************************
+// Return the next line to be displayed in the insurance price plan, and update the counter to
+// reflect the fact that it has been displayed. This method assumes that there is another item to be
+// displayed.
+_getNextInsurancePriceChange()
+{
+  var index;
+
+  index = this._nextInsurancePriceChangeIndex;
+  this._nextInsurancePriceChangeIndex--;
+  this._isInitialBooking = index === 0;
+  return this._insurancePricePlanLines[index];
+}
+
+// *************************************************************************************************
+// Return true if all payments and price plan changes have already been displayed. The method
+// returns true if we already know that everything has been displayed, or if it finds that we have
+// now displayed everyting in all the tables.
+_getAllDisplayed()
+{
+  // If we already know, let the caller know.
+  if (this._allDisplayed)
+    return true;
+
+  // See if we're now done, which occurs when we have displayed everyting in all the tables.
+  this._allDisplayed = this._hasFinishedPayments() && this._hasFinishedRent() &&
+    this._hasFinishedInsurance();
+  return this._allDisplayed;
+}
+
+// *************************************************************************************************
+// *** Property servicing methods.
+// *************************************************************************************************
+// Return the itemCount property. This is the total number of payments and price plan entries. Note
+// that this method does not take into account the fact that some price plan entries may not be
+// displayed due to being after the subscription's end date.
+get itemCount()
+{
+  return (this._hasPayments ? this._paymentHistory.length : 0) +
+    (this._hasRent ? this._rentPricePlanLines.length : 0) +
+    (this._hasInsurance ? this._insurancePricePlanLines.length : 0);
+}
+
+// *************************************************************************************************
+// Return true if the subscription has an end date.
+get hasEndDate()
+{
+  return this._hasEndDate;
+}
+
+// *************************************************************************************************
+// Return the subscriptionEndDate property. If the subscription has no end date, the value will be
+// an empty string.
+get subscriptionEndDate()
+{
+  return this._subscriptionEndDate;
+}
+
+// *************************************************************************************************
+// Return the nextItem property. The value will be null until the next item is calculated using
+// getNextItemType.
+get nextItem()
+{
+  return this._nextItem;
+}
+
+// *************************************************************************************************
+
+}

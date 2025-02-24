@@ -6,6 +6,13 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/subscription/components/utility/utili
 class Location_Data_Manager extends Single_Table_Data_Manager
 {
   // *******************************************************************************************************************
+  // *** Fields.
+  // *******************************************************************************************************************
+
+  // The number of locations that were read from the database during the last call to read.
+  protected $location_count = -1;
+
+  // *******************************************************************************************************************
   // *** Constructors.
   // *******************************************************************************************************************
 
@@ -21,22 +28,21 @@ class Location_Data_Manager extends Single_Table_Data_Manager
   // *******************************************************************************************************************
   // *** Public methods.
   // *******************************************************************************************************************
-  // Read all locations owned by the current user from the database. Return them as a string containing a Javascript
-  // array declaration.
-  public function read()
+  // Read all locations accessible to the current user from the database. Return them as a string containing a
+  // Javascript array declaration. $location_list is the set of locations, as read from the database using the
+  // get_location_list method. $location_list is optional.
+  public function read($location_list = null)
   {
-    global $wpdb;
-
-    $results = $wpdb->get_results("
-      SELECT id, name, address, zip_code, city, country, opening_hours, services
-      FROM {$this->database_table}
-      WHERE owner_id = {$this->get_user_group_user_id()}
-      ORDER BY name;
-    ", OBJECT);
-    $table = "[";
-    if (Utility::non_empty_array($results))
+    $this->location_count = 0;
+    if ($location_list === null)
     {
-      foreach ($results as $location)
+      $location_list = $this->get_location_list();
+    }
+    $table = "[";
+    if (Utility::non_empty_array($location_list))
+    {
+      $this->location_count = count($location_list);
+      foreach ($location_list as $location)
       {
         $table .= "[";
         $table .= $location->id;
@@ -56,11 +62,26 @@ class Location_Data_Manager extends Single_Table_Data_Manager
         $table .= $location->services;
         $table .= "'],";
       }
-      // Remove final comma.
-      $table = substr($table, 0, -1);
+      $table = Utility::remove_final_comma($table);
     }
     $table .= "]";
     return $table;
+  }
+
+  // *******************************************************************************************************************
+  // Read all locations accessible to the current user from the database. Return an array of objects, each of which has
+  // the following fields:
+  //   id, name, address, zip_code, city, country, opening_hours, services
+  public function get_location_list()
+  {
+    global $wpdb;
+
+    return $wpdb->get_results("
+      SELECT id, name, address, zip_code, city, country, opening_hours, services
+      FROM {$this->database_table}
+      WHERE owner_id = {$this->get_user_group_user_id()}
+      ORDER BY name;
+    ", OBJECT);
   }
 
   // *******************************************************************************************************************
@@ -84,9 +105,10 @@ class Location_Data_Manager extends Single_Table_Data_Manager
   }
 
   // *******************************************************************************************************************
-  // Read location IDs posted to the server. Return false if insufficient information was posted. Return null if no
-  // location IDs were posted. This typically signifies that the entity in question applies to all locations. Otherwise,
-  // return an array of location IDs. The method expects the following fields to be posted:
+  // Read location IDs posted to the server. Return false if insufficient information was posted. Return null if all
+  // location IDs were posted. The null value typically signifies that the entity in question applies to all locations.
+  // Otherwise, return an array of location IDs. Note that the array might be empty. The method expects the following
+  // fields to be posted:
   //   for_all_locations : integer                1 for true, 0 for false. Remaining fields are only present if this
   //                                              value is 0.
   //   location_count : integer                   The total number of locations in existence - not the number of
@@ -129,6 +151,11 @@ class Location_Data_Manager extends Single_Table_Data_Manager
         }
         // If the location was not selected, the value will not be posted. This does not indicate an error.
       }
+      // If all locations were posted, return null.
+      if (count($for_locations) === $location_count)
+      {
+        return null;
+      }
       return $for_locations;
     }
     return false;
@@ -142,7 +169,7 @@ class Location_Data_Manager extends Single_Table_Data_Manager
   // fields was not passed from the client, the method will return null.
   protected function get_data_item()
   {
-    if (!Utility::strings_posted(array('name', 'address', 'postal_code', 'town', 'country', 'opening_hours', 'services')))
+    if (!Utility::strings_posted(array('name', 'address', 'postcode', 'town', 'country', 'opening_hours', 'services')))
     {
       return null;
     }
@@ -151,7 +178,7 @@ class Location_Data_Manager extends Single_Table_Data_Manager
       'owner_id' => $this->get_user_group_user_id(),
       'name' => Utility::read_posted_string('name'),
       'address' => Utility::read_posted_string('address'),
-      'zip_code' => Utility::read_posted_string('postal_code'),
+      'zip_code' => Utility::read_posted_string('postcode'),
       'city' => Utility::read_posted_string('town'),
       'country' => Utility::read_posted_string('country'),
       'opening_hours' => Utility::read_posted_string('opening_hours'),
@@ -177,6 +204,15 @@ class Location_Data_Manager extends Single_Table_Data_Manager
     return Result::OK;
   }
 */
+
+  // *******************************************************************************************************************
+  // *** Property servicing methods.
+  // *******************************************************************************************************************
+  // Return the $location_count property.
+  public function get_location_count()
+  {
+    return $this->location_count;
+  }
 
   // *******************************************************************************************************************
 }

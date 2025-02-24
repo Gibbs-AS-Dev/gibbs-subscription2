@@ -6,12 +6,21 @@
 // *** Variables.
 // *************************************************************************************************
 // Pointers to user interface elements.
-var insuranceProductsBox, overlay, editInsuranceProductDialogue;
+var insuranceProductsBox, filterToolbar, overlay, editInsuranceProductDialogue;
 
 // Pointers to dynamically generated user interface elements. These will be populated once the HTML
 // code to display them has been generated.
 var editInsuranceProductForm, nameEdit, priceEdit, descriptionEdit, productTypesBox, locationsBox,
-  submitButton;
+  submitButton, freetextEdit;
+
+// The sorting object that controls the sorting of the insuranceProducts table.
+var sorting;
+
+// The popup menu for the insuranceProducts table.
+var menu;
+
+// The number of displayed insurance products. This depends on the current filter settings.
+var displayedCount = 0;
 
 // *************************************************************************************************
 // *** Functions.
@@ -20,19 +29,61 @@ var editInsuranceProductForm, nameEdit, priceEdit, descriptionEdit, productTypes
 function initialise()
 {
   // Obtain pointers to user interface elements.
-  Utility.readPointers(['insuranceProductsBox', 'overlay', 'editInsuranceProductDialogue']);
+  Utility.readPointers(['insuranceProductsBox', 'filterToolbar', 'overlay',
+    'editInsuranceProductDialogue']);
 
-  displayInsuranceProducts();
+  // Create the popup menu.
+  menu = new PopupMenu(getPopupMenuContents);
+
+  // Initialise sorting.
+  sorting = new Sorting(insuranceProducts,
+      [
+        Sorting.createUiColumn(c.ins.NAME, Sorting.SORT_AS_STRING),
+        Sorting.createUiColumn(c.ins.DESCRIPTION, Sorting.SORT_AS_STRING),
+        Sorting.createUiColumn(c.ins.PRICE, Sorting.SORT_AS_INTEGER),
+        Sorting.createUiColumn(Sorting.DO_NOT),
+        Sorting.createUiColumn(Sorting.DO_NOT),
+        Sorting.createUiColumn(Sorting.DO_NOT)
+      ],
+      doDisplayInsuranceProducts
+    );
+  // Set the initial sorting. If that didn't cause insurance products to be displayed, do so now.
+  if (!sorting.sortOn(initialUiColumn, initialDirection))
+    doDisplayInsuranceProducts();
 
   // Display the results of a previous operation, if required.
-  if (resultCode >= 0)
-    alert(getText(0, 'Det oppstod en feil. Vennligst kontakt kundeservice og oppgi feilkode $1.',
-      [String(resultCode)]));
+  if (Utility.isError(resultCode))
+    alert(getText(0, 'Det oppstod en feil. Vennligst kontakt kundeservice og oppgi feilkode $1. Tidspunkt: $2.',
+      [String(resultCode), TIMESTAMP]));
 }
 
 // *************************************************************************************************
+// Return hidden form elements that specify the current state of the page, including sorting, search
+// and filter settings. These should be included whenever a request is submitted to the current
+// page, so that the state is maintained when the page is reloaded.
+function getPageStateFormElements()
+{
+  var o, p;
 
+  o = new Array(2);
+  p = 0;
+
+  if (freetextFilter !== '')
+    o[p++] = Utility.getHidden('freetext_filter', freetextFilter);
+  o[p++] = sorting.getPageStateFormElements();
+  return o.join('');
+}
+
+// *************************************************************************************************
+// Display the spinner. Once visible, display insurance products.
 function displayInsuranceProducts()
+{
+  Utility.displaySpinnerThen(doDisplayInsuranceProducts);
+}
+
+// *************************************************************************************************
+// Display the list of insurance products.
+function doDisplayInsuranceProducts()
 {
   var o, p, i;
   
@@ -40,35 +91,38 @@ function displayInsuranceProducts()
   {
     insuranceProductsBox.innerHTML = '<div class="form-element">' +
       getText(1, 'Det er ikke opprettet noen forsikringer enn&aring;.') + '</div>';
+    filterToolbar.innerHTML = '&nbsp;';
+    Utility.hideSpinner();
     return;
   }
 
-  o = new Array((insuranceProducts.length * 15) + 16);
+  displayedCount = 0;
+  o = new Array((insuranceProducts.length * 13) + 9);
   p = 0;
   
-  o[p++] = '<table cellspacing="0" cellpadding="0"><thead><tr><th>';
-  o[p++] = getText(2, 'Navn');
-  o[p++] = '</th><th>';
-  o[p++] = getText(3, 'Beskrivelse');
-  o[p++] = '</th><th>';
-  o[p++] = getText(4, 'Pris');
-  o[p++] = '</th><th>';
-  o[p++] = getText(5, 'For bodtyper');
-  o[p++] = '</th><th>';
-  o[p++] = getText(6, 'For lager');
-  o[p++] = '</th><th>';
-  o[p++] = getText(7, 'Rediger');
-  o[p++] = '</th><th>';
-  o[p++] = getText(8, 'Slett');
-  o[p++] = '</th></tr></thead><tbody>';
+  o[p++] = '<table cellspacing="0" cellpadding="0"><thead><tr>';
+  o[p++] = sorting.getTableHeader(0, getText(2, 'Navn'));
+  o[p++] = sorting.getTableHeader(1, getText(3, 'Beskrivelse'));
+  o[p++] = sorting.getTableHeader(2, getText(4, 'Pris'));
+  o[p++] = sorting.getTableHeader(3, getText(5, 'For bodtyper'));
+  o[p++] = sorting.getTableHeader(4, getText(6, 'For lager'));
+  o[p++] = sorting.getTableHeader(5, '&nbsp;');
+  o[p++] = '</tr></thead><tbody>';
   for (i = 0; i < insuranceProducts.length; i++)
   {
+    if (shouldHide(insuranceProducts[i])) continue;
+    displayedCount++;
+
+    // Insurance name.
     o[p++] = '<tr><td>';
     o[p++] = insuranceProducts[i][c.ins.NAME];
+    // Description.
     o[p++] = '</td><td>';
     o[p++] = Utility.curtail(insuranceProducts[i][c.ins.DESCRIPTION], 50);
+    // Price per month.
     o[p++] = '</td><td>';
     o[p++] = String(insuranceProducts[i][c.ins.PRICE]);
+    // For product types.
     o[p++] = ',-</td><td>';
     if (insuranceProducts[i][c.ins.FOR_PRODUCT_TYPES] === null)
       o[p++] = getText(9, 'Alle bodtyper');
@@ -78,6 +132,7 @@ function displayInsuranceProducts()
           String(insuranceProducts[i][c.ins.FOR_PRODUCT_TYPES].length),
           String(productTypes.length)
         ]);
+    // For locations.
     o[p++] = '</td><td>';
     if (insuranceProducts[i][c.ins.FOR_LOCATIONS] === null)
       o[p++] = getText(11, 'Alle lager');
@@ -87,15 +142,38 @@ function displayInsuranceProducts()
           String(insuranceProducts[i][c.ins.FOR_LOCATIONS].length),
           String(locations.length)
         ]);
-    o[p++] = '</td><td><button type="button" class="icon-button" onclick="displayEditInsuranceProductDialogue(';
-    o[p++] = String(i);
-    o[p++] = ');"><i class="fa-solid fa-pen-to-square"></i></button></td><td><button type="button" class="icon-button" onclick="deleteInsuranceProduct(';
-    o[p++] = String(i);
-    o[p++] = ');"><i class="fa-solid fa-trash"></i></button></td></tr>';
+    // Buttons.
+    o[p++] = '</td><td>';
+    o[p++] = menu.getMenuButton(i);
+    o[p++] = '</td></tr>';
   }
   o[p++] = '</tbody></table>';
 
   insuranceProductsBox.innerHTML = o.join('');
+  displayFilterToolbar();
+  Utility.hideSpinner();
+}
+
+// *************************************************************************************************
+// Return HTML for the contents of the popup menu for the item with the given index. This function
+// will be called when one of the menu buttons is clicked.
+function getPopupMenuContents(sender, index)
+{
+  var o, p;
+
+  index = parseInt(index, 10);
+  if (!Utility.isValidIndex(index, insuranceProducts))
+    return '';
+  o = new Array(2);
+  p = 0;
+
+  // Edit button.
+  o[p++] = sender.getMenuItem(getText(7, 'Rediger forsikring'), 'fa-pen-to-square', true,
+    'displayEditInsuranceProductDialogue(' + String(index) + ');');
+  // Delete button. Disabled if the product is not free.
+  o[p++] = sender.getMenuItem(getText(8, 'Slett forsikring'), 'fa-trash', true,
+    'deleteInsuranceProduct(' + String(index) + ');');
+  return o.join('');
 }
 
 // *************************************************************************************************
@@ -109,14 +187,15 @@ function deleteInsuranceProduct(index)
     confirm(getText(13, 'Er du sikker på at du vil slette forsikring: $1?',
       [insuranceProducts[index][c.ins.NAME]])))
   {
-    o = new Array(3);
+    o = new Array(4);
     p = 0;
 
-    o[p++] = '<form id="deleteInsuranceProductForm" action="/subscription/html/admin_insurance.php" method="post"><input type="hidden" name="action" value="delete_insurance_product" /><input type="hidden" name="id" value="';
-    o[p++] = String(insuranceProducts[index][c.ins.ID]);
-    o[p++] = '" /></form>';
+    o[p++] = '<form id="deleteInsuranceProductForm" action="/subscription/html/admin_insurance.php" method="post"><input type="hidden" name="action" value="delete_insurance_product" />';
+    o[p++] = getPageStateFormElements();
+    o[p++] = Utility.getHidden('id', insuranceProducts[index][c.ins.ID]);
+    o[p++] = '</form>';
     editInsuranceProductDialogue.innerHTML = o.join('');
-    document.getElementById('deleteInsuranceProductForm').submit();
+    Utility.displaySpinnerThenSubmit(document.getElementById('deleteInsuranceProductForm'));
   }
 }
 
@@ -130,7 +209,7 @@ function displayEditInsuranceProductDialogue(index)
   isNew = index === -1;
   if (!(isNew || Utility.isValidIndex(index, insuranceProducts)))
     return;
-  o = new Array((productTypes.length * 13) + (locations.length * 13) + 57);
+  o = new Array((productTypes.length * 13) + (locations.length * 13) + 65);
   p = 0;
   
   // Header.
@@ -138,26 +217,24 @@ function displayEditInsuranceProductDialogue(index)
   if (isNew)
     o[p++] = getText(14, 'Opprett forsikring');
   else
-    o[p++] = getText(15, 'Rediger forsikring');
+    o[p++] = getText(7, 'Rediger forsikring');
   o[p++] = '</h1></div>';
   
   // Content.
-  o[p++] = '<div class="dialogue-content"><form id="editInsuranceProductForm" action="/subscription/html/admin_insurance.php" method="post"><div class="form-element"><input type="hidden" name="product_type_count" value="';
-  o[p++] = String(productTypes.length);
-  o[p++] = '" /><input type="hidden" name="location_count" value="';
-  o[p++] = String(locations.length);
-  o[p++] = '" />';
+  o[p++] = '<div class="dialogue-content"><form id="editInsuranceProductForm" action="/subscription/html/admin_insurance.php" method="post"><div class="form-element">';
+  o[p++] = Utility.getHidden('product_type_count', productTypes.length);
+  o[p++] = Utility.getHidden('location_count', locations.length);
   if (isNew)
     o[p++] = '<input type="hidden" name="action" value="create_insurance_product" />';
   else
   {
-    o[p++] = '<input type="hidden" name="action" value="update_insurance_product" /><input type="hidden" name="id" value="';
-    o[p++] = String(insuranceProducts[index][c.ins.ID]);
-    o[p++] = '" />';
+    o[p++] = '<input type="hidden" name="action" value="update_insurance_product" />';
+    o[p++] = Utility.getHidden('id', insuranceProducts[index][c.ins.ID]);
   }
   // Name.
   o[p++] = '<label for="nameEdit" class="standard-label">';
   o[p++] = getText(19, 'Navn:');
+  o[p++] = Utility.getMandatoryMark();
   o[p++] = '</label> <input type="text" id="nameEdit" name="name" class="long-text" onkeyup="enableSubmitButton();" onchange="enableSubmitButton();"';
   if (!isNew)
   {
@@ -168,6 +245,7 @@ function displayEditInsuranceProductDialogue(index)
   // Price.
   o[p++] = ' /></div><div class="form-element"><label for="priceEdit" class="standard-label">';
   o[p++] = getText(26, 'Pris pr mnd:');
+  o[p++] = Utility.getMandatoryMark();
   o[p++] = '</label> <input type="number" id="priceEdit" name="price" min="0" class="numeric" onkeyup="enableSubmitButton();" onchange="enableSubmitButton();"';
   if (!isNew)
   {
@@ -178,6 +256,7 @@ function displayEditInsuranceProductDialogue(index)
   // Description.
   o[p++] = ' /></div><div class="form-element"><label for="descriptionEdit" class="standard-label">';
   o[p++] = getText(20, 'Beskrivelse:');
+  o[p++] = Utility.getMandatoryMark();
   o[p++] = '</label><textarea id="descriptionEdit" name="description" rows="10" cols="80" onkeyup="enableSubmitButton();" onchange="enableSubmitButton();">';
   if (!isNew)
     o[p++] = insuranceProducts[index][c.ins.DESCRIPTION];
@@ -220,8 +299,12 @@ function displayEditInsuranceProductDialogue(index)
     o[p++] = productTypes[i][c.typ.NAME];
     o[p++] = '</label></li>';
   }
+  o[p++] = '</ul><button type="button" onclick="setAllProductTypesTo(true);"><i class="fa-solid fa-check-double"></i>&nbsp;&nbsp;';
+  o[p++] = getText(27, 'Alle');
+  o[p++] = '</button><button type="button" onclick="setAllProductTypesTo(false);"><i class="fa-solid fa-empty-set"></i>&nbsp;&nbsp;';
+  o[p++] = getText(28, 'Ingen');
   // For locations.
-  o[p++] = '</ul></div></div></div><div class="column for-locations-column"><div class="form-element"><input type="radio" id="allLocationsRadio" name="for_all_locations" value="1" onchange="toggleLocationsBox(this);"';
+  o[p++] = '</button></div></div></div><div class="column for-locations-column"><div class="form-element"><input type="radio" id="allLocationsRadio" name="for_all_locations" value="1" onchange="toggleLocationsBox(this);"';
   if (isNew)
     forLocations = null;
   else
@@ -257,10 +340,14 @@ function displayEditInsuranceProductDialogue(index)
     o[p++] = locations[i][c.loc.NAME];
     o[p++] = '</label></li>';
   }
-  o[p++] = '</ul></div></div></div></div></form></div>';
+  o[p++] = '</ul><button type="button" onclick="setAllLocationsTo(true);"><i class="fa-solid fa-check-double"></i>&nbsp;&nbsp;';
+  o[p++] = getText(27, 'Alle');
+  o[p++] = '</button><button type="button" onclick="setAllLocationsTo(false);"><i class="fa-solid fa-empty-set"></i>&nbsp;&nbsp;';
+  o[p++] = getText(28, 'Ingen');
+  o[p++] = '</button></div></div></div></div></form></div>';
   
   // Footer.
-  o[p++] = '<div class="dialogue-footer"><button type="button" id="submitButton" onclick="editInsuranceProductForm.submit();"><i class="fa-solid fa-check"></i> ';
+  o[p++] = '<div class="dialogue-footer"><button type="button" id="submitButton" onclick="Utility.displaySpinnerThenSubmit(editInsuranceProductForm);"><i class="fa-solid fa-check"></i> ';
   if (isNew)
     o[p++] = getText(16, 'Opprett');
   else
@@ -278,6 +365,38 @@ function displayEditInsuranceProductDialogue(index)
   Utility.display(overlay);
   Utility.display(editInsuranceProductDialogue);
   enableSubmitButton();
+}
+
+// *************************************************************************************************
+// Check or uncheck all the product type checkboxes in the "for product types" filter, depending on
+// checked, which should be a boolean.
+function setAllProductTypesTo(checked)
+{
+  var i, checkbox;
+
+  checked = !!checked;
+  for (i = 0; i < productTypes.length; i++)
+  {
+    checkbox = document.getElementById('productType' + String(i));
+    if (checkbox)
+      checkbox.checked = checked;
+  }
+}
+
+// *************************************************************************************************
+// Check or uncheck all the location checkboxes in the "for location" filter, depending on checked,
+// which should be a boolean.
+function setAllLocationsTo(checked)
+{
+  var i, checkbox;
+
+  checked = !!checked;
+  for (i = 0; i < locations.length; i++)
+  {
+    checkbox = document.getElementById('location' + String(i));
+    if (checkbox)
+      checkbox.checked = checked;
+  }
 }
 
 // *************************************************************************************************
@@ -319,6 +438,91 @@ function toggleLocationsBox(radioButton)
   else
     Utility.display(locationsBox);
   enableSubmitButton();
+}
+
+// *************************************************************************************************
+// Generic filter functions.
+// *************************************************************************************************
+
+function displayFilterToolbar()
+{
+  var o, p;
+  
+  o = new Array(12);
+  p = 0;
+
+  // Clear all filters button.
+  o[p++] = getText(29, 'Filter:');
+  o[p++] = ' <button type="button" onclick="clearAllFilters();"><i class="fa-solid fa-filter-slash"></i> ';
+  o[p++] = getText(30, 'Vis alle');
+  o[p++] = '</button>';
+  // Freetext filter edit.
+  o[p++] = '<input type="text" id="freetextEdit" placeholder="';
+  o[p++] = getText(31, 'S&oslash;k');
+  o[p++] = '" class="freetext-filter-box" value="';
+  o[p++] = freetextFilter;
+  o[p++] = '" onkeydown="freetextEditKeyDown(event);" /><button type="button" class="freetext-filter-button" onclick="updateFreetextFilter();"><i class="fa-solid fa-search"></i></button>';
+  // Display counter box.
+  o[p++] = '<span class="counter">';
+  if (displayedCount === insuranceProducts.length)
+    o[p++] = getText(32, 'Viser $1 forsikringer', [String(insuranceProducts.length)]);
+  else
+    o[p++] = getText(33, 'Viser $1 av $2 forsikringer',
+      [String(displayedCount), String(insuranceProducts.length)]);
+  o[p++] = '</span>';
+
+  filterToolbar.innerHTML = o.join('');
+
+  // Obtain pointers to user interface elements.
+  Utility.readPointers(['freetextEdit']);
+}
+
+// *************************************************************************************************
+// Return true if the list of insurance products should not include the given insuranceProduct.
+function shouldHide(insuranceProduct)
+{
+  return ((freetextFilter !== '') && !matchesFreetextFilter(insuranceProduct));
+}
+
+// *************************************************************************************************
+
+function clearAllFilters()
+{
+  freetextFilter = '';
+  freetextEdit.value = '';
+  displayInsuranceProducts();
+}
+
+// *************************************************************************************************
+// Freetext filter functions.
+// *************************************************************************************************
+// Monitor key presses in the freetext edit box. If <enter> is pressed, update the filter.
+function freetextEditKeyDown(event)
+{
+  if (event.key === 'Enter')
+    updateFreetextFilter();
+}
+
+// *************************************************************************************************
+
+function updateFreetextFilter()
+{
+  freetextFilter = freetextEdit.value;
+  displayInsuranceProducts();
+}
+
+// *************************************************************************************************
+// Return true if the given insuranceProduct matches the current freetext filter.
+function matchesFreetextFilter(insuranceProduct)
+{
+  var filter;
+
+  filter = freetextFilter.toLowerCase();
+  // If there is no filter (or no insurance product), everything matches. Otherwise, return a match
+  // if the insurance product's name or description fields contain the filter text.
+  return (insuranceProduct === null) || (filter === '') ||
+    (insuranceProduct[c.ins.NAME].toLowerCase().indexOf(filter) >= 0) ||
+    (insuranceProduct[c.ins.DESCRIPTION].toLowerCase().indexOf(filter) >= 0);
 }
 
 // *************************************************************************************************

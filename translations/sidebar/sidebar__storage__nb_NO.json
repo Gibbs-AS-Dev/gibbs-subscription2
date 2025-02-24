@@ -6,16 +6,26 @@
     [
       "&nbsp;",
       "Gibbs booking",
-      "Gibbs minilager",
+      "Dashbord",
       "Lager",
       "Lagerboder",
-      "Brukere",
+      "Kunder",
       "Abonnementer",
       "Bodtyper",
       "Gibbs logo",
       "Forsikringer",
       "Innstillinger",
-      "Blokkerte brukere",
-      "Priser"
+      "Blokkerte kunder",
+      "Prisregler",
+      "Foresp&oslash;rsler",
+      "Lageradministrasjon",
+      "Utleieoversikt",
+      "Ordre",
+      "Maler",
+      "Logg",
+      "SMS og e-post",
+      "minilager",
+      "Kategorier",
+      "Konfigurasjon"
     ]
 }

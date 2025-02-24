@@ -36,16 +36,17 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Gibbs abonnement - innstillinger</title>
-    <link rel="stylesheet" type="text/css" href="/subscription/resources/css/fontawesome.css" />
-    <link rel="stylesheet" type="text/css" href="/subscription/resources/css/solid.css" />
-    <link rel="stylesheet" type="text/css" href="/subscription/css/common.css" />
-    <script type="text/javascript" src="/subscription/js/common.js"></script>
-    <script type="text/javascript" src="/subscription/js/admin_blocked_users.js"></script>
+    <title><?= Utility::get_page_title() ?></title>
+    <link rel="stylesheet" type="text/css" href="/subscription/resources/css/fontawesome.css?v=<?= Utility::BUILD_NO ?>" />
+    <link rel="stylesheet" type="text/css" href="/subscription/resources/css/solid.css?v=<?= Utility::BUILD_NO ?>" />
+    <link rel="stylesheet" type="text/css" href="/subscription/resources/css/common.css?v=<?= Utility::BUILD_NO ?>" />
+    <script type="text/javascript" src="/subscription/js/common.js?v=<?= Utility::BUILD_NO ?>"></script>
+    <script type="text/javascript" src="/subscription/js/admin_blocked_users.js?v=<?= Utility::BUILD_NO ?>"></script>
     <script type="text/javascript">
 
 <?= $text->get_js_strings() ?>
 
+var TIMESTAMP = '<?= Utility::get_timestamp() ?>';
 var resultCode = <?= $result_code ?>;
 var blockedEmails = <?= $blocked_emails ?>;
 var blockedPhoneNos = <?= $blocked_phone_nos ?>;
@@ -53,8 +54,8 @@ var blockedPhoneNos = <?= $blocked_phone_nos ?>;
     </script>
   </head>
   <body onload="initialise();">
-    <?= Sidebar::get_expanding_sidebar() ?>
-    <?= Header::get_header_with_user_info($text->get(0, 'Blokkerte brukere'), 'fa-ban') ?>
+    <?= Sidebar::get_admin_sidebar() ?>
+    <?= Header::get_header_with_user_info($access_token, $text->get(0, 'Blokkerte kunder'), 'fa-ban') ?>
     <div class="content">
       <div id="blockedEmailsBox">
         &nbsp;
@@ -63,5 +64,7 @@ var blockedPhoneNos = <?= $blocked_phone_nos ?>;
         &nbsp;
       </div>
     </div>
+
+    <?= Utility::get_spinner(false) ?>
   </body>
 </html>

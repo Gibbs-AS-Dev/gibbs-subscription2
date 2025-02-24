@@ -6,16 +6,26 @@
     [
       "&nbsp;",
       "Gibbs booking",
-      "Gibbs warehouse",
+      "Dashboard",
       "Warehouses",
-      "Storage rooms",
-      "Users",
+      "Storage units",
+      "Customers",
       "Subscriptions",
-      "Room types",
+      "Unit types",
       "Gibbs logo",
       "Insurance",
       "Settings",
-      "Blocked users",
-      "Prices"
-    ]
+      "Blocked customers",
+      "Price rules",
+      "Requests",
+      "Storage administration",
+      "Rental overview",
+      "Orders",
+      "Templates",
+      "Log",
+      "Text and e-mail",
+      "self storage",
+      "Categories",
+      "Configuration"
+   ]
 }

@@ -8,8 +8,6 @@
   require_once $_SERVER['DOCUMENT_ROOT'] . '/subscription/components/settings/settings_manager.php';
   require_once $_SERVER['DOCUMENT_ROOT'] . '/subscription/components/utility/translation.php';
   require_once $_SERVER['DOCUMENT_ROOT'] . '/subscription/components/user/user.php';
-  require_once $_SERVER['DOCUMENT_ROOT'] . '/subscription/components/header/header.php';
-  require_once $_SERVER['DOCUMENT_ROOT'] . '/subscription/components/sidebar/sidebar.php';
 
   // If the user is not logged in as an ordinary user, redirect to the login page with HTTP status code 401.
   $access_token = User::verify_is_user();
@@ -32,13 +30,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Gibbs abonnement</title>
-    <link rel="stylesheet" type="text/css" href="/subscription/resources/css/fontawesome.css" />
-    <link rel="stylesheet" type="text/css" href="/subscription/resources/css/solid.css" />
-    <link rel="stylesheet" type="text/css" href="/subscription/css/common.css" />
+    <title><?= Utility::get_page_title() ?></title>
+    <link rel="stylesheet" type="text/css" href="/subscription/resources/css/fontawesome.css?v=<?= Utility::BUILD_NO ?>" />
+    <link rel="stylesheet" type="text/css" href="/subscription/resources/css/solid.css?v=<?= Utility::BUILD_NO ?>" />
+    <link rel="stylesheet" type="text/css" href="/subscription/resources/css/common.css?v=<?= Utility::BUILD_NO ?>" />
     <script type="text/javascript" src="<?= $nets_js_url ?>"></script>
-    <script type="text/javascript" src="/subscription/js/common.js"></script>
-    <script type="text/javascript" src="/subscription/js/pay.js"></script>
+    <script type="text/javascript" src="/subscription/js/common.js?v=<?= Utility::BUILD_NO ?>"></script>
+    <script type="text/javascript" src="/subscription/js/pay.js?v=<?= Utility::BUILD_NO ?>"></script>
     <script type="text/javascript">
 
 <?= $text->get_js_strings() ?>
@@ -48,8 +46,6 @@ var settings = <?= $settings->as_javascript() ?>;
     </script>
   </head>
   <body onload="initialise();">
-    <?= Sidebar::get_simple_sidebar() ?>
-    <?= Header::get_header_with_user_info($text->get(0, 'Betaling')) ?>
     <div id="paymentBox">
       <!-- Checkout iFrame will be embedded here. -->
       &nbsp;

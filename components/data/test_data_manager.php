@@ -131,32 +131,64 @@ EOD;
 ]
 EOD;
 
+  public const USERS_SIMPLE =
+<<<EOD
+[
+  [1000, 'Anders And', 'anders@mail.com'],
+  [1001, 'Berit Berntsen', 'berit@mail.com'],
+  [1002, 'Cecilie Carlsen', 'cecilie@mail.com'],
+  [1003, 'David Didriksen', 'david@mail.com'],
+  [1004, 'Endre Everything', 'endre@mail.com']
+]
+EOD;
+
   public const USER =
 <<<EOD
 {
-  id: 1000,
-  name: 'Anders And',
-  eMail: 'anders@mail.com',
-  phone: '98765432'
+  "id": 1000,
+  "name": "Anders And",
+  "firstName": "Anders",
+  "lastName": "And",
+  "eMail": "anders@mail.com",
+  "phone": "98765432",
+  "address": "Onkel Skrues vei 1",
+  "postcode": "0123",
+  "area": "Andeby",
+  "entityType": 0
 }
 EOD;
 
-  public const SUBSCRIPTIONS =
+  public const USER_SUBSCRIPTIONS =
 <<<EOD
 [
-  [101, 'A 101', 103, '12 m&sup2;', 0, '2023-01-01', '2023-02-28', 'Normal', [[-1, ['2023-01-01', 129, 'Normal price']], [1, ['2023-01-01', 49, 'Normal price']]], null],
-  [102, 'D 969', 105, '20 m&sup2;', 1, '2023-03-01', '', 'Pluss', [[-1, ['2023-03-01', 159, 'Normal price']], [1, ['2023-03-01', 79, 'Normal price']]], null]
+  [101, 'A 101', 103, 103, 0, '2023-01-01', '2023-02-28', 'Normal', [[-1, ['2023-01-01', 129, 'Normal price']], [1, ['2023-01-01', 49, 'Normal price']]], null],
+  [102, 'D 969', 105, 104, 1, '2023-03-01', '', 'Pluss', [[-1, ['2023-03-01', 159, 'Normal price']], [1, ['2023-03-01', 79, 'Normal price']]], null]
+];
+EOD;
+
+  public const ALL_SUBSCRIPTIONS =
+<<<EOD
+[
+  [101, 'A 101', 103, 103, 0, '2023-01-01', '2023-02-28', 'Normal', [[-1, ['2023-01-01', 129, 'Normal price']], [1, ['2023-01-01', 49, 'Normal price']]], null, 1002, 1],
+  [102, 'D 969', 105, 104, 1, '2023-03-01', '', 'Pluss', [[-1, ['2023-03-01', 159, 'Normal price']], [1, ['2023-03-01', 79, 'Normal price']]], null, 1004, 1]
 ];
 EOD;
 
   public const AVAILABLE_PRODUCT_TYPES =
 <<<EOD
 [
-  [100, "3 m&sup2;", 59, 100, true, [], null, [1000, 1001, 1004]],
-  [101, "3 m&sup2; &ndash; h&oslash;yt tak", 69, 100, true, [], null, [1006, 1007]],
-  [102, "7 m&sup2;", 89, 101, false, [100, 104], "2024-03-01", []],
-  [103, "12 m&sup2;", 129, 102, false, [], "2023-04-01", []],
-  [104, "20 m&sup2;", 159, 102, true, [], null, [1039]]
+  [100, "3 m&sup2;", 59, null, 100, true, [], null, 3],
+  [101, "3 m&sup2; &ndash; h&oslash;yt tak", 69, null, 100, true, [], null, 2],
+  [102, "7 m&sup2;", 89, null, 101, false, [100, 104], "2024-03-01", 0],
+  [103, "12 m&sup2;", 129, null, 102, false, [], "2023-04-01", 0],
+  [104, "20 m&sup2;", 159, null, 102, true, [], null, 1]
+]
+EOD;
+
+  public const AVAILABLE_PRODUCT_TYPES_SINGLE =
+<<<EOD
+[
+  [100, "3 m&sup2;", 59, null, 100, true, [], null, 1]
 ]
 EOD;
 
@@ -196,18 +228,64 @@ EOD;
   public const CAPACITY_PRICE_RULES =
 <<<EOD
 [
-  [102, "Standard prisvariasjon", "2024-01-01", "2024-12-31", [[-10, 0, 10], [-5, 10, 25], [5, 75, 90], [10, 90, 100]], null, null, false],
-  [103, "Aggressiv prisvariasjon", "2024-01-01", "2024-12-31", [[-25, 0, 20], [-10, 20, 50], [10, 75, 90], [25, 90, 100]], [103, 104, 105], [103, 104], false]
+  [102, "Standard prisvariasjon", 0, "2024-01-01", "2024-12-31", [[-10, 0, 10], [-5, 10, 25], [5, 75, 90], [10, 90, 100]], null, null, false],
+  [103, "Aggressiv prisvariasjon", 0, "2024-01-01", "2024-12-31", [[-25, 0, 20], [-10, 20, 50], [10, 75, 90], [25, 90, 100]], [103, 104, 105], [103, 104], false]
 ]
 EOD;
 
   public const SPECIAL_OFFER_PRICE_RULES =
 <<<EOD
 [
-  [100, "Storrengjøring til påske 2024", "2024-03-22", "2024-04-01", [[-10, 0]], null, null, false],
-  [101, "Sommerkampanje 2024", "2024-05-17", "2024-08-30", [[-100, 1], [-20, 3]], [103, 104, 105], [102, 103, 104], false]
+  [100, "Storrengjøring til påske 2024", 0, "2024-03-22", "2024-04-01", [[-10, 0]], null, null, false],
+  [101, "Sommerkampanje 2024", "2024-05-17", 0, "2024-08-30", [[-100, 1], [-20, 3]], [103, 104, 105], [102, 103, 104], false]
 ]
 EOD;
+
+  public const REQUESTS =
+<<<EOD
+[
+  [1, 1002, 103, 100, '2024-06-20', 'Jeg vil gjerne ha en lille en.', 0],
+  [2, 1004, null, null, '', 'Dette er en lang og detaljert forklaring på hva jeg gjerne vil ha, og til hvilken pris, skjønt jeg vet at jeg ikke har sjanse til å få noe til den prisen.', 0],
+  [3, 1002, 103, null, '', 'Dette er en duplisert forespørsel fra Cecilie, som ikke samsvarer med den forrige, men kan jeg få det likevel?', 2]
+]
+EOD;
+
+  public const REQUEST_USERS =
+<<<EOD
+[
+  [1002, 'Cecilie Carlsen', 'cecilie@mail.com', '49876543'],
+  [1004, 'Endre Everything', 'endre@mail.com', '47654321']
+]
+EOD;
+
+  public const ORDERS =
+<<<EOD
+[
+  [10001, 1002, 101, [['payment_status', '1'], ['period_month', '2024-08']]],
+  [10002, 1004, 102, [['payment_status', '1'], ['period_month', '2024-08']]]
+]
+EOD;
+
+  public const TEMPLATES =
+<<<EOD
+[
+  [4, 'Oopsie', '', 'We took all the money and ran... not! In fact, we couldn\'t get at your money at all. That\'s definitely an issue. Could you look into that, please?', 5, false, 1, 7],
+  [3, 'Welcome', 'Welcome to Gibbs self storage', 'Welcome to Gibbs self storage! Thanks for signing up!', 0, true, 2, 0]
+]
+EOD;
+
+  public const MESSAGE_LOG =
+<<<EOD
+[
+  [2002, 0, 2536, 189, 'Hemmelig rom under gulvet 002', '+47 45612345', '', 'These environs exhibit a noticeable lack of test.', '2024-09-24 13:54:37', true, ''],
+  [2003, 0, 2536, 189, 'Hemmelig rom under gulvet 002', '+47 45612345', '', 'Lager: Gregershølet. Monthly cleaning in progress. Please do not enter until next week, at the earliest.', '2024-09-24 13:54:37', false, 'Pigeon not flying due to lazy.'],
+  [2, 1, 2534, 47, 'Bod2000', 'devin@gmail.com', 'A swift kick in the test', 'We are perpetrating a test. This would be the content of the test. Do you feel tested? This process can be somewhat testing, if you are not used to being tested. We recommend a shot of test...', '2024-09-24 13:06:23', true, '']
+]
+EOD;
+
+  public const USER_NOTES = 'These are sample notes about customer X. Much note. Very secret.';
+
+  public const PRODUCT_NOTES = 'These are sample notes for product X.';
 
   // *******************************************************************************************************************
 }

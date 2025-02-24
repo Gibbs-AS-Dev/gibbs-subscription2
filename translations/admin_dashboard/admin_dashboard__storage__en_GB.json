@@ -4,9 +4,13 @@
     ],
   "php_texts":
     [
-      "Find storage room",
-      "Find user",
+      "Find storage unit",
+      "Find customer",
       "Statistics",
-      "Gibbs warehouse"
+      "Dashboard",
+      "Integration",
+      "Use the following URLs to integrate Gibbs self storage with your web site:",
+      "Link to booking page:",
+      "Link to login page:"
     ]
 }

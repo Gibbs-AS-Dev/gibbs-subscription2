@@ -16,6 +16,9 @@
   // If the user is not logged in as an administrator, redirect to the login page with HTTP status code 401.
   $access_token = User::verify_is_admin();
 
+  // Get translated texts.
+  $text = new Translation('', 'storage', '');
+
   // Read data.
   $settings = Settings_Manager::read_settings($access_token);
   if ($settings->get_use_test_data())
@@ -28,15 +31,9 @@
   {
     $category_data = new Category_Data_Manager($access_token);
     $product_type_data = new Product_Type_Data_Manager($access_token);
-    // Handle create, update and delete operations. We can't do operations on both categories and
-    // product types at the same time. If we attempted to modify categories, we don't even need to
-    // try the product types.
-    $result_code = $category_data->perform_action();
-    if ($result_code === Result::NO_ACTION_TAKEN)
-    {
-      $result_code = $product_type_data->perform_action();
-    }
-    // Read categories and product types to be displayed to the user.
+    // Handle create, update and delete operations.
+    $result_code = $product_type_data->perform_action();
+    // Read product types to be displayed to the user.
     $categories = $category_data->read();
     $product_types = $product_type_data->read();
   }
@@ -45,14 +42,21 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Gibbs abonnement - bodtyper</title>
-    <link rel="stylesheet" type="text/css" href="/subscription/resources/css/fontawesome.css" />
-    <link rel="stylesheet" type="text/css" href="/subscription/resources/css/solid.css" />
-    <link rel="stylesheet" type="text/css" href="/subscription/css/common.css" />
-    <script type="text/javascript" src="/subscription/js/common.js"></script>
-    <script type="text/javascript" src="/subscription/js/admin_product_types.js"></script>
+    <title><?= Utility::get_page_title() ?></title>
+    <link rel="stylesheet" type="text/css" href="/subscription/resources/css/fontawesome.css?v=<?= Utility::BUILD_NO ?>" />
+    <link rel="stylesheet" type="text/css" href="/subscription/resources/css/solid.css?v=<?= Utility::BUILD_NO ?>" />
+    <link rel="stylesheet" type="text/css" href="/subscription/resources/css/common.css?v=<?= Utility::BUILD_NO ?>" />
+    <script type="text/javascript" src="/subscription/js/common.js?v=<?= Utility::BUILD_NO ?>"></script>
+    <script type="text/javascript" src="/subscription/components/sorting/sorting.js?v=<?= Utility::BUILD_NO ?>"></script>
+    <script type="text/javascript" src="/subscription/components/menu/popup_menu.js?v=<?= Utility::BUILD_NO ?>"></script>
+    <script type="text/javascript" src="/subscription/js/admin_product_types.js?v=<?= Utility::BUILD_NO ?>"></script>
     <script type="text/javascript">
 
+<?= $text->get_js_strings() ?>
+
+<?= Utility::write_initial_sorting() ?>
+
+var TIMESTAMP = '<?= Utility::get_timestamp() ?>';
 var resultCode = <?= $result_code ?>;
 var categories = <?= $categories ?>;
 var productTypes = <?= $product_types ?>;
@@ -60,33 +64,19 @@ var productTypes = <?= $product_types ?>;
     </script>
   </head>
   <body onload="initialise();">
-    <?= Sidebar::get_expanding_sidebar() ?>
-    <?= Header::get_header_with_user_info('Kategorier og bodtyper', 'fa-box-check') ?>
+    <?= Sidebar::get_admin_sidebar() ?>
+    <?= Header::get_header_with_user_info($access_token, $text->get(0, 'Bodtyper'), 'fa-box-check') ?>
     <div class="content">
       <div class="toolbar">
-        <h3>Kategorier</h3>
-        <br />
-        <button type="button" class="wide-button" onclick="displayEditCategoryDialogue(-1);"><i class="fa-solid fa-box-check"></i> Lag ny kategori</button>
-      </div>
-      <div id="categoriesBox">
-        &nbsp;
-      </div>
-    </div>
-    <div class="content">
-      <div class="toolbar">
-        <h3>Bodtyper</h3>
-        <br />
-        <button type="button" class="wide-button" onclick="displayEditProductTypeDialogue(-1);"><i class="fa-solid fa-box-check"></i> Lag ny bodtype</button>
+        <button type="button" class="wide-button" onclick="displayEditProductTypeDialogue(-1);"><i class="fa-solid fa-box-check"></i> <?= $text->get(1, 'Lag ny bodtype') ?></button>
       </div>
       <div id="productTypesBox">
         &nbsp;
       </div>
     </div>
 
+    <?= Utility::get_spinner() ?>
     <div id="overlay" class="overlay" style="display: none;">
-      &nbsp;
-    </div>
-    <div id="editCategoryDialogue" class="dialogue edit-category-dialogue" style="display: none;">
       &nbsp;
     </div>
     <div id="editProductTypeDialogue" class="dialogue edit-product-type-dialogue" style="display: none;">

@@ -10,6 +10,6 @@
       "Your licence has been created, but not yet activated.",
       "You have cancelled your licence.",
       "The licence has been deactivated due to missed payments, or for other reasons.",
-      "Please contact <a href=\"https://www.gibbs.no/kontakt-oss/\">Gibbs customer service</a> in order to activate the licence."
+      "Please contact $0Gibbs customer service$1 in order to activate the licence."
     ]
 }

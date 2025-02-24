@@ -21,9 +21,9 @@ function initialise()
   displayBlockedPhoneNos();
 
   // Display the results of a previous operation, if required.
-  if (resultCode >= 0)
-    alert(getText(0, 'Det oppstod en feil. Vennligst kontakt kundeservice og oppgi feilkode $1.',
-      [String(resultCode)]));
+  if (Utility.isError(resultCode))
+    alert(getText(0, 'Det oppstod en feil. Vennligst kontakt kundeservice og oppgi feilkode $1. Tidspunkt: $2.',
+      [String(resultCode), TIMESTAMP]));
 }
 
 // *************************************************************************************************

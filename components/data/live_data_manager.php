@@ -147,7 +147,7 @@ class Live_Data_Manager
   }
 
   // *******************************************************************************************************************
-
+  // Return the user group's dummy user ID. This value is always an integer.
   public function get_user_group_user_id()
   {
     global $wpdb;

@@ -3,11 +3,11 @@
     [
       "Name",
       "Address",
-      "Edit",
-      "Delete",
-      "See storage rooms",
+      "Edit warehouse",
+      "Delete warehouse",
+      "Display storage units",
       "Delete warehouse: $1. Are you sure?",
-      "An error occurred. Please contact customer service. Error code: $1.",
+      "An error occurred. Please contact customer service. Error code: $1. Timestamp: $2.",
       "Create warehouse",
       "Edit warehouse",
       "Name:",
@@ -16,13 +16,14 @@
       "Update",
       "Cancel",
       "No warehouses have been created yet.",
-      "Postal code:",
-      "Location:",
+      "Postcode:",
+      "Area:",
       "Country:",
       "Hours:",
       "Services:",
       "Hours",
-      "Services"
+      "Services",
+      "Create subscription here"
     ],
   "php_texts":
     [

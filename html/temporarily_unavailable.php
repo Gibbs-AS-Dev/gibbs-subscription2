@@ -14,13 +14,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Gibbs abonnement - midlertidig utilgjengelig</title>
-    <link rel="stylesheet" type="text/css" href="/subscription/css/common.css" />
-    <script type="text/javascript" src="/subscription/js/common.js"></script>
+    <title><?= Utility::get_page_title() ?></title>
+    <link rel="stylesheet" type="text/css" href="/subscription/resources/css/common.css?v=<?= Utility::BUILD_NO ?>" />
+    <script type="text/javascript" src="/subscription/js/common.js?v=<?= Utility::BUILD_NO ?>"></script>
   </head>
   <body>
     <?= Sidebar::get_simple_sidebar() ?>
-    <?= Header::get_header_with_user_info($text->get(0, 'Midlertidig utilgjengelig')) ?>
+    <?= Header::get_header_with_user_info(null, $text->get(0, 'Midlertidig utilgjengelig')) ?>
     <div class="content">
       <div class="form-element">
         <p>
@@ -28,5 +28,7 @@
         </p>
       </div>
     </div>
+
+    <?= Utility::get_spinner(false) ?>
   </body>
 </html>

@@ -46,11 +46,11 @@ class Header
     {
       $result .= ' selected="selected"';
     }
-    $result .= '><img src="/subscription/resources/language/';
+    $result .= ' data-image="/subscription/resources/language/';
     $result .= $language_value;
-    $result .= '.png" alt="';
-    $result .= $language_description;
-    $result .= '" class="language-icon"> ';
+    $result .= '.png?v=';
+    $result .= Utility::BUILD_NO;
+    $result .= '">';
     $result .= $language_description;
     $result .= '</option>';
     return $result;
@@ -103,11 +103,16 @@ class Header
 
   // *******************************************************************************************************************
 
-  protected static function get_role_option($role_data, $text)
+  protected static function get_role_option($role_data, $selected, $text)
   {
     $result = '<option value="';
     $result .= $role_data['role_id'];
-    $result .= '">';
+    $result .= '"';
+    if ($selected)
+    {
+      $result .= ' selected="selected"';
+    }
+    $result .= '>';
     $result .= $role_data['user_group_name'];
     $role_description = self::get_role_description($role_data, $text);
     if (!empty($role_description))
@@ -121,8 +126,22 @@ class Header
   }
 
   // *******************************************************************************************************************
-  // This assumes that the user is currently logged in.
-  public static function get_header_with_user_info($headline, $icon = '')
+  // Return true if the given $role_data represents the user's current role and user group, as stated in the given
+  // $access_token.
+  protected static function is_current_role($access_token, $role_data)
+  {
+    if (!isset($access_token))
+    {
+      return false;
+    }
+    return ($role_data['user_group_id'] === $access_token->get_user_group_id()) &&
+      (Utility::role_number_to_role($role_data['role_number']) === $access_token->get_role());
+  }
+
+  // *******************************************************************************************************************
+  // This assumes that the user is currently logged in. $access_token may be null, in which case no user group will be
+  // displayed as selected.
+  public static function get_header_with_user_info($access_token, $headline, $icon = '')
   {
     $current_user = wp_get_current_user();
     $current_language = Utility::get_current_language();
@@ -131,10 +150,10 @@ class Header
     // Get the list of roles that this user can have.
     $roles = User_Data_Manager::get_user_roles();
 
-    // Header information, displayed continuously.
+    // Header information, displayed continuously. The toggleCurrentUserMenu function is found in common.js.
     $result = '<div class="header">';
     $result .= self::get_headline($headline, $icon);
-    $result .= '  <div class="current-user-box" onclick="toggleCurrentUserMenu();">';
+    $result .= '  <div id="currentUserMenuButton" class="current-user-box" onclick="toggleCurrentUserMenu();">';
     $result .= '    <div class="user-name">';
     $result .= '      ' . $current_user->first_name . ' ' . $current_user->last_name;
     $result .= '    </div>';
@@ -144,23 +163,31 @@ class Header
     $result .= '  </div>';
     $result .= '</div>';
 
-    // Drop-down menu.
+    // Add event handler to close the drop-down menu if the user clicks anywhere else. The clickOutsideCurrentUserMenu
+    // function is found in common.js.
+    $result .= '<script type="text/javascript">';
+    $result .= 'document.addEventListener(\'click\', clickOutsideCurrentUserMenu);';
+    $result .= '</script>';
+
+    // Drop-down menu. The setUserGroup and submitLanguageSelection handlers are found in commmon.js.
     $result .= '<div id="currentUserMenu" class="current-user-menu" style="display: none;">';
     $result .= '  <div class="user-menu-item user-e-mail">' . $current_user->user_email . '</div>';
-    $result .= '  <div class="user-menu-item"><button type="button" onclick="window.location.href = \'/subscription/html/edit_user.php\';"><i class="fa-solid fa-circle-user"></i> ' . $text->get(1, 'Min profil') . '</button></div>';
+    $result .= '  <div class="user-menu-item"><button type="button" onclick="Utility.displaySpinnerThenGoTo(\'/subscription/html/edit_user.php\');"><i class="fa-solid fa-circle-user"></i>&nbsp;&nbsp;' . $text->get(1, 'Min profil') . '</button></div>';
     $result .= '  <div class="user-menu-item"><select onchange="setUserGroup(this.options[this.selectedIndex].value);">';
-    $result .= '    <option value="-1" disabled="disabled" selected="selected">' . $text->get(3, 'Velg avdeling') . '</option>';
+    if (!isset($access_token))
+    {
+      $result .= '    <option value="-1" disabled="disabled" selected="selected">' . $text->get(3, 'Velg avdeling') . '</option>';
+    }
     if (!empty($roles))
     {
       foreach ($roles as $role_data)
       {
-        $result .= self::get_role_option($role_data, $text);
+        $result .= self::get_role_option($role_data, self::is_current_role($access_token, $role_data), $text);
       }
     }
     $result .= '  </select></div>';
     $result .= '  <div class="user-menu-item">';
     $result .= '    <form id="selectLanguageForm" action="/subscription/html/set_language.php" method="post">';
-      // *** // Do we need to sanitise the URL? Will it work if we do?
     $result .= '      <input type="hidden" name="redirect_to" value="' . sanitize_text_field($_SERVER['REQUEST_URI']) . '" />';
     $result .= '      <select name="language" onchange="submitLanguageSelection();">';
     $result .= self::get_language_option(Utility::NORWEGIAN, 'Norsk (bokm&aring;l)', $current_language);
@@ -169,7 +196,63 @@ class Header
     $result .= '      </select>';
     $result .= '    </form>';
     $result .= '  </div>';
-    $result .= '  <div class="user-menu-item"><button type="button" onclick="window.location.href = \'/subscription/index.php\';"><i class="fa-solid fa-hand-wave"></i> ' . $text->get(2, 'Logg ut') . '</button></div>';
+    $result .= '  <div class="user-menu-item"><button type="button" onclick="Utility.displaySpinnerThenGoTo(\'/subscription/index.php\');"><i class="fa-solid fa-person-to-door"></i>&nbsp;&nbsp;' . $text->get(2, 'Logg ut') . '</button></div>';
+    $result .= '</div>';
+
+    return $result;
+  }
+
+  // *******************************************************************************************************************
+  // This assumes that the user is currently logged in. $access_token may be null, in which case no user group will be
+  // displayed as selected.
+  public static function get_header_for_mobile($access_token)
+  {
+    $current_user = wp_get_current_user();
+    $current_language = Utility::get_current_language();
+    // Get translated texts.
+    $text = new Translation('header', 'storage', '');
+    // Get the list of roles that this user can have.
+    $roles = User_Data_Manager::get_user_roles();
+
+    // Header information, displayed continuously.
+    $result =  '<div class="current-user-box">';
+    $result .= '  <div class="user-name" onclick="toggleCurrentUserMenu();">';
+    $result .= '    ' . $current_user->first_name . ' ' . $current_user->last_name;
+    $result .= '  </div>';
+    $result .= '  <div class="user-image" onclick="toggleCurrentUserMenu();">';
+    $result .= '    <img src="' . get_avatar_url($current_user->ID) . '" width="40" height="40" alt="' . $text->get(0, 'Bilde av p&aring;logget bruker') . '" />';
+    $result .= '  </div>';
+
+    // Drop-down menu. The setUserGroup and submitLanguageSelection handlers are found in commmon.js.
+    $result .= '  <div id="currentUserMenu" class="current-user-menu" style="display: none;">';
+    $result .= '    <div class="user-menu-item user-e-mail">' . $current_user->user_email . '</div>';
+    $result .= '    <div class="user-menu-item"><button type="button" onclick="Utility.displaySpinnerThenGoTo(\'/subscription/html/edit_user.php\');"><i class="fa-solid fa-circle-user"></i>&nbsp;&nbsp;' . $text->get(1, 'Min profil') . '</button></div>';
+    $result .= '    <div class="user-menu-item"><select onchange="setUserGroup(this.options[this.selectedIndex].value);">';
+    if (!isset($access_token))
+    {
+      $result .= '      <option value="-1" disabled="disabled" selected="selected">' . $text->get(3, 'Velg avdeling') . '</option>';
+    }
+    if (!empty($roles))
+    {
+      foreach ($roles as $role_data)
+      {
+        $result .= self::get_role_option($role_data, self::is_current_role($access_token, $role_data), $text);
+      }
+    }
+    $result .= '    </select></div>';
+    $result .= '    <div class="user-menu-item">';
+    $result .= '      <form id="selectLanguageForm" action="/subscription/html/set_language.php" method="post">';
+    $result .= '        <input type="hidden" name="redirect_to" value="' . sanitize_text_field($_SERVER['REQUEST_URI']) . '" />';
+    $result .= '        <select name="language" onchange="submitLanguageSelection();">';
+    $result .= self::get_language_option(Utility::NORWEGIAN, 'Norsk (bokm&aring;l)', $current_language);
+    // $result .= self::get_language_option(Utility::SWEDISH, 'Svenska', $current_language);
+    $result .= self::get_language_option(Utility::ENGLISH, 'English (UK)', $current_language);
+    $result .= '        </select>';
+    $result .= '      </form>';
+    $result .= '    </div>';
+    $result .= '    <div class="user-menu-item"><button type="button" onclick="Utility.displaySpinnerThenGoTo(\'/subscription/index.php\');"><i class="fa-solid fa-person-to-door"></i>&nbsp;&nbsp;' . $text->get(2, 'Logg ut') . '</button></div>';
+    $result .= '  </div>';
+
     $result .= '</div>';
 
     return $result;

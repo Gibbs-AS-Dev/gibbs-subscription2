@@ -17,6 +17,8 @@ constructor (year, month, monthNames, monthNamesInSentence)
 {
   this._year = year;
   this._month = month;
+  this._monthName = null;
+  this._monthNameInSentence = null;
   this._displayName = null;
   this._displayNameInSentence = null;
   this._monthNames = monthNames;
@@ -61,13 +63,37 @@ get month()
 }
 
 // *************************************************************************************************
+// Return the name of this month. The returned text does not include the year, and is intended for
+// use as a headline, or at the start of a sentence.
+get monthName()
+{
+  // Set the value, if it hasn't been read before.
+  if (!this['_displayName'])
+    this._monthName = this._monthNames[this._month];
+
+  return this._monthName;
+}
+
+// *************************************************************************************************
+// Return the name of this month. The returned text does not include the year, and is intended for
+// use as part of a sentence.
+get monthNameInSentence()
+{
+  // Set the value, if it hasn't been read before.
+  if (!this['_monthNameInSentence'])
+    this._monthNameInSentence = this._monthNamesInSentence[this._month];
+
+  return this._monthNameInSentence;
+}
+
+// *************************************************************************************************
 // Return the display name of this month. The returned text includes both the month and the year,
 // and is intended for use as a headline, or at the start of a sentence.
 get displayName()
 {
-  // Set the display name, if it hasn't been read before.
+  // Set the value, if it hasn't been read before.
   if (!this['_displayName'])
-    this._displayName = this._monthNames[this._month] + ' ' + Utility.pad(this._year, 4);
+    this._displayName = this.monthName + ' ' + Utility.pad(this._year, 4);
 
   return this._displayName;
 }
@@ -77,10 +103,9 @@ get displayName()
 // and is intended for use as part of a sentence.
 get displayNameInSentence()
 {
-  // Set the display name, if it hasn't been read before.
+  // Set the value, if it hasn't been read before.
   if (!this['_displayNameInSentence'])
-    this._displayNameInSentence = this._monthNamesInSentence[this._month] + ' ' +
-      Utility.pad(this._year, 4);
+    this._displayNameInSentence = this.monthNameInSentence + ' ' + Utility.pad(this._year, 4);
 
   return this._displayNameInSentence;
 }
@@ -375,7 +400,7 @@ _getCalendarHeadline()
   {
     o[p++] = '<button type="button" class="icon-button" onclick="Utility.getInstance(';
     o[p++] = String(this._registryIndex);
-    o[p++] = ').displayPreviousMonth();"><i class="fa-solid fa-caret-left"></i></button> ';
+    o[p++] = ').displayPreviousMonth();"><i class="fa-solid fa-chevron-left"></i></button> ';
   }
   else
     o[p++] = '&nbsp;';
@@ -386,7 +411,7 @@ _getCalendarHeadline()
   {
     o[p++] = ' <button type="button" class="icon-button" onclick="Utility.getInstance(';
     o[p++] = String(this._registryIndex);
-    o[p++] = ').displayNextMonth();"><i class="fa-solid fa-caret-right"></i></button>';
+    o[p++] = ').displayNextMonth();"><i class="fa-solid fa-chevron-right"></i></button>';
   }
   else
     o[p++] = '&nbsp;';
@@ -458,6 +483,7 @@ set monthNames(newValue)
   if (Array.isArray(newValue) && (newValue.length >= 12))
   {
     this._monthNames = newValue;
+    this._generateSelectableMonths();
     this._render();
   }
 }
@@ -478,6 +504,7 @@ set monthNamesInSentence(newValue)
   if (Array.isArray(newValue) && (newValue.length >= 12))
   {
     this._monthNamesInSentence = newValue;
+    this._generateSelectableMonths();
     this._render();
   }
 }
@@ -505,7 +532,8 @@ set selectedDate(newValue)
     // dates within the currently displayed month. Otherwise, redrawing the calendar might not be
     // necessary (but we still do).
     this._render();
-    this._onSelectDate(this, this._selectedDate);
+    if (this._onSelectDate)
+      this._onSelectDate(this, this._selectedDate);
   }
 }
 

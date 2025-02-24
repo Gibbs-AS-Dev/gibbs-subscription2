@@ -9,7 +9,7 @@
 
   // If the user is not logged in, or there is no user group ID on the session, redirect to the login page. You can not
   // switch your user group unless you have already successfully logged in.
-  User::verify_logged_in();
+  $access_token = User::verify_logged_in();
 
   // A Gibbs administrator needs to pass a user group ID and a role number, since there is no Gibbs administrator role
   // in the database for every client.

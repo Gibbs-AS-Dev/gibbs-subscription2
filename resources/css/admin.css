@@ -1,0 +1,1375 @@
+/* Profile colour style rules are found in the HTML document, as it needs to be read from settings. */
+
+.woocommerce-error
+{
+  display: none;
+}
+
+@font-face
+{
+  font-family: 'Poppins';
+  src: url('/subscription/resources/webfonts/Poppins-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face
+{
+  font-family: 'Poppins';
+  src: url('/subscription/resources/webfonts/Poppins-SemiBold.ttf') format('truetype');
+  font-weight: 600;
+  font-style: normal;
+}
+
+@font-face
+{
+  font-family: 'Poppins';
+  src: url('/subscription/resources/webfonts/Poppins-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+}
+
+@font-face
+{
+  font-family: 'Source Serif Pro';
+  src: url('/subscription/resources/webfonts/SourceSerifPro-Light.otf') format('opentype');
+  font-weight: 300;
+  font-style: normal;
+}
+
+@font-face
+{
+  font-family: 'Source Serif Pro';
+  src: url('/subscription/resources/webfonts/SourceSerifPro-Black.otf') format('opentype');
+  font-weight: 900;
+  font-style: normal;
+}
+
+*
+{
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+div.background-area
+{
+  position: fixed;
+  left: 50px;
+  top: 50px;
+  width: calc(100% - 50px);
+  height: calc(100% - 50px);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  overflow: auto;
+}
+
+body,
+html,
+button,
+select,
+input,
+textarea
+{
+  font: 14px 'Poppins', sans-serif;
+}
+
+body.admin
+{
+  background-color: #e5e5e5;
+  width: 100%;
+}
+
+h1
+{
+  font: 26px 'Poppins', sans-serif;
+  font-weight: 700;
+  text-align: center;
+  padding: 20px;
+}
+
+h2
+{
+  font: 20px 'Poppins', sans-serif;
+  font-weight: 600;
+  text-align: center;
+  padding: 10px;
+}
+
+h3
+{
+  font: 16px 'Poppins', sans-serif;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+h4
+{
+  font-weight: 600;
+  padding: 0 20px;
+}
+
+table
+{
+  border-collapse: collapse;
+}
+
+select
+{
+  color: #1e1e2d;
+  background-color: #f5f8fa;
+  border-radius: 6px;
+  border: 1px solid #d8dbde;
+  height: 30px;
+  padding: 0 10px;
+  cursor: pointer;
+}
+
+input[type="text"],
+input[type="number"],
+input[type="password"]
+{
+  border-radius: 6px;
+  background-color: #f5f8fa;
+  height: 30px;
+  border: 0;
+  padding: 0 10px;
+  display: inline-block;
+}
+
+textarea
+{
+  border-radius: 6px;
+  background-color: #f5f8fa;
+  border: 0;
+  padding: 5px 10px;
+}
+
+button
+{
+  width: 100px;
+  height: 30px;
+  cursor: pointer;
+  border: none;
+  border-radius: 6px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+button:disabled,
+button:disabled:hover
+{
+  background-color: #d4d4d4;
+  color: #9d9d9d;
+  cursor: default;
+}
+
+button:disabled i,
+button:disabled:hover i
+{
+  color: #9d9d9d;
+}
+
+.wide-button
+{
+  width: 200px;
+}
+
+.icon-button
+{
+  width: 30px;
+  margin-left: 2px;
+  display: inline-block;
+}
+
+button.low-profile,
+button.low-profile i
+{
+  background-color: #f5f8fa;
+  color: #1e1e2d;
+}
+
+button.low-profile:hover,
+button.low-profile:hover i
+{
+  background-color: #d8dbde;
+  color: #1e1e2d;
+}
+
+th,
+td
+{
+  padding: 10px 20px;
+  height: 30px;
+  line-height: 30px;
+  border-bottom: 1px solid #eff2f5;
+}
+
+td,
+li
+{
+  color: #1e1e2d;
+}
+
+th i,
+td i
+{
+  color: #1e1e2d;
+}
+
+label
+{
+  padding: 0 0 5px 20px;
+}
+
+.status-label
+{
+  border-radius: 6px;
+  padding: 3px 6px;
+  color: #fff;
+}
+
+.status-green
+{
+  background-color: #64bc36;
+}
+
+.status-red
+{
+  background-color: #f3103c;
+}
+
+.status-yellow
+{
+  background-color: #ffae00;
+}
+
+div.content-area
+{
+  width: calc(100% - 40px);
+  max-width: 600px;
+  margin: 20px;
+  padding: 0 0 10px;
+  box-shadow: 0 0 10px 0 rgba(0, 0, 0, .15);
+  border-radius: 10px;
+  background-color: #e9eaee; /* #f2f3f7; */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+}
+
+@media (max-width: 560px)
+{
+  div.content-area
+  {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+  }
+}
+
+div.toolbar
+{
+  height: 50px;
+  width: 100%;
+  display: flex;
+  background-color: #fff;
+  border-radius: 10px 10px 0 0;
+}
+
+div.back-button-box
+{
+  width: 120px;
+}
+
+button.back-button
+{
+  margin: 10px 0 10px 20px;
+}
+
+button.close-button
+{
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 30px;
+}
+
+div.area-box
+{
+  border-radius: 8px;
+  background-color: #fff;
+  width: calc(100% - 40px); /* Full width minus 20px margin on each side */
+  margin: 0 20px 20px;
+}
+
+div.form-element
+{
+  padding: 10px 20px;
+}
+
+div.separator-box
+{
+  position: relative; /* Required for absolute positioning of button in the top-right corner. */
+  border-bottom: 1px solid #eff2f5;
+  margin-bottom: 10px;
+}
+
+.mandatory
+{
+  color: #ff0000;
+}
+
+div.button-box
+{
+  border-radius: 8px;
+  width: calc(100% - 40px); /* Full width minus 20px margin on each side */
+  margin: 0 20px 20px;
+  background-color: #fff;
+  overflow: hidden;
+}
+
+div.button-box-left
+{
+  padding: 20px;
+  display: inline-block;
+}
+
+div.button-box-right
+{
+  padding: 20px 20px 20px 0;
+  display: inline-block;
+  text-align: right;
+}
+
+div.button-box-bottom
+{
+  border-top: 1px solid #eff2f5;
+  padding: 20px;
+}
+
+div.button-box button
+{
+  display: inline-block;
+}
+
+div.button-box-right button
+{
+  margin-top: 20px;
+}
+
+/* ********************************************************************************************** */
+/* Custom checkbox. */
+/* ********************************************************************************************** */
+
+/* Hide the default checkbox */
+input[type="checkbox"]
+{
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #1e1e2d;
+  border-radius: 4px;
+  position: relative;
+  cursor: pointer;
+  top: 5px;
+}
+
+input[type="checkbox"]:not(:checked)
+{
+  background-color: #fff;
+}
+
+/* ********************************************************************************************** */
+/* Custom radio button. */
+/* ********************************************************************************************** */
+
+input[type="radio"]:not(:checked)
+{
+  background-color: #fff;
+  cursor: pointer;
+}
+
+/* Hide default radio button */
+input[type="radio"]
+{
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #1e1e2d;
+  border-radius: 50%;
+  outline: none;
+  position: relative;
+  top: 5px;
+}
+
+/* ********************************************************************************************** */
+/* Number tabset. */
+/* ********************************************************************************************** */
+
+div.tab-button-area
+{
+  flex-grow: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+div.tab-button-content
+{
+  display: flex;
+  justify-content: space-between;
+}
+
+div.tab-button
+{
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+div.tab
+{
+  flex-grow: 1;
+  background-color: #e9eaee; /* #f2f3f7; */
+  overflow: auto; /* Stops collapsing margins. */
+  padding-bottom: 10px;
+}
+
+/* ********************************************************************************************** */
+/* Location tab. */
+/* ********************************************************************************************** */
+
+.location-left
+{
+  width: calc(100% - 140px);
+}
+
+.location-right
+{
+  width: 140px;
+}
+
+/* ********************************************************************************************** */
+/* Product type tab. */
+/* ********************************************************************************************** */
+
+div.location-description-box p
+{
+  padding: 20px 0 0;
+  text-align: center;
+}
+
+div.map
+{
+  width: calc(100% - 40px);
+  height: 250px;
+  margin: 20px;
+}
+
+div.start-date-box .form-element
+{
+  display: flex;
+  justify-content: center;
+}
+
+input.selected-date-edit
+{
+  border-radius: 6px 0 0 6px;
+  width: 150px;
+  margin-right: 1px;
+}
+
+input.selected-date-edit:hover
+{
+  background-color: #eaf4f3;
+}
+
+button.date-editor-button
+{
+  border-radius: 0 6px 6px 0;
+  border: 0;
+  width: 30px;
+  height: 30px;
+  display: inline-block;
+}
+
+div.product-types-headline
+{
+  margin-bottom: 20px;
+}
+
+div.product-types-headline button
+{
+  display: inline-block;
+}
+
+button.reset-filter-button
+{
+  width: 30px;
+  margin-left: 1px;
+}
+
+div.product-types-box
+{
+  min-height: 300px;
+}
+
+div.product-type-box
+{
+  padding-bottom: 20px;
+}
+
+div.product-type-unavailable
+{
+  background-color: #f8fbfd;
+}
+
+div.product-type-box-left
+{
+  display: inline-block;
+  vertical-align: top;
+  width: calc(100% - 220px);
+  margin-top: 10px;
+  padding: 10px 10px 0 20px;
+}
+
+div.product-type-box-right
+{
+  display: inline-block;
+  vertical-align: top;
+  width: 220px;
+  margin-top: 10px;
+  padding: 10px 20px 0 0;
+  text-align: right;
+}
+
+div.product-type-box-full-width
+{
+  display: inline-block;
+  width: 100%;
+  margin-top: 10px;
+  padding: 10px 10px 0 20px;
+}
+
+div.separator-above
+{
+  border-top: 1px solid #eff2f5;
+}
+
+.product-type-box .superseded-price
+{
+  text-decoration: line-through;
+}
+
+.product-type-box .price
+{
+  font: 18px 'Poppins', sans-serif;
+  font-weight: 600;
+}
+
+div.price-information-dialogue
+{
+  width: 400px;
+}
+
+div.price-information-dialogue ul
+{
+  padding: 5px 0 10px 30px;
+
+}
+
+/* ********************************************************************************************** */
+/* Calendar. */
+/* ********************************************************************************************** */
+
+.calendar-box
+{
+  text-align: center;
+  margin: 0 0 20px;
+}
+
+.calendar-header
+{
+  display: flex;
+}
+
+.month-scroll-button,
+.month-headline
+{
+  display: flex;
+  height: 50px;
+  line-height: 50px;
+  justify-content: center;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.month-scroll-button
+{
+  width: 52px;
+}
+
+.month-headline
+{
+  font: 16px 'Poppins', sans-serif;
+  font-weight: 600;
+  width: calc(100% - 104px);
+}
+
+.calendar-box table
+{
+  width: 100%;
+}
+
+.calendar-box td
+{
+  background-color: #fff;
+}
+
+.calendar-box th,
+.calendar-box td.weekend
+{
+  background-color: #f9fafb;
+}
+
+.calendar-box th,
+.calendar-box td
+{
+  width: 52px;
+  border: 1px solid #e6e9ec;
+  text-align: center;
+  vertical-align: middle;
+  padding: 0;
+  overflow: hidden;
+}
+
+.calendar-box td.disabled
+{
+  cursor: default;
+  color: #c0c0c0;
+}
+
+.calendar-box td.holiday
+{
+  color: #f00;
+}
+
+.calendar-box td.selectable
+{
+  cursor: pointer;
+}
+
+.calendar-box td.selectable:hover
+{
+  background-color: #edfaf3;
+}
+
+.calendar-box td.selected
+{
+  cursor: default;
+  background-color: #dbf4e7;
+}
+
+.calendar-box td.today
+{
+  border: 5px solid #f98767;
+}
+
+/* ********************************************************************************************** */
+/* Category filter dialogue. */
+/* ********************************************************************************************** */
+
+div.edit-category-filter-dialogue
+{
+  width: calc(100% - 40px);
+  height: calc(100% - 40px);
+  max-width: 400px;
+  min-height: 200px;
+  max-height: 600px;
+}
+
+div.edit-category-filter-dialogue .all-button
+{
+  width: 80px;
+}
+
+div.edit-category-filter-dialogue .none-button
+{
+  width: 80px;
+  margin-right: 40px;
+}
+
+.button-box.category
+{
+  background-color: #f5f8fa;
+}
+
+div.category-left
+{
+  width: calc(100% - 100px);
+}
+
+div.category-right
+{
+  width: 100px;
+}
+
+/* ********************************************************************************************** */
+/* Insurance tab. */
+/* ********************************************************************************************** */
+
+div.insurance-left
+{
+  width: calc(100% - 180px);
+}
+
+div.insurance-right
+{
+  width: 180px;
+}
+
+/* ********************************************************************************************** */
+/* Summary tab. */
+/* ********************************************************************************************** */
+
+div.summary-box
+{
+  padding-bottom: 20px;
+}
+
+div.summary-box .separator-box
+{
+  margin-bottom: 0;
+}
+
+p.start-date
+{
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+div.summary-box table
+{
+  width: 100%;
+}
+
+.rent
+{
+  font: 16px 'Poppins', sans-serif;
+  font-weight: 600;
+}
+
+.no-separator
+{
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+td.amount
+{
+  text-align: right;
+}
+
+div.summary-box .insurance-description
+{
+  padding: 0 0 10px 40px;
+}
+
+div.summary-box .insurance
+{
+  padding-top: 0;
+}
+
+td.sum
+{
+  font: 16px 'Poppins', sans-serif;
+  font-weight: 600;
+  height: 53px;
+}
+
+td.permanent-price
+{
+  height: 50px;
+  background-color: #f5f8fa;
+}
+
+.info-button i
+{
+  font-size: 18px;
+}
+
+div.price-info-box ul
+{
+  padding-left: 30px;
+}
+
+div.summary-box-footer
+{
+  margin: 20px;
+  height: 50px;
+}
+
+div.summary-box-footer button
+{
+  float: right;
+  margin: 0 0 10px 10px;
+}
+
+.edit-price-plan-dialogue input
+{
+  width: 80px;
+}
+
+.amount input
+{
+  width: 100px;
+}
+
+div.entity-type-box
+{
+  margin: 10px 0 20px;
+}
+
+div.user-info-box label
+{
+  display: block;
+}
+
+div.user-info-box input
+{
+  display: block;
+  margin: 0 20px 10px;
+  width: calc(100% - 40px);
+  min-width: 100px;
+}
+
+div.existing-user-box button
+{
+  display: inline-block;
+}
+
+div.existing-user-box .existing-user-list
+{
+  width: 100%;
+  height: 100%;
+}
+
+div.error-message
+{
+  border-radius: 8px;
+  color: #fff;
+  background-color: #f3103c;
+  width: calc(100% - 40px); /* Full width minus 20px margin on each side */
+  margin: 0 20px 20px;
+  padding: 10px 20px;
+  text-align: center;
+}
+
+div.submit-box
+{
+  display: flex;
+  justify-content: center;
+}
+
+div.submit-box button
+{
+  width: 200px;
+  height: 40px;
+  margin-bottom: 100px;
+}
+
+/* ********************************************************************************************** */
+/* Edit price plan dialogue. */
+/* ********************************************************************************************** */
+
+div.edit-price-plan-dialogue
+{
+  width: calc(100% - 70px);
+  height: calc(100% - 70px);
+  max-width: 400px;
+  min-height: 200px;
+  max-height: 680px;
+}
+
+div.price-mod-editor-box
+{
+  margin-top: 20px;
+}
+
+div.price-mod-editor-frame
+{
+  display: flex;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+
+div.price-mod-editor-frame .spaced
+{
+  margin-left: 10px;
+}
+
+/* ********************************************************************************************** */
+/* Dialogue boxes. */
+/* ********************************************************************************************** */
+
+div.overlay
+{
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  pointer-events: all;
+  z-index: 1050;
+}
+
+div.dialogue
+{
+  position: fixed;
+  top: calc(50% + 25px);
+  left: calc(50% + 25px);
+  transform: translate(-50%, -50%);
+  border: 1px solid #8f8f9d;
+  border-radius: 8px;
+  z-index: 1100;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  margin: auto;
+  background-color: #fff;
+}
+
+div.dialogue-header
+{
+  margin: 20px 0 0;
+  padding-bottom: 20px;
+  text-align: center;
+  width: 100%;
+  height: 40px;
+  border-bottom: 1px solid #eff2f5;
+}
+
+div.dialogue-content
+{
+  flex-grow: 1;
+  padding: 20px 0;
+  width: 100%;
+  overflow: auto;
+}
+
+div.dialogue-content table
+{
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+div.dialogue-footer
+{
+  border-top: 1px solid #eff2f5;
+  margin-bottom: 20px;
+  padding: 20px 20px 0;
+  text-align: right;
+  width: 100%;
+  height: 50px;
+}
+
+div.dialogue-footer button
+{
+  display: inline-block;
+}
+
+/* ********************************************************************************************** */
+/* Submit request page, needs box. */
+/* ********************************************************************************************** */
+
+div.needs-box label
+{
+  display: block;
+}
+
+div.needs-box select,
+div.needs-box textarea
+{
+  display: block;
+  margin: 0 20px 10px;
+  width: calc(100% - 40px);
+  min-width: 100px;
+}
+
+div.needs-box input
+{
+  margin: 0 0 10px 20px;
+  width: calc(100% - 70px);
+  min-width: 100px;
+}
+
+div.needs-box .calendar-box
+{
+  margin: 0 20px 20px;
+}
+
+div.needs-box textarea
+{
+  resize: vertical;
+  min-height: 30px;
+}
+
+/* ********************************************************************************************** */
+/* Confirmation pages. */
+/* ********************************************************************************************** */
+
+div.confirmation-box
+{
+  margin-top: 20px;
+  padding-bottom: 1px;
+  text-align: center;
+}
+
+div.confirmation-box p
+{
+  margin-bottom: 10px;
+}
+
+div.starfield-outer
+{
+  display: flex;
+  justify-content: center;
+}
+
+div.starfield-inner
+{
+  position: relative;
+  width: 360px;
+  height: 200px;
+}
+
+.starfield-inner i.check
+{
+  position: absolute;
+  color: #3c9c3b;
+  left: 140px;
+  top: 80px;
+  font-size: 80px;
+}
+
+.starfield-inner i.star
+{
+  position: absolute;
+  color: #d8ebd8;
+  font-size: 30px;
+}
+
+.starfield-inner .star-1
+{
+  left: 5px;
+  top: 100px;
+}
+
+.starfield-inner .star-2
+{
+  left: 75px;
+  top: 40px;
+}
+
+.starfield-inner .star-3
+{
+  left: 86px;
+  top: 125px;
+}
+
+.starfield-inner .star-4
+{
+  left: 230px;
+  top: 33px;
+}
+
+.starfield-inner .star-5
+{
+  left: 280px;
+  top: 120px;
+}
+
+.starfield-inner .star-6
+{
+  left: 300px;
+  top: 60px;
+}
+
+div.confirmation-box .centered-button
+{
+  display: flex;
+  justify-content: center;
+  margin: 20px;
+}
+
+/* ********************************************************************************************** */
+/* Sidebar */
+/* ********************************************************************************************** */
+
+div.sidebar
+{
+  width: 50px;
+  height: 100%;
+  background-color: #1e1e2d;
+  position: fixed;
+  overflow: hidden;
+  z-index: 100;
+}
+
+div.expanding-sidebar
+{
+  transition: width 0.6s ease;
+  &:hover
+  {
+    width: 250px;
+  }
+}
+
+div.logo
+{
+  width: 250px;
+  display: flex;
+  align-items: center;
+}
+
+img.logo
+{
+  padding: 0 10px 0 5px;
+}
+
+a.logo
+{
+  font: 24px "Source Serif Pro", serif;
+  font-weight: 300;
+  color: #30a292;
+  text-decoration: none;
+}
+
+a.logo span.gibbs
+{
+  font-weight: 900;
+}
+
+a.logo:hover
+{
+  color: #41b09f;
+}
+
+div.sidebar-menu
+{
+  width: 250px;
+  margin-top: 40px;
+}
+
+.sidebar-item
+{
+  color: #c0c0c0;
+  text-decoration: none;
+  display: inline-block;
+  width: 250px;
+  line-height: 40px;
+  vertical-align: middle;
+}
+
+.sidebar-item-selected
+{
+  background-color: #353545;
+}
+
+.sidebar-item-selected,
+.sidebar-item-enabled:hover,
+.sidebar-item-enabled:hover i,
+.sidebar-item-selected .sidebar-icon-0,
+.sidebar-item-selected .sidebar-icon-1
+{
+  color: #fff;
+}
+
+i.sidebar-icon-0
+{
+  width: 50px;
+  display: inline-block;
+  text-align: center;
+  color: #c0c0c0;
+}
+
+i.sidebar-icon-1
+{
+  width: 25px;
+  display: inline-block;
+  text-align: center;
+  color: #c0c0c0;
+  margin-left: 50px;
+}
+
+/* ********************************************************************************************** */
+/* Header */
+/* ********************************************************************************************** */
+
+div.header
+{
+  position: fixed;
+  left: 50px;
+  width: calc(100% - 50px);
+  height: 50px;
+  padding: 0 20px;
+  background-color: #fff;
+  border-bottom: 1px solid #d8dbde;
+  z-index: 90;
+}
+
+div.header h1
+{
+  font: 20px 'Poppins', sans-serif;
+  font-weight: 600;
+  text-align: left;
+  padding: 10px;
+}
+
+div.current-user-box
+{
+  position: absolute;
+  display: flex;
+  width: 300px;
+  height: 49px;
+  top: 0;
+  right: 0;
+  padding: 5px 20px 5px 5px;
+  text-align: right;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+div.current-user-box:hover
+{
+  background-color: #edfaf3;
+}
+
+div.user-name
+{
+  width: 250px;
+  display: flex;
+  justify-content: right;
+  align-items: center;
+}
+
+div.user-image
+{
+  width: 50px;
+}
+
+div.current-user-menu
+{
+  position: fixed;
+  top: 49px;
+  right: 0;
+  width: 300px;
+  height: 0;
+  background-color: #fff;
+  border: solid #c0c0c0;
+  border-width: 0 0 1px 1px;
+  overflow: hidden;
+  transition: height 0.3s ease;
+  z-index: 100;
+}
+
+div.user-menu-item
+{
+  width: 298px;
+  padding: 10px 20px;
+  overflow: hidden;
+}
+
+div.user-menu-item select
+{
+  height: 30px;
+}
+
+div.user-e-mail
+{
+  text-align: right;
+  font-size: 12px;
+}
+
+div.user-menu-item button
+{
+  text-align: left;
+}
+
+div.user-menu-item button,
+div.user-menu-item select
+{
+  margin: 0;
+  padding-left: 10px;
+  width: 100%;
+}
+
+img.language-icon
+{
+  width: 20px;
+  height: 20px;
+  margin-right: 5px;
+}
+
+/* ********************************************************************************************** */
+/* Spinner */
+/* ********************************************************************************************** */
+
+div.spinner
+{
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  /* background: rgba(0, 0, 0, 0.5); */
+  pointer-events: all;
+  z-index: 1200;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+div.spinner-box
+{
+  width: 104px;
+  height: 104px;
+  padding: 20px;
+  border-radius: 18px;
+  background-color: #fff;
+  border: 1px solid #d8dbde;
+}
+
+div.spinner-circle
+{
+  width: 64px;
+  height: 64px;
+  border: 8px solid rgba(0, 0, 0, 0.1);
+  border-left-color: #008474;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  display: block;
+  margin: auto;
+}
+
+@keyframes spin
+{
+  to
+  {
+    transform: rotate(360deg);
+  }
+}

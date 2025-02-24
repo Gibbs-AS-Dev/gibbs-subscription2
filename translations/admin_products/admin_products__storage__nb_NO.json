@@ -2,17 +2,17 @@
   "js_texts":
     [
       "Er du sikker på at du vil slette lagerbod $1?",
-      "Det oppstod en feil. Vennligst kontakt kundeservice og oppgi feilkode $1.",
+      "Det oppstod en feil. Vennligst kontakt kundeservice og oppgi feilkode $1. Tidspunkt: $2.",
       "Lager",
       "Lagerbod",
       "Bodtype",
-      "Utleiestatus",
-      "Utleid til",
-      "Reservert fra",
-      "Rediger | Slett | Se kunde",
-      "Forrige leietaker",
-      "N&aring;v&aelig;rende leietaker",
-      "Kommende leietaker",
+      "Alle",
+      "Ingen",
+      "S&oslash;k",
+      "Rediger",
+      "Filter:",
+      "Viser $1 lagerboder",
+      "Viser $1 av $2 lagerboder",
       "Legg til lagerbod",
       "Rediger lagerbod",
       "Det er ikke opprettet noen lagerboder enn&aring;.",
@@ -30,27 +30,22 @@
       "Opprett",
       "Oppdater",
       "Avbryt",
-      "Opprett testabonnement",
-      "Denne funksjonen er kun for testform&aring;l. Her kan du opprette abonnementer p&aring; vilk&aring;rlige datoer, ogs&aring; tilbake i tid. Dermed kan du umiddelbart teste hvordan systemet virker, uten &aring; m&aring;tte vente p&aring; at tiden g&aring;r. For &aring; opprette et l&oslash;pende abonnement, la \"til dato\"-feltet være blankt.",
-      "Fra dato:",
-      "(åååå-mm-dd)",
-      "Til dato:",
-      "Filter:",
-      "Vis alle",
-      "Utleiestatus",
-      "Viser $1 av $2 lagerboder",
-      "Viser $1 lagerboder",
+      "Du må opprette både kategorier, bodtyper og lager før du kan legge til lagerboder.",
+      "Kan bestilles n&aring;r ledig",
       "Velg hvilke lager som skal vises",
       "Velg hvilke bodtyper som skal vises",
-      "Velg hvilke utleiestatuser som skal vises",
-      "Pilene l&oslash;per langs tidslinjen. Den r&oslash;de firkanten er dagens dato.",
-      "Bruker-ID:"
+      "Vis alle",
+      "Slett",
+      "Boden er utleid.",
+      "Bodstatus",
+      "Notater",
+      "Lagre",
+      "Se notater"
     ],
   "php_texts":
     [
       "Lagerboder",
       "Legg til lagerbod",
-      "['Ledig (aldri utleid)', 'Ledig (tidligere leieforhold avsluttet)', 'Reservert (aldri utleid f&oslash;r)', 'Reservert (tidligere leieforhold avsluttet)', 'Utleid', 'Blir ledig (n&aring;v&aelig;rende leieforhold oppsagt)', 'Reservert (n&aring;v&aelig;rende leieforhold oppsagt)']",
-      "['Ledig', 'Ledig', 'Reservert', 'Reservert', 'Utleid', 'Blir ledig', 'Reservert']"
+      "['Inaktiv', 'Aktiv']"
     ]
 }

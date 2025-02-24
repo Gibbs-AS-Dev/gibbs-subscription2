@@ -1,22 +1,22 @@
 {
   "js_texts":
     [
-      "Det oppstod en feil. Vennligst kontakt kundeservice og oppgi feilkode $1.",
+      "Det oppstod en feil. Vennligst kontakt kundeservice og oppgi feilkode $1. Tidspunkt: $2.",
       "Det er ikke opprettet noen forsikringer enn&aring;.",
       "Navn",
       "Beskrivelse",
       "Pris",
       "For bodtyper",
       "For lager",
-      "Rediger",
-      "Slett",
+      "Rediger forsikring",
+      "Slett forsikring",
       "Alle bodtyper",
       "$1 av $2 bodtyper",
       "Alle lager",
       "$1 av $2 lager",
       "Er du sikker på at du vil slette forsikring: $1?",
       "Opprett forsikring",
-      "Rediger forsikring",
+      "",
       "Opprett",
       "Oppdater",
       "Avbryt",
@@ -27,7 +27,14 @@
       "Forsikringen tilbys:",
       "Ved alle lager",
       "Ved noen lager",
-      "Pris pr mnd:"
+      "Pris pr mnd:",
+      "Alle",
+      "Ingen",
+      "Filter:",
+      "Vis alle",
+      "S&oslash;k",
+      "Viser $1 forsikringer",
+      "Viser $1 av $2 forsikringer"
     ],
   "php_texts":
     [

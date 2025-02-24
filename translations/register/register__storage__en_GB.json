@@ -1,0 +1,31 @@
+{
+  "js_texts":
+    [
+    ],
+  "php_texts":
+    [
+      "Register new user",
+      "First name:",
+      "Last name:",
+      "E-mail:",
+      "Phone no:",
+      "Password:",
+      "(at least $0 characters)",
+      "Register user",
+      "An error occurred during registration. Please try again, or contact customer service. Error code: $0.",
+      "The user was registered. However, an error occurred when logging in (error code $0). Please try to <a href=\"/subscription/html/log_in_to_dashboard.php\">log in here</a>.",
+      "You have to fill in all the fields.",
+      "The password contained illegal characters. Please use another password.",
+      "The password was too short. Please use another password.",
+      "Invalid e-mail address.",
+      "This e-mail is already registered. Please <a href=\"/subscription/html/log_in_to_dashboard.php\">log in</a>, or use another e-mail address.",
+      "The registration failed. Please contact customer service, or try again later.",
+      "Address:",
+      "Postcode:",
+      "Area:",
+      "Individual",
+      "Company",
+      "Name:",
+      "ID number:"
+    ]
+}

@@ -46,7 +46,7 @@ class Insurance_Data_Manager extends Single_Table_Data_Manager
       WHERE
         i.owner_id = {$this->get_user_group_user_id()} AND
         i.type = 1
-      ORDER BY name;
+      ORDER BY price ASC;
     ", ARRAY_A);
 
     // Organise the results into a PHP array. The SQL query returns one row for each product type associated with the
@@ -98,8 +98,7 @@ class Insurance_Data_Manager extends Single_Table_Data_Manager
         $table .= Utility::get_js_array_of_values($insurance_product['for_locations']);
         $table .= "],";
       }
-      // Remove final comma.
-      $table = substr($table, 0, -1);
+      $table = Utility::remove_final_comma($table);
     }
     $table .= "]";
     return $table;
@@ -153,8 +152,13 @@ class Insurance_Data_Manager extends Single_Table_Data_Manager
       return Result::DATABASE_QUERY_FAILED;
     }
 
-    // All operations succeeded.
-    $wpdb->query('COMMIT');
+    // All operations succeeded. Commit the changes.
+    if ($wpdb->query('COMMIT') === false)
+    {
+      error_log('Commit failed while creating insurance: ' . $wpdb->last_error);
+      $wpdb->query('ROLLBACK');
+      return Result::DATABASE_QUERY_FAILED;
+    }
     return Result::OK;
   }
 
@@ -182,7 +186,11 @@ class Insurance_Data_Manager extends Single_Table_Data_Manager
         return Result::MISSING_INPUT_FIELD;
       }
     }
-    if (!isset($id))
+    if (isset($id) && is_numeric($id))
+    {
+      $id = intval($id);
+    }
+    else
     {
       if (!Utility::integer_posted($this->id_posted_name))
       {
@@ -218,8 +226,13 @@ class Insurance_Data_Manager extends Single_Table_Data_Manager
       return Result::DATABASE_QUERY_FAILED;
     }
 
-    // Somehow, all operations succeeded.
-    $wpdb->query('COMMIT');
+    // Somehow, all operations succeeded. Commit the changes.
+    if ($wpdb->query('COMMIT') === false)
+    {
+      error_log('Commit failed while updating insurance: ' . $wpdb->last_error);
+      $wpdb->query('ROLLBACK');
+      return Result::DATABASE_QUERY_FAILED;
+    }
     return Result::OK;
   }
 
@@ -240,7 +253,11 @@ class Insurance_Data_Manager extends Single_Table_Data_Manager
     global $wpdb;
 
     // Ensure the ID is available.
-    if (!isset($id))
+    if (isset($id) && is_numeric($id))
+    {
+      $id = intval($id);
+    }
+    else
     {
       if (!Utility::integer_posted($this->id_posted_name))
       {
@@ -272,8 +289,13 @@ class Insurance_Data_Manager extends Single_Table_Data_Manager
       return $result;
     }
 
-    // All operations succeeded.
-    $wpdb->query('COMMIT');
+    // All operations succeeded. Commit the changes.
+    if ($wpdb->query('COMMIT') === false)
+    {
+      error_log('Commit failed while deleting insurance: ' . $wpdb->last_error);
+      $wpdb->query('ROLLBACK');
+      return Result::DATABASE_QUERY_FAILED;
+    }
     return Result::OK;
   }
 
@@ -284,16 +306,11 @@ class Insurance_Data_Manager extends Single_Table_Data_Manager
   {
     global $wpdb;
 
-    if (!is_numeric($id))
-    {
-      error_log('Failed to get price for insurance with ID ' . strval($id));
-      return -1;
-    }
-
-    $results = $wpdb->get_results("SELECT price FROM subscription_product_optional WHERE id = {$id};", ARRAY_A);
+    $sql = $wpdb->prepare("SELECT price FROM subscription_product_optional WHERE id = %d;", $id);
+    $results = $wpdb->get_results($sql, ARRAY_A);
     if (!Utility::array_with_one($results) || !is_array($results[0]) || !is_numeric($results[0]['price']))
     {
-      error_log("Failed to get price for insurance {$id}. Result: {print_r($results, true)}.");
+      error_log("Failed to get price for insurance {$id}. Result: " . print_r($results, true));
       return -1;
     }
     return intval($results[0]['price']);
@@ -307,8 +324,11 @@ class Insurance_Data_Manager extends Single_Table_Data_Manager
   {
     global $wpdb;
 
-    $result = $wpdb->query(
-      "DELETE FROM subscription_product_optional_id_and_product_type_id WHERE product_optional_id = {$id};");
+    $sql = $wpdb->prepare(
+      "DELETE FROM subscription_product_optional_id_and_product_type_id WHERE product_optional_id = %d",
+      $id
+    );
+    $result = $wpdb->query($sql);
     if ($result === false)
     {
       error_log("Error while deleting product type links for insurance product {$id}: {$wpdb->last_error}.");
@@ -323,8 +343,11 @@ class Insurance_Data_Manager extends Single_Table_Data_Manager
   {
     global $wpdb;
 
-    $result = $wpdb->query(
-      "DELETE FROM subscription_product_optional_id_and_product_location_id WHERE product_optional_id = {$id};");
+    $sql = $wpdb->prepare(
+      "DELETE FROM subscription_product_optional_id_and_product_location_id WHERE product_optional_id = %d;",
+      $id
+    );
+    $result = $wpdb->query($sql);
     if ($result === false)
     {
       error_log("Error while deleting location links for insurance product {$id}: {$wpdb->last_error}.");
@@ -344,15 +367,21 @@ class Insurance_Data_Manager extends Single_Table_Data_Manager
   {
     global $wpdb;
 
+    if (!is_numeric($id))
+    {
+      return false;
+    }
+    $id = intval($id);
+
     if (Utility::non_empty_array($for_product_types))
     {
       $values = Utility::get_value_data_string($id, $for_product_types);
       $result = $wpdb->query("
-        INSERT INTO
-          subscription_product_optional_id_and_product_type_id (product_optional_id, product_type_id)
-        VALUES
-          {$values};
-      ");
+          INSERT INTO
+            subscription_product_optional_id_and_product_type_id (product_optional_id, product_type_id)
+          VALUES
+            {$values};
+        ");
       if ($result === false)
       {
         error_log("Error while creating product type links for insurance product {$id}: {$wpdb->last_error}. Tried to insert product type IDs: {$values}.");
@@ -378,15 +407,21 @@ class Insurance_Data_Manager extends Single_Table_Data_Manager
   {
     global $wpdb;
 
+    if (!is_numeric($id))
+    {
+      return false;
+    }
+    $id = intval($id);
+
     if (Utility::non_empty_array($for_locations))
     {
       $values = Utility::get_value_data_string($id, $for_locations);
       $result = $wpdb->query("
-        INSERT INTO
-          subscription_product_optional_id_and_product_location_id (product_optional_id, product_location_id)
-        VALUES
-          {$values};
-      ");
+          INSERT INTO
+            subscription_product_optional_id_and_product_location_id (product_optional_id, product_location_id)
+          VALUES
+            {$values};
+        ");
       if ($result === false)
       {
         error_log("Error while creating location links for insurance product {$id}: {$wpdb->last_error}. Tried to insert location IDs: {$values}");

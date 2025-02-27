@@ -31,10 +31,6 @@
 // *********************************************************************************************************************
 
 // Changes for Lagergutta.
-// - Add "copy to" field to e-mail templates. Store in and read from database. Add to data table. Display and edit in
-//   admin_email_sms_templates. Do not display for SMS templates.
-// - Bug: The list of orders shows fewer order than there are subscriptions. How is that possible?
-//   Missing: 82
 
 // Modifications from test:
 // - In admin_book_subscription, display help text to say that negative price modifiers are discounts.
@@ -106,11 +102,15 @@
 // *********************************************************************************************************************
 // *** Done.
 // *********************************************************************************************************************
+// - Add "copy to" field to e-mail templates. Store in and read from database. Add to data table. Display and edit in
+//   admin_email_sms_templates. Do not display for SMS templates. Use the full width for the edit box.
+// - Check all occurrences of "GROUP BY", to see if they should read "ORDER BY".
+// - Bug: The list of orders shows fewer order than there are subscriptions.
 // - Remove the ability to edit an e-mail and SMS template trigger. The trigger can only be selected when a template is
 //   created.
 // - In admin_locations, add link to booking.
 // - On the dashboard, add user group ID to the login URL.
-// - Update e-mail and SMS triggers.
+// - Update the list of e-mail and SMS triggers.
 // - Preserve line breaks when editing e-mail and SMS templates.
 // - In book_subscription, display dialogue box with complete price information.
 // - In book_subscription, use price information dialogue when clicking the "i" icon on the summary page.

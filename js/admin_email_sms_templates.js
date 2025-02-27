@@ -310,8 +310,8 @@ function displayEditTemplateDialogue(index)
   o[p++] = '</select></div><div class="form-element"><span id="triggerDescriptionBox" class="help-text">&nbsp;</span></div>';
   // Copy to.
   o[p++] = '<div id="emailOnlyBox">';
-  o[p++] = Utility.getEditBox('copyToEdit', 'copy_to', getText(-1, 'Kopi til:'),
-    (isNew ? null : templates[index][c.tpl.COPY_TO]), null, null, null, false);
+  o[p++] = Utility.getEditBox('copyToEdit', 'copy_to', getText(35, 'Kopi til:'),
+    (isNew ? null : templates[index][c.tpl.COPY_TO]), null, null, 'copy-to-edit', false);
   // Header.
   o[p++] = Utility.getEditBox('headerEdit', 'header', getText(23, 'Overskrift:'),
     (isNew ? null : templates[index][c.tpl.HEADER]));

@@ -35,7 +35,8 @@
       "Select triggers to be displayed",
       "All",
       "None",
-      "Search"
+      "Search",
+      "Copy to:"
     ],
   "php_texts":
     [

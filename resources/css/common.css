@@ -298,6 +298,14 @@ label.top
   height: 30px;
 }
 
+.copy-to-edit
+{
+  display: inline-block;
+  margin: 0;
+  width: calc(100% - 140px);
+  height: 30px;
+}
+
 .colour-edit
 {
   display: inline-block;

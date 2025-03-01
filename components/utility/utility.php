@@ -102,6 +102,11 @@
 // *********************************************************************************************************************
 // *** Done.
 // *********************************************************************************************************************
+// - In admin_email_sms_log, always display the button to view message contents in a dialogue. Line breaks might cause
+//   the message to be different from what is displayed in the  table.
+// - In admin_email_sms_log, when displaying message contents, display them in a textarea, like when viewing user notes.
+//   This will display line breaks.
+// - Bug: In admin_email_sms_log, the page does not finish loading if any of the messages includes line breaks.
 // - Add "copy to" field to e-mail templates. Store in and read from database. Add to data table. Display and edit in
 //   admin_email_sms_templates. Do not display for SMS templates. Use the full width for the edit box.
 // - Check all occurrences of "GROUP BY", to see if they should read "ORDER BY".
@@ -1860,10 +1865,17 @@ class Utility
   }
 
   // *******************************************************************************************************************
-  // Remove all types of line breaks from the given string.
-  public static function remove_line_breaks($string)
+  // In the given $input string, encode all types of line breaks using the ¤ character.
+  public static function encode_line_breaks($input)
   {
-    return str_replace(array('\r', '\n', '\r\n'), '', $string);
+    return preg_replace('/\r\n?|\n/', '¤', $input);
+  }
+
+  // *******************************************************************************************************************
+  // Remove all types of line breaks from the given $input string.
+  public static function remove_line_breaks($input)
+  {
+    return preg_replace('/\r\n?|\n/', '', $input);
   }
 
   // *******************************************************************************************************************

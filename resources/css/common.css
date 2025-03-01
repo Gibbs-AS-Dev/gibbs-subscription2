@@ -1234,6 +1234,19 @@ div.log-content-dialogue
   width: 560px;
 }
 
+div.log-content-dialogue .dialogue-content
+{
+  display: flex;
+  flex-direction: column;
+}
+
+.log-content-dialogue textarea
+{
+  margin: 20px;
+  resize: none;
+  flex: 1;
+}
+
 div.cancel-subscription-dialogue
 {
   width: 560px;

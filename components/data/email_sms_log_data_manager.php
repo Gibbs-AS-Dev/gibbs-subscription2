@@ -37,6 +37,14 @@ class Email_Sms_Log_Data_Manager extends Live_Data_Manager
     // Read SMS and e-mail messages.
     $message_log = array_merge($this->read_sms_log(), $this->read_email_log());
 
+    // Sort the messages in descending order of "time sent" - that is, the most recent message will be displayed first.
+    // The "time sent" field is a string in ISO format, and can be sorted alphabetically using the strcmp function.
+    usort($message_log,
+      function ($message0, $message1)
+      {
+        return strcmp($message1['time_sent'], $message0['time_sent']);
+      });
+
     // Write the Javascript table.
     $table = "[";
     if (Utility::non_empty_array($message_log))

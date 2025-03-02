@@ -221,7 +221,8 @@ class Subscription_Utility
       {
         // Sort price plan lines in ascending order, based on the date. The date is a string with the format
         // "yyyy-mm-dd", and can be sorted alphabetically using the strcmp function.
-        usort($price_plan['lines'], function($line0, $line1)
+        usort($price_plan['lines'],
+          function($line0, $line1)
           {
             return strcmp($line0['start_date'], $line1['start_date']);
           });

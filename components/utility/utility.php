@@ -102,6 +102,7 @@
 // *********************************************************************************************************************
 // *** Done.
 // *********************************************************************************************************************
+// - Set default sort order in admin_email_sms_log.
 // - In admin_email_sms_log, always display the button to view message contents in a dialogue. Line breaks might cause
 //   the message to be different from what is displayed in the  table.
 // - In admin_email_sms_log, when displaying message contents, display them in a textarea, like when viewing user notes.

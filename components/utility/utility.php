@@ -31,10 +31,6 @@
 // *********************************************************************************************************************
 
 // Changes for Lagergutta.
-// - Add "copy to" field to e-mail templates. Store in and read from database. Add to data table. Display and edit in
-//   admin_email_sms_templates. Do not display for SMS templates.
-// - Bug: The list of orders shows fewer order than there are subscriptions. How is that possible?
-//   Missing: 82
 
 // Modifications from test:
 // - In admin_book_subscription, display help text to say that negative price modifiers are discounts.
@@ -106,11 +102,20 @@
 // *********************************************************************************************************************
 // *** Done.
 // *********************************************************************************************************************
+// - In admin_email_sms_log, always display the button to view message contents in a dialogue. Line breaks might cause
+//   the message to be different from what is displayed in the  table.
+// - In admin_email_sms_log, when displaying message contents, display them in a textarea, like when viewing user notes.
+//   This will display line breaks.
+// - Bug: In admin_email_sms_log, the page does not finish loading if any of the messages includes line breaks.
+// - Add "copy to" field to e-mail templates. Store in and read from database. Add to data table. Display and edit in
+//   admin_email_sms_templates. Do not display for SMS templates. Use the full width for the edit box.
+// - Check all occurrences of "GROUP BY", to see if they should read "ORDER BY".
+// - Bug: The list of orders shows fewer order than there are subscriptions.
 // - Remove the ability to edit an e-mail and SMS template trigger. The trigger can only be selected when a template is
 //   created.
 // - In admin_locations, add link to booking.
 // - On the dashboard, add user group ID to the login URL.
-// - Update e-mail and SMS triggers.
+// - Update the list of e-mail and SMS triggers.
 // - Preserve line breaks when editing e-mail and SMS templates.
 // - In book_subscription, display dialogue box with complete price information.
 // - In book_subscription, use price information dialogue when clicking the "i" icon on the summary page.
@@ -1860,10 +1865,17 @@ class Utility
   }
 
   // *******************************************************************************************************************
-  // Remove all types of line breaks from the given string.
-  public static function remove_line_breaks($string)
+  // In the given $input string, encode all types of line breaks using the ¤ character.
+  public static function encode_line_breaks($input)
   {
-    return str_replace(array('\r', '\n', '\r\n'), '', $string);
+    return preg_replace('/\r\n?|\n/', '¤', $input);
+  }
+
+  // *******************************************************************************************************************
+  // Remove all types of line breaks from the given $input string.
+  public static function remove_line_breaks($input)
+  {
+    return preg_replace('/\r\n?|\n/', '', $input);
   }
 
   // *******************************************************************************************************************

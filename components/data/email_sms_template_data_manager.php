@@ -36,6 +36,7 @@ class Email_Sms_Template_Data_Manager extends Single_Table_Data_Manager
         template_name AS `name`,
         template_header AS header,
         template_content AS content,
+        email_cc AS copy_to,
         delay AS delay,
         `on/off` AS active,
         type AS message_type,
@@ -74,7 +75,7 @@ class Email_Sms_Template_Data_Manager extends Single_Table_Data_Manager
         $table .= ", '";
         $table .= $template['name'];
         $table .= "', '";
-        $table .= ''; // ** // $template['copy_to'];
+        $table .= $template['copy_to'];
         $table .= "', '";
         $table .= $template['header'];
         $table .= "', '";
@@ -127,34 +128,41 @@ class Email_Sms_Template_Data_Manager extends Single_Table_Data_Manager
   // Return an array that describes a template, using the information posted to the server.The method expects the
   // following fields to be posted:
   //   name : string            Mandatory.
-  //   header : string          Mandatory if message_type is MESSAGE_TYPE_EMAIL.
+  //   copy_to : string         Optional if message_type is MESSAGE_TYPE_EMAIL. Otherwise not read.
+  //   header : string          Mandatory if message_type is MESSAGE_TYPE_EMAIL. Otherwise not read.
   //   content : string         Mandatory.
   //   delay : integer          Mandatory.
   //   active : boolean         Pass "1", "true" or "on" for true. If not passed, or if any other value is passed, it
   //                            will be interpreted as false.
-  //   message_type : integer   Mandatory. Use the MESSAGE_TYPE_ constants.
+  //   message_type : integer   Mandatory for new templates. Otherwise not read. Use the MESSAGE_TYPE_ constants.
   //   trigger_type : integer   Mandatory. Use the TRIGGER_TYPE_ constants.
   //
   // If any of the fields was not passed from the client, the method will return null.
   protected function get_data_item()
   {
-    if (!Utility::strings_posted(array('name', 'content')) ||
-      !Utility::integers_posted(array('message_type', 'delay', 'trigger_type')))
+    if (!Utility::strings_posted(array('name', 'content')) || !Utility::integers_posted(array('message_type', 'delay')))
     {
       return null;
     }
-    // Read active flag.
+    // See if this is a new item. If it already exists, an ID will have been posted.
+    $is_new = !Utility::integer_posted($this->id_posted_name);
+    // Read active flag and message type.
     $active = Utility::read_posted_boolean('active') === true;
-    // Read message type, and header, if required.
     $message_type = Utility::read_posted_integer('message_type');
-    if ($message_type === Utility::MESSAGE_TYPE_EMAIL)
+    // For a new message, read trigger type.
+    if ($is_new)
     {
-      if (!Utility::strings_posted(array('copy_to', 'header')))
+      if (!Utility::integer_posted('trigger_type'))
       {
         return null;
       }
-      $copy_to = Utility::read_posted_string('copy_to');
-      if (empty($copy_to))
+      $trigger_type = Utility::read_posted_integer('trigger_type');
+    }
+    // For an e-mail template, read header and "copy to" field. If not posted, the "copy to" value will be an empty
+    // string. For an SMS template, we store empty strings.
+    if ($message_type === Utility::MESSAGE_TYPE_EMAIL)
+    {
+      if (!Utility::string_posted('header'))
       {
         return null;
       }
@@ -163,6 +171,7 @@ class Email_Sms_Template_Data_Manager extends Single_Table_Data_Manager
       {
         return null;
       }
+      $copy_to = Utility::read_posted_string('copy_to');
     }
     else
     {
@@ -175,13 +184,16 @@ class Email_Sms_Template_Data_Manager extends Single_Table_Data_Manager
       'template_name' => Utility::read_posted_string('name'),
       'template_header' => $header,
       'template_content' => Utility::read_posted_string('content'),
-      // *** // 'email_cc' => $copy_to,
+      'email_cc' => $copy_to,
       'delay' => Utility::read_posted_integer('delay'),
       'on/off' => ($active ? 1 : 0),
       'type' => $message_type + 1,
-      'trigger_type' => Utility::read_posted_integer('trigger_type') + 1,
       'updated_at' => current_time('mysql')
     );
+    if ($is_new)
+    {
+      $template['trigger_type'] = $trigger_type + 1;
+    }
     if (!Utility::non_empty_strings($template, array('template_name', 'template_content')))
     {
       return null;

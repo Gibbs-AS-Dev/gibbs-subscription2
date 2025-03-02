@@ -58,7 +58,7 @@ class Email_Sms_Log_Data_Manager extends Live_Data_Manager
         $table .= "', '";
         $table .= $message['header'];
         $table .= "', '";
-        $table .= $message['content'];
+        $table .= Utility::encode_line_breaks($message['content']);
         $table .= "', '";
         $table .= $message['time_sent'];
         $table .= "', ";

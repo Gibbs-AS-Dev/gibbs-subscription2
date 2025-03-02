@@ -298,6 +298,14 @@ label.top
   height: 30px;
 }
 
+.copy-to-edit
+{
+  display: inline-block;
+  margin: 0;
+  width: calc(100% - 140px);
+  height: 30px;
+}
+
 .colour-edit
 {
   display: inline-block;
@@ -1224,6 +1232,19 @@ div.edit-trigger-type-filter-dialogue,
 div.log-content-dialogue
 {
   width: 560px;
+}
+
+div.log-content-dialogue .dialogue-content
+{
+  display: flex;
+  flex-direction: column;
+}
+
+.log-content-dialogue textarea
+{
+  margin: 20px;
+  resize: none;
+  flex: 1;
 }
 
 div.cancel-subscription-dialogue

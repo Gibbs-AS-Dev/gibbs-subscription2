@@ -385,11 +385,6 @@ class Order_Data_Manager extends Single_Table_Data_Manager
         WHERE 
           o.order_owner = {$this->get_user_group_user_id()};
       ";
-/*
-        GROUP BY 
-          d.meta_value DESC;
-
-*/
     $results = $wpdb->get_results($query, ARRAY_A);
     if (!is_array($results))
     {

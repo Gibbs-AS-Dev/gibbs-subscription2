@@ -27,6 +27,12 @@ var displayedCount = 0;
 
 function initialise()
 {
+  var i;
+
+  // Ensure log message contents do not contain encoded line breaks.
+  for (i = 0; i < messageLog.length; i++)
+    messageLog[i][c.log.CONTENT] = Utility.decodeLineBreaks(messageLog[i][c.log.CONTENT]);
+
   // Obtain pointers to user interface elements.
   Utility.readPointers(['filterToolbar', 'messageLogBox', 'overlay', 'contentDialogue',
     'editDeliveredFilterDialogue']);
@@ -120,12 +126,9 @@ function doDisplayMessageLog()
     // Message.
     o[p++] = '</td><td>';
     o[p++] = Utility.curtail(messageLog[i][c.log.CONTENT], 50);
-    if (messageLog[i][c.log.CONTENT].length > 50)
-    {
-      o[p++] = ' <button type="button" class="icon-button" onclick="displayContent(';
-      o[p++] = String(i);
-      o[p++] = ');"><i class="fa-solid fa-circle-info"></i></button>';
-    }
+    o[p++] = ' <button type="button" class="icon-button" onclick="displayContent(';
+    o[p++] = String(i);
+    o[p++] = ');"><i class="fa-solid fa-circle-info"></i></button>';
     // Timestamp.
     o[p++] = '</td><td>';
     o[p++] = messageLog[i][c.log.TIME_SENT],
@@ -192,9 +195,9 @@ function displayContent(index)
     o[p++] = messageLog[index][c.log.HEADER];
     o[p++] = '</div>';
   }
-  o[p++] = '<div class="form-element">';
+  o[p++] = '<textarea readonly="readonly">';
   o[p++] = messageLog[index][c.log.CONTENT];
-  o[p++] = '</div></div><div class="dialogue-footer"><button type="button" onclick="closeContentDialogue();"><i class="fa-solid fa-xmark"></i> ';
+  o[p++] = '</textarea></div><div class="dialogue-footer"><button type="button" onclick="closeContentDialogue();"><i class="fa-solid fa-xmark"></i> ';
   o[p++] = getText(18, 'Lukk');
   o[p++] = '</button></div>';
 

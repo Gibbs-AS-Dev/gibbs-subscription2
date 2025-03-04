@@ -3,11 +3,43 @@
 // *************************************************************************************************
 
 // *************************************************************************************************
+// *** Constants.
+// *************************************************************************************************
+// The list of data fields that can be inserted into a template. Data fields are grouped into
+// categories. When editing, also edit the DATA_FIELD_CATEGORIES and DATA_FIELD_NAMES fields in the
+// PHP file.
+var DATA_FIELDS =
+  [
+    [
+      '{{first_name}}',
+      '{{last_name}}',
+      '{{phone_number}}'
+    ],
+    [
+      '{{subscription_id}}',
+      '{{subscription_start_date}}',
+      '{{end_date}}',
+      '{{product_name}}',
+      '{{location_type}}',
+      '{{product_category}}',
+      '{{location_name}}',
+      '{{location_address}}',
+      '{{access_code}}'
+    ],
+    [
+      '{{order_id}}',
+      '{{payment_method}}',
+      '{{payment_method_name}}',
+      '{{order_pay_by_date}}'
+    ]
+  ];
+
+// *************************************************************************************************
 // *** Variables.
 // *************************************************************************************************
 // Pointers to user interface elements.
-var templateBox, filterToolbar, overlay, editTemplateDialogue, editMessageTypeFilterDialogue,
-  editTriggerTypeFilterDialogue;
+var templateBox, filterToolbar, overlay, editTemplateDialogue, selectFieldDialogue,
+  editMessageTypeFilterDialogue, editTriggerTypeFilterDialogue;
 
 // Pointers to dynamically generated user interface elements. These will be populated once the HTML
 // code to display them has been generated.
@@ -37,7 +69,7 @@ function initialise()
 
   // Obtain pointers to user interface elements.
   Utility.readPointers(['templateBox', 'filterToolbar', 'overlay', 'editTemplateDialogue',
-    'editMessageTypeFilterDialogue', 'editTriggerTypeFilterDialogue']);
+    'selectFieldDialogue', 'editMessageTypeFilterDialogue', 'editTriggerTypeFilterDialogue']);
 
   // Create the popup menu.
   menu = new PopupMenu(getPopupMenuContents);
@@ -224,7 +256,7 @@ function displayEditTemplateDialogue(index)
   isNew = index === -1;
   if (!(isNew || Utility.isValidIndex(index, templates)))
     return;
-  o = new Array((TRIGGER_HEADLINES.length * 7) + 61);
+  o = new Array((TRIGGER_HEADLINES.length * 7) + 63);
   p = 0;
 
   // Header.
@@ -323,7 +355,9 @@ function displayEditTemplateDialogue(index)
   o[p++] = '</label> <textarea id="contentBox" name="content" onkeyup="enableSubmitButton();" onchange="enableSubmitButton();">';
   if (!isNew)
     o[p++] = templates[index][c.tpl.CONTENT];
-  o[p++] = '</textarea></div>';
+  o[p++] = '</textarea></div><div class="form-element"><button type="button" class="wide-button" onclick="displaySelectFieldDialogue();"><i class="fa-solid fa-input-text"></i>&nbsp;&nbsp;';
+  o[p++] = getText(36, 'Sett inn datafelt');
+  o[p++] = '</button></div>';
 
   // Footer.
   o[p++] = '</form></div><div class="dialogue-footer"><button type="button" id="submitButton" onclick="storeTemplate();"><i class="fa-solid fa-check"></i> ';
@@ -418,6 +452,101 @@ function enableSubmitButton()
     (triggerTypeCombo.selectedIndex < 0) ||
     ((messageType === MESSAGE_TYPE_EMAIL) && (headerEdit.value === '')) ||
     (contentBox.value === '');
+}
+
+// *************************************************************************************************
+// Select and insert data field functions.
+// *************************************************************************************************
+// Hide the editTemplateDialogue and display the selectFieldDialogue instead. This method should
+// only be called when the editTemplateDialogue is displayed.
+function displaySelectFieldDialogue()
+{
+  var o, p, i;
+
+  o = new Array((DATA_FIELDS.length * 5) + 6);
+  p = 0;
+
+  // Header.
+  o[p++] = '<div class="dialogue-header"><h1>';
+  o[p++] = getText(37, 'Velg datafelt');
+  o[p++] = '</h1></div><div class="dialogue-content">';
+
+  // Content.
+  for (i = 0; i < DATA_FIELDS.length; i++)
+  {
+    o[p++] = '<h3>';
+    o[p++] = DATA_FIELD_CATEGORIES[i];
+    o[p++] = '</h3><table cellspacing="0" cellpadding="0"><tbody>';
+    o[p++] = getDataFieldsForCategory(i);
+    o[p++] = '</tbody></table>';
+  }
+
+  // Footer.
+  o[p++] = '</div><div class="dialogue-footer"><button type="button" onclick="closeSelectFieldDialogue();"><i class="fa-solid fa-xmark"></i> ';
+  o[p++] = getText(39, 'Lukk');
+  o[p++] = '</button></div>';
+
+  selectFieldDialogue.innerHTML = o.join('');
+
+  Utility.hide(editTemplateDialogue);
+  Utility.display(selectFieldDialogue);
+}
+
+// *************************************************************************************************
+// Return HTML code to display the data fields in the category given in index. The data fields will
+// be displayed in table rows.
+function getDataFieldsForCategory(index)
+{
+  var o, p, i;
+
+  o = new Array(DATA_FIELDS[index].length * 11);
+  p = 0;
+
+  for (i = 0; i < DATA_FIELDS[index].length; i++)
+  {
+    o[p++] = '<tr><td>';
+    o[p++] = DATA_FIELD_NAMES[index][i];
+    o[p++] = '</td><td class="field-name">';
+    o[p++] = DATA_FIELDS[index][i];
+    o[p++] = '</td><td class="button-row"><button type="button" onclick="insertDataField(';
+    o[p++] = String(index);
+    o[p++] = ', ';
+    o[p++] = String(i);
+    o[p++] = ');">';
+    o[p++] = getText(38, 'Sett inn');
+    o[p++] = ' <i class="fa-solid fa-chevron-right"></i></button></td></tr>';
+  }
+  return o.join('');
+}
+
+// *************************************************************************************************
+
+function insertDataField(categoryIndex, fieldIndex)
+{
+  var startPos, endPos, beforeText, afterText, dataField;
+
+  // Store textarea selection.
+  startPos = contentBox.selectionStart;
+  endPos = contentBox.selectionEnd;
+  // Extract the text before and after the selection.
+  beforeText = contentBox.value.substring(0, startPos);
+  afterText = contentBox.value.substring(endPos);
+  // Add the data field in between.
+  dataField = DATA_FIELDS[categoryIndex][fieldIndex];
+  contentBox.value = beforeText + dataField + afterText;
+  // Close the select field dialogue, then focus the content box with the cursor after the inserted
+  // data field.
+  closeSelectFieldDialogue();
+  contentBox.selectionStart = contentBox.selectionEnd = startPos + dataField.length;
+  contentBox.focus();
+}
+
+// *************************************************************************************************
+// Close the selectFieldDialogue and display the editTemplateDialogue instead.
+function closeSelectFieldDialogue()
+{
+  Utility.hide(selectFieldDialogue);
+  Utility.display(editTemplateDialogue);
 }
 
 // *************************************************************************************************

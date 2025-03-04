@@ -1774,6 +1774,7 @@ static getEditBox(id, name, label, value, handler, labelClass, editClass, isMand
 // 
 // isMandatory is a boolean flag that says whether the edit box must be filled in. If true, it will
 // display a visible mark next to the label. It is optional, and may be omitted. The default value
+// is true.
 static getNumericEditBox(id, name, label, value, min, max, handler, labelClass, editClass,
   isMandatory)
 {

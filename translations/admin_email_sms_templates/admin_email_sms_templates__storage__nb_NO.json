@@ -36,7 +36,11 @@
       "Alle",
       "Ingen",
       "S&oslash;k",
-      "Kopi til:"
+      "Kopi til:",
+      "Sett inn datafelt",
+      "Velg datafelt",
+      "Sett inn",
+      "Lukk"
     ],
   "php_texts":
     [
@@ -44,6 +48,10 @@
       "Opprett mal",
       "['Nytt abonnement opprettet', 'Ny ordre opprettet', 'Betaling feilet', 'Ikke i bruk', 'Abonnement har blitt inaktivt', 'Abonnement har f&aring;tt sluttdato']",
       "['Beskrivelse mangler', 'Beskrivelse mangler', 'Beskrivelse mangler', 'Beskrivelse mangler', 'Beskrivelse mangler', 'Beskrivelse mangler']",
-      "['SMS', 'E-post']"
+      "['SMS', 'E-post']",
+      "['Kundeinformasjon', 'Informasjon om abonnement', 'Ordreinformasjon']",
+      "['Fornavn', 'Etternavn', 'Telefonnummer']",
+      "['ID', 'Startdato', 'Sluttdato', 'Bodnavn', 'Bodtype', 'Produktkategori', 'Lagerets navn', 'Lagerets adresse', 'Adgangskode']",
+      "['ID', 'Betalingsm&aring;te, ID', 'Betalingsm&aring;te, tekst', 'Forfallsdato']"
     ]
 }

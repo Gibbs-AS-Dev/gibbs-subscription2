@@ -482,6 +482,7 @@ readers do not read off random characters that represent icons */
 .fa-home-lg-alt { --fa: "\f015"; --fa--fa: "\f015\f015"; }
 .fa-house { --fa: "\f015"; --fa--fa: "\f015\f015"; }
 .fa-info-circle { --fa: "\f05a"; --fa--fa: "\f05a\f05a"; }
+.fa-input-text { --fa: "\e1bf"; --fa--fa: "\e1bf\e1bf"; }
 .fa-key { --fa: "\f084"; --fa--fa: "\f084\f084"; }
 .fa-left-right { --fa: "\f337"; --fa--fa: "\f337\f337"; }
 .fa-list { --fa: "\f03a"; --fa--fa: "\f03a\f03a"; }

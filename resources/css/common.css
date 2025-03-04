@@ -1215,6 +1215,7 @@ div.edit-template-dialogue
 div.edit-template-dialogue textarea
 {
   width: calc(100% - 40px);
+  height: 200px;
   resize: vertical;
   min-height: 30px;
 }
@@ -1292,6 +1293,22 @@ div.access-information-dialogue .dialogue-content
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+div.select-field-dialogue table
+{
+  border-top: 1px solid #e6e9ec;
+  margin-bottom: 20px;
+}
+
+div.select-field-dialogue .field-name
+{
+  color: #c0c0c0;
+}
+
+div.select-field-dialogue .button-row
+{
+  text-align: right;
 }
 
 /* ********************************************************************************************** */

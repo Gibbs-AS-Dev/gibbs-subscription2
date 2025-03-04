@@ -1041,12 +1041,14 @@ _getLinkItem(item, level)
 {
   var o, p;
 
-  o = new Array(9);
+  o = new Array(11);
   p = 0;
 
-  o[p++] = '<a href="javascript:void(0);" onclick="Utility.displaySpinnerThenGoTo(\'';
+  o[p++] = '<a href="';
   o[p++] = item[c.mnu.URL];
-  o[p++] = '\');" class="sidebar-item sidebar-item-enabled"><i class="fa-solid ';
+  o[p++] = '" onclick="if (!event.ctrlKey && !event.metaKey) { event.preventDefault(); Utility.displaySpinnerThenGoTo(\'';
+  o[p++] = item[c.mnu.URL];
+  o[p++] = '\'); }" class="sidebar-item sidebar-item-enabled"><i class="fa-solid ';
   o[p++] = item[c.mnu.ICON];
   o[p++] = ' sidebar-icon-';
   o[p++] = String(level);
@@ -1772,7 +1774,6 @@ static getEditBox(id, name, label, value, handler, labelClass, editClass, isMand
 // 
 // isMandatory is a boolean flag that says whether the edit box must be filled in. If true, it will
 // display a visible mark next to the label. It is optional, and may be omitted. The default value
-// is true.
 static getNumericEditBox(id, name, label, value, min, max, handler, labelClass, editClass,
   isMandatory)
 {

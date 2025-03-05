@@ -16,6 +16,25 @@
   require_once $_SERVER['DOCUMENT_ROOT'] . '/subscription/components/header/header.php';
   require_once $_SERVER['DOCUMENT_ROOT'] . '/subscription/components/sidebar/sidebar.php';
 
+  // *******************************************************************************************************************
+  // *** Functions.
+  // *******************************************************************************************************************
+  // Return true if the given $location_id is the ID of a location found in the given $location_list.
+  function is_valid_location_id($location_id, $location_list)
+  {
+    $location_count = count($location_list);
+    for ($i = 0; $i < $location_count; $i++)
+    {
+      if (intval($location_list[$i]->id) === $location_id)
+      {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  // *******************************************************************************************************************
+
   // If the user is not logged in as an administrator, redirect to the login page with HTTP status code 401.
   $access_token = User::verify_is_admin();
 
@@ -45,17 +64,24 @@
   }
 
   // Read parameters.
-  // Location.
+  // Location. If a valid location ID is passed, use that. If there is only one location, use that.
+  $location_specified = false;
+  $initial_location_id = 'null';
   if (Utility::integer_passed('initial_location_id'))
   {
-    $location_specified = true;
-    $initial_location_id = Utility::read_passed_integer('initial_location_id');
+    $location_id = Utility::read_passed_integer('initial_location_id');
+    if (is_valid_location_id($location_id, $location_list))
+    {
+      $location_specified = true;
+      $initial_location_id = $location_id;
+    }
   }
-  else
+  elseif (count($location_list) === 1)
   {
-    $location_specified = false;
-    $initial_location_id = 'null';
+    $location_specified = true;
+    $initial_location_id = intval($location_list[0]->id);
   }
+
   // Product.
   if ($location_specified && Utility::integer_passed('initial_product_id'))
   {
@@ -67,6 +93,7 @@
     $single_product = false;
     $initial_product_id = 'null';
   }
+
   // Date. Make sure it is a properly formatted date, but read and pass along a string with quotes.
   if (Utility::date_passed('initial_date'))
   {
@@ -76,6 +103,7 @@
   {
     $initial_date = 'null';
   }
+
   // Category.
   if (Utility::integer_passed('initial_category_id'))
   {
@@ -85,6 +113,7 @@
   {
     $initial_category_id = 'null';
   }
+
   // User.
   if (Utility::integer_passed('initial_user_id'))
   {
@@ -99,7 +128,7 @@
   $next_index = 0;
   // Location. If there is only one, don't bother displaying the tab. We can guess what the user is going to select.
   // Also, if the parameter has already specified a location, don't let the user select another.
-  if ((count($location_list) === 1) || $location_specified)
+  if ($location_specified)
   {
     $location_tab_index = -1;
   }

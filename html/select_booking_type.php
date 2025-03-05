@@ -13,10 +13,25 @@
   // anonymously.
   $access_token = User::verify_is_user_or_anonymous();
 
+  // Read location ID parameter, and compose parameter strings. Note that the two files to which we redirect require
+  // parameters with different names, so two different strings must be composed.
+  if (Utility::integer_passed('location_id'))
+  {
+    $location_id = Utility::read_passed_integer('location_id');
+    $initial_location_id = '&initial_location_id=' . strval($location_id);
+    $location_id = '&location_id=' . strval($location_id);
+  }
+  else
+  {
+    $initial_location_id = '';
+    $location_id = '';
+  }
+
   // Read booking type. If the settings specify a single type of booking, redirect there. Otherwise, give the user a
   // choice. Note that, if the booking type is BOOKING_TYPE_REQUEST_AT_SOME_LOCATIONS, we won't be able to tell what
   // kind of booking type is appropriate until the user has selected a location. Send him to the self service booking,
-  // so he can select a location.
+  // so he can select a location. Note that, if a location_id parameter is passed, the location is already selected;
+  // even so, we'll let the self service booking file handle it and redirect if required.
   $settings = Settings_Manager::read_settings($access_token);
   $booking_type = $settings->get_booking_type();
 
@@ -24,13 +39,13 @@
     ($booking_type === Settings::BOOKING_TYPE_REQUEST_AT_SOME_LOCATIONS))
   {
     Utility::redirect_to('/subscription/html/book_subscription.php?user_group_id=' .
-      $access_token->get_user_group_id());
+      $access_token->get_user_group_id() . $initial_location_id);
   }
 
   if ($booking_type === Settings::BOOKING_TYPE_REQUEST)
   {
     Utility::redirect_to('/subscription/html/submit_request.php?user_group_id=' .
-      $access_token->get_user_group_id());
+      $access_token->get_user_group_id() . $location_id);
   }
 
   // Settings specify that the user should have a choice. Give him the alternatives.
@@ -70,14 +85,14 @@
 
 function sendRequest()
 {
-  Utility.displaySpinnerThenGoTo('/subscription/html/submit_request.php?user_group_id=<?= $access_token->get_user_group_id() ?>');
+  Utility.displaySpinnerThenGoTo('/subscription/html/submit_request.php?user_group_id=<?= $access_token->get_user_group_id() ?><?= $location_id ?>');
 }
 
 // *************************************************************************************************
 
 function bookSubscription()
 {
-  Utility.displaySpinnerThenGoTo('/subscription/html/book_subscription.php?user_group_id=<?= $access_token->get_user_group_id() ?>');
+  Utility.displaySpinnerThenGoTo('/subscription/html/book_subscription.php?user_group_id=<?= $access_token->get_user_group_id() ?><?= $initial_location_id ?>');
 }
 
 // *************************************************************************************************

@@ -104,6 +104,9 @@
 // *********************************************************************************************************************
 // *** Done.
 // *********************************************************************************************************************
+// - Add location_id parameter to select_booking_type. Verify that the submitted ID is valid.
+// - Add initial_location_id parameter to book_subscription. Verify that the submitted ID is valid.
+// - In admin_book_subscription, verify that submitted location IDs are valid.
 // - Add user interface to insert data fields in e-mail and SMS templates.
 // - Set default sort order in admin_email_sms_log.
 // - In admin_email_sms_log, always display the button to view message contents in a dialogue. Line breaks might cause

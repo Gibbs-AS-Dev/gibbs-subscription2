@@ -66,7 +66,10 @@ var errorDisplayed = false;
 // *** Functions.
 // *************************************************************************************************
 // Initialise the page by caching pointers and displaying the first page of the progress tabset.
-function initialise()
+//
+// If an initialLocationId is passed, that location will be selected, and the select product type
+// tab will be the initial tab. Pass null if no location is selected.
+function initialise(initialLocationId)
 {
   var today;
 
@@ -101,7 +104,15 @@ function initialise()
   calendar.selectedDate = today;
   calendar.onSelectDate = selectDate;
 
-  // If there is only one location, select it.
+  // Set the location, if one was passed.
+  if (initialLocationId !== null)
+  {
+    index = Utility.getLocationIndex(initialLocationId);
+    if (index >= 0)
+      selectedLocation = index;
+  }
+
+  // If there is only one location, select it regardless of whether a parameter was passed.
   if (locations.length <= 1)
     selectedLocation = 0;
 

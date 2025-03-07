@@ -675,6 +675,11 @@ var BOOKING_TYPE_REQUEST = 1;
 var BOOKING_TYPE_BOTH = 2;
 var BOOKING_TYPE_REQUEST_AT_SOME_LOCATIONS = 3;
 
+// Full mode constants. When changing, also modify Settings::FULL_MODE constants.
+var FULL_MODE_ALTERNATIVES = 0;
+var FULL_MODE_REQUEST = 1;
+var FULL_MODE_REQUEST_AT_SOME_LOCATIONS = 2;
+
 // Payment status constants. When updating these, also update PAYMENT_STATUS_ constants in
 // utility.php, and PAYMENT_STATUS_COLOURS in this file.
 var PAYMENT_STATUS_UNKNOWN = 0;

@@ -25,6 +25,8 @@
 //   checking?
 // - Bug: In book_subscription, if there is no available insurance, you go directly to the summary tab. But if you click
 //   "Tilbake", you'll go to an empty tab. You should go further back.
+// - Bug: When settings were saved, a lot of settings just disappeared. Nets keys, URLs and e-mail information. Was
+//   everything reset to defaults? If so, why?
 
 // *********************************************************************************************************************
 // *** To do before release.
@@ -104,6 +106,11 @@
 // *********************************************************************************************************************
 // *** Done.
 // *********************************************************************************************************************
+// - Use the full mode when determining how to display product types.
+// - Display unavailable product types as if they were available, and redirect to submit_request.
+// - Display info icon and dialogue box with screenshots to see how the full mode works.
+// - Add to settings a full mode, and a list of locations.
+// - Edit the full mode in admin_settings.
 // - Add location_id parameter to select_booking_type. Verify that the submitted ID is valid.
 // - Add initial_location_id parameter to book_subscription. Verify that the submitted ID is valid.
 // - In admin_book_subscription, verify that submitted location IDs are valid.

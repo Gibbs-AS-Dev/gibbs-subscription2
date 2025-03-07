@@ -633,6 +633,9 @@ function getProductTypeName(index)
 // does exist at the selected location, but there are no free products, so the product type cannot
 // be booked. The product type in question has the given index in the availableProductTypes table.
 // This method performs no error checking on index.
+//
+// This method displays the product type to look like it's unavailable, and offers alternatives
+// where possible.
 function getUnavailableProductType(index)
 {
   var o, p, freeFromDate;

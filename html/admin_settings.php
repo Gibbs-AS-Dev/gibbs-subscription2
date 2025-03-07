@@ -106,5 +106,28 @@ var initialTab = <?= $initial_tab ?>;
     </div>
 
     <?= Utility::get_spinner() ?>
+    <div id="overlay" class="overlay" style="display: none;">
+      &nbsp;
+    </div>
+    <div id="fullModeInfoDialogue" class="dialogue full-mode-info-dialogue" style="display: none;">
+      <div class="dialogue-header">
+        <h1><?= $text->get(2, 'N&aring;r en bodtype ikke er ledig') ?></h1>
+      </div>
+      <div class="dialogue-content">
+        <h3><?= $text->get(3, 'Vis status og alternativer') ?></h3>
+        <div class="form-element">
+          <img src="/subscription/resources/full_mode_alternatives.png" width="576" height="239" alt="" /><br />
+          <span class="help-text"><?= $text->get(4, 'Brukeren f&aring;r vite at bodtypen ikke er ledig. Hvis det finnes alternativer, vises disse.') ?></span>
+        </div>
+        <h3><?= $text->get(5, 'Skjul status og send foresp&oslash;rsel') ?></h3>
+        <div class="form-element">
+          <img src="/subscription/resources/full_mode_request.png" width="576" height="137" alt="" /><br />
+          <span class="help-text"><?= $text->get(6, 'Brukeren ser ikke at bodtypen ikke er ledig. N&aring;r han klikker &quot;Velg&quot;, sender han en foresp&oslash;rsel.') ?></span>
+        </div>
+      </div>
+      <div class="dialogue-footer">
+        <button type="button" onclick="closeFullModeInfo();"><i class="fa-solid fa-xmark"></i> <?= $text->get(7, 'Lukk') ?></button>
+      </div>
+    </div>
   </body>
 </html>

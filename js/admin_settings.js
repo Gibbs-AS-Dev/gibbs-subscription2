@@ -14,21 +14,22 @@
 // *** Variables.
 // *************************************************************************************************
 // Pointers to user interface elements.
-var settingsForm, generalSettingsBox, colourSettingsBox, emailSettingsBox, submitButton;
+var settingsForm, generalSettingsBox, colourSettingsBox, emailSettingsBox, submitButton, overlay,
+  fullModeInfoDialogue;
 
 // Pointers to dynamically generated user interface elements. These will be populated once the HTML
 // code to display them has been generated.
 var useTestDataCheckbox, applicationRoleCombo, bookingTypeCombo, bookingTypeLocationsBox,
-  paymentMethodPrivateNetsCheckbox, paymentMethodPrivateInvoiceCheckbox,
-  paymentMethodPrivateNetsThenInvoiceCheckbox, paymentMethodCompanyNetsCheckbox,
-  paymentMethodCompanyInvoiceCheckbox, paymentMethodCompanyNetsThenInvoiceCheckbox,
-  requireCheckAfterCancelCheckbox, selectableMonthCountEdit, bookableProductCountEdit,
-  fewAvailableCountEdit, netsSecretKeyEdit, netsCheckoutKeyEdit, termsUrlsField, termsUrlsFrame,
-  bgColourEdit, buttonBgColourEdit, buttonTextColourEdit, buttonHoverBgColourEdit,
-  buttonHoverTextColourEdit, completedStepBgColourEdit, completedStepTextColourEdit,
-  activeStepBgColourEdit, activeStepTextColourEdit, incompleteStepBgColourEdit,
-  incompleteStepTextColourEdit, sumBgColourEdit, sumTextColourEdit, newLanguageCodeEdit,
-  newTermsUrlEdit;
+  fullModeCombo, fullModeLocationsBox, paymentMethodPrivateNetsCheckbox,
+  paymentMethodPrivateInvoiceCheckbox, paymentMethodPrivateNetsThenInvoiceCheckbox,
+  paymentMethodCompanyNetsCheckbox, paymentMethodCompanyInvoiceCheckbox,
+  paymentMethodCompanyNetsThenInvoiceCheckbox, requireCheckAfterCancelCheckbox,
+  selectableMonthCountEdit, bookableProductCountEdit, fewAvailableCountEdit, netsSecretKeyEdit,
+  netsCheckoutKeyEdit, termsUrlsField, termsUrlsFrame, bgColourEdit, buttonBgColourEdit,
+  buttonTextColourEdit, buttonHoverBgColourEdit, buttonHoverTextColourEdit,
+  completedStepBgColourEdit, completedStepTextColourEdit, activeStepBgColourEdit,
+  activeStepTextColourEdit, incompleteStepBgColourEdit, incompleteStepTextColourEdit,
+  sumBgColourEdit, sumTextColourEdit, newLanguageCodeEdit, newTermsUrlEdit;
 
 // The tabset that displays different types of settings.
 var tabset;
@@ -41,11 +42,12 @@ function initialise()
 {
   // Obtain pointers to user interface elements.
   Utility.readPointers(['settingsForm', 'generalSettingsBox', 'colourSettingsBox',
-    'emailSettingsBox', 'submitButton']);
+    'emailSettingsBox', 'submitButton', 'overlay', 'fullModeInfoDialogue']);
 
-  // Validate the contents of the booking type locations. The set of locations might have been
-  // altered since the settings were stored.
-  validateBookingTypeLocations();
+  // Validate the contents of the booking type and full mode location lists. The set of locations
+  // might have been altered since the settings were stored.
+  validateLocationList('bookingTypeLocations');
+  validateLocationList('fullModeLocations');
 
   // Create the user interface.
   tabset = new Tabset(
@@ -68,28 +70,27 @@ function initialise()
 }
 
 // *************************************************************************************************
-// The bookingTypeLocations array holds the IDs of locations for which, if the booking type is
-// BOOKING_TYPE_REQUEST_AT_SOME_LOCATIONS, a request has to be sent. The locations might change, and
-// the settings will not be updated at the same time. Remove from the bookingTypeLocations array
-// any location ID which does not correspond to an actual location.
-function validateBookingTypeLocations()
+// Some settings require a list of locations. However, locations might change, and the settings will
+// not be updated at the same time. In settings, remove from the array with the given name any
+// location ID which does not correspond to an actual location.
+function validateLocationList(name)
 {
   var i, index;
 
   // If it wasn't an array, create an empty one.
-  if (!Array.isArray(settings.bookingTypeLocations))
-    settings.bookingTypeLocations = [];
+  if (!Array.isArray(settings[name]))
+    settings[name] = [];
   else
   {
     // It was an array. Check each location ID in the array.
     i = 0;
-    while (i < settings.bookingTypeLocations.length)
+    while (i < settings[name].length)
     {
-      index = Utility.getLocationIndex(settings.bookingTypeLocations[i]);
+      index = Utility.getLocationIndex(settings[name][i]);
       // If the location ID did not represent a location, delete the entry. Otherwise move on to the
       // next one.
       if (index < 0)
-        settings.bookingTypeLocations.splice(i, 1);
+        settings[name].splice(i, 1);
       else
         i++;
     }
@@ -113,6 +114,7 @@ function enableSubmitButton()
 {
   submitButton.disabled = !isValidApplicationRole(applicationRoleCombo.value) ||
     !isValidBookingType(bookingTypeCombo.value) ||
+    !isValidFullMode(fullModeCombo.value) ||
     !paymentMethodSelected() ||
     !isValidSelectableMonthCount(selectableMonthCountEdit.value) ||
     !isValidBookableProductCount(bookableProductCountEdit.value) ||
@@ -141,7 +143,7 @@ function displayGeneralSettings()
 {
   var o, p, i;
 
-  o = new Array((locations.length * 13) + 143);
+  o = new Array((locations.length * 26) + 174);
   p = 0;
 
   // Setting: use_test_data
@@ -241,9 +243,65 @@ function displayGeneralSettings()
     o[p++] = locations[i][c.loc.NAME];
     o[p++] = '</label><br />';
   }
-  o[p++] = '</div><div class="form-element"><button type="button" onclick="setAllBookingTypeLocationsTo(true);"><i class="fa-solid fa-check-double"></i>&nbsp;&nbsp;';
+  o[p++] = '</div><div class="form-element"><button type="button" onclick="setAllLocationCheckboxesTo(true, \'bookingTypeLocation_\');"><i class="fa-solid fa-check-double"></i>&nbsp;&nbsp;';
   o[p++] = getText(64, 'Alle');
-  o[p++] = '</button><button type="button" onclick="setAllBookingTypeLocationsTo(false);"><i class="fa-solid fa-empty-set"></i>&nbsp;&nbsp;';
+  o[p++] = '</button><button type="button" onclick="setAllLocationCheckboxesTo(false, \'bookingTypeLocation_\');"><i class="fa-solid fa-empty-set"></i>&nbsp;&nbsp;';
+  o[p++] = getText(65, 'Ingen');
+  o[p++] = '</button></div></div><div class="form-element separator">&nbsp;</div>';
+
+  // Setting: full_mode. Note that the location count must be submitted, but it has already been
+  // added for the booking type.
+  o[p++] = '<div class="form-element"><label for="fullModeCombo" class="wide-label">';
+  o[p++] = getText(66, 'Bodtype opptatt:');
+  o[p++] = Utility.getMandatoryMark();
+  o[p++] = '</label><select id="fullModeCombo" name="full_mode" class="long-text" onchange="selectFullMode(this.value);"><option value="';
+  o[p++] = String(FULL_MODE_ALTERNATIVES);
+  o[p++] = '"';
+  if (settings.fullMode === FULL_MODE_ALTERNATIVES)
+    o[p++] = ' selected="selected"';
+  o[p++] = '>';
+  o[p++] = getText(67, 'Vis status og alternativer');
+  o[p++] = '</option><option value="';
+  o[p++] = String(FULL_MODE_REQUEST);
+  o[p++] = '"';
+  if (settings.fullMode === FULL_MODE_REQUEST)
+    o[p++] = ' selected="selected"';
+  o[p++] = '>';
+  o[p++] = getText(68, 'Skjul status og send foresp&oslash;rsel');
+  o[p++] = '</option><option value="';
+  o[p++] = String(FULL_MODE_REQUEST_AT_SOME_LOCATIONS);
+  o[p++] = '"';
+  if (settings.fullMode === FULL_MODE_REQUEST_AT_SOME_LOCATIONS)
+    o[p++] = ' selected="selected"';
+  o[p++] = '>';
+  o[p++] = getText(62, 'Velg for hvert lager');
+  o[p++] = '</option></select> <button type="button" class="icon-button" onclick="displayFullModeInfo();"><i class="fa-solid fa-circle-info"></i></button></div><div id="fullModeLocationsBox"';
+  if (settings.fullMode !== FULL_MODE_REQUEST_AT_SOME_LOCATIONS)
+    o[p++] = ' style="display: none;"';
+  o[p++] = '><div class="form-element"><span class="help-text">';
+  o[p++] = getText(69, 'Velg lager der det skal sendes foresp&oslash;rsel; resten viser status og eventuelle alternativer.');
+  o[p++] = '</span></div><div class="form-element">';
+  for (i = 0; i < locations.length; i++)
+  {
+    // Add checkbox and label for each location. Use index in ID and name. Use location ID as value.
+    o[p++] = '<input type="checkbox" id="fullModeLocation_';
+    o[p++] = String(i);
+    o[p++] = '" name="full_mode_location_';
+    o[p++] = String(i);
+    o[p++] = '" value="';
+    o[p++] = String(locations[i][c.loc.ID]);
+    o[p++] = '" ';
+    if (settings.fullModeLocations.includes(locations[i][c.loc.ID]))
+      o[p++] = ' checked="checked"';
+    o[p++] = ' /> <label for="fullModeLocation_';
+    o[p++] = String(i);
+    o[p++] = '">';
+    o[p++] = locations[i][c.loc.NAME];
+    o[p++] = '</label><br />';
+  }
+  o[p++] = '</div><div class="form-element"><button type="button" onclick="setAllLocationCheckboxesTo(true, \'fullModeLocation_\');"><i class="fa-solid fa-check-double"></i>&nbsp;&nbsp;';
+  o[p++] = getText(64, 'Alle');
+  o[p++] = '</button><button type="button" onclick="setAllLocationCheckboxesTo(false, \'fullModeLocation_\');"><i class="fa-solid fa-empty-set"></i>&nbsp;&nbsp;';
   o[p++] = getText(65, 'Ingen');
   o[p++] = '</button></div></div><div class="form-element separator">&nbsp;</div>';
 
@@ -398,12 +456,13 @@ function displayGeneralSettings()
 
   // Obtain pointers to user interface elements.
   Utility.readPointers(['useTestDataCheckbox', 'applicationRoleCombo', 'bookingTypeCombo',
-    'bookingTypeLocationsBox',  'paymentMethodPrivateNetsCheckbox',
-    'paymentMethodPrivateInvoiceCheckbox', 'paymentMethodPrivateNetsThenInvoiceCheckbox',
-    'paymentMethodCompanyNetsCheckbox', 'paymentMethodCompanyInvoiceCheckbox',
-    'paymentMethodCompanyNetsThenInvoiceCheckbox', 'requireCheckAfterCancelCheckbox',
-    'selectableMonthCountEdit', 'bookableProductCountEdit', 'fewAvailableCountEdit',
-    'netsSecretKeyEdit', 'netsCheckoutKeyEdit', 'termsUrlsField', 'termsUrlsFrame']);
+    'bookingTypeLocationsBox', 'fullModeCombo', 'fullModeLocationsBox',
+    'paymentMethodPrivateNetsCheckbox', 'paymentMethodPrivateInvoiceCheckbox',
+    'paymentMethodPrivateNetsThenInvoiceCheckbox', 'paymentMethodCompanyNetsCheckbox',
+    'paymentMethodCompanyInvoiceCheckbox', 'paymentMethodCompanyNetsThenInvoiceCheckbox',
+    'requireCheckAfterCancelCheckbox', 'selectableMonthCountEdit', 'bookableProductCountEdit',
+    'fewAvailableCountEdit', 'netsSecretKeyEdit', 'netsCheckoutKeyEdit', 'termsUrlsField',
+    'termsUrlsFrame']);
 
   // Fill in the termsUrlsField and termsUrlsFrame contents based on the current settings.
   updateTermsUrlsFrame();
@@ -515,6 +574,15 @@ function isValidBookingType(value)
 }
 
 // *************************************************************************************************
+// Return true if the given value is valid for the fullMode setting.
+function isValidFullMode(value)
+{
+  value = parseInt(value, 10);
+  return isFinite(value) && (value >= FULL_MODE_ALTERNATIVES) &&
+    (value <= FULL_MODE_REQUEST_AT_SOME_LOCATIONS);
+}
+
+// *************************************************************************************************
 // Return true if the given value is a valid selectable month count.
 function isValidSelectableMonthCount(value)
 {
@@ -539,16 +607,16 @@ function isValidFewAvailableCount(value)
 }
 
 // *************************************************************************************************
-// Check or uncheck all the booking type location checkboxes, depending on checked, which should be
-// a boolean.
-function setAllBookingTypeLocationsTo(checked)
+// Check or uncheck all the location checkboxes with the given boxId, depending on checked, which
+// should be a boolean. The index of the location will be added to the boxId.
+function setAllLocationCheckboxesTo(checked, boxId)
 {
   var i, checkbox;
 
   checked = !!checked;
   for (i = 0; i < locations.length; i++)
   {
-    checkbox = document.getElementById('bookingTypeLocation_' + String(i));
+    checkbox = document.getElementById(boxId + String(i));
     if (checkbox)
       checkbox.checked = checked;
   }
@@ -563,6 +631,18 @@ function selectBookingType(selectedBookingType)
     return;
   Utility.setDisplayState(bookingTypeLocationsBox,
     selectedBookingType === BOOKING_TYPE_REQUEST_AT_SOME_LOCATIONS);
+  enableSubmitButton();
+}
+
+// *************************************************************************************************
+// Event handler that should be triggered when the selected full mode has been modified.
+function selectFullMode(selectedFullMode)
+{
+  selectedFullMode = parseInt(selectedFullMode, 10);
+  if (!isValidFullMode(selectedFullMode))
+    return;
+  Utility.setDisplayState(fullModeLocationsBox,
+    selectedFullMode === FULL_MODE_REQUEST_AT_SOME_LOCATIONS);
   enableSubmitButton();
 }
 
@@ -783,6 +863,24 @@ function displayEmailSettings()
     false);
 
   emailSettingsBox.innerHTML = o.join('');
+}
+
+// *************************************************************************************************
+// *** Full mode information functions.
+// *************************************************************************************************
+
+function displayFullModeInfo()
+{
+  Utility.display(overlay);
+  Utility.display(fullModeInfoDialogue);
+}
+
+// *************************************************************************************************
+
+function closeFullModeInfo()
+{
+  Utility.hide(fullModeInfoDialogue);
+  Utility.hide(overlay);
 }
 
 // *************************************************************************************************

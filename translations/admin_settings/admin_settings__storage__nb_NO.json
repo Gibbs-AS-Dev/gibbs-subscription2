@@ -66,11 +66,21 @@
       "Velg for hvert lager",
       "Velg lager der det skal sendes foresp&oslash;rsel; resten har selvbetjening.",
       "Alle",
-      "Ingen"
+      "Ingen",
+      "Bodtype opptatt:",
+      "Vis status og alternativer",
+      "Skjul status og send foresp&oslash;rsel",
+      "Velg lager der det skal sendes foresp&oslash;rsel; resten viser status og eventuelle alternativer."
     ],
   "php_texts":
     [
       "Innstillinger",
-      "Lagre"
+      "Lagre",
+      "N&aring;r en bodtype ikke er ledig",
+      "Vis status og alternativer",
+      "Brukeren f&aring;r vite at bodtypen ikke er ledig. Hvis det finnes alternativer, vises disse.",
+      "Skjul status og send foresp&oslash;rsel",
+      "Brukeren ser ikke at bodtypen ikke er ledig. N&aring;r han klikker &quot;Velg&quot;, sender han en foresp&oslash;rsel.",
+      "Lukk"
     ]
 }

@@ -199,8 +199,6 @@ function displayLocationBox()
 // desiredProductType. desiredProductType is optional.
 function selectLocation(index, desiredProductType)
 {
-  var o, p;
-
   index = parseInt(index, 10);
   if (Utility.isValidIndex(index, locations))
   {
@@ -209,20 +207,7 @@ function selectLocation(index, desiredProductType)
     {
       // The selected location requires customers to submit a request. Go to the submit request
       // page. Pass all the information we have gathered thus far about the customer's requirements.
-      o = new Array(6);
-      p = 0;
-
-      o[p++] = '/subscription/html/submit_request.php?location_id=';
-      o[p++] = String(locations[index][c.loc.ID]);
-      o[p++] = '&start_date=';
-      o[p++] = calendar.selectedDate;
-      if (desiredProductType && Utility.isValidIndex(desiredProductType, availableProductTypes))
-      {
-        o[p++] = '&category_id=';
-        o[p++] = String(availableProductTypes[desiredProductType][c.apt.CATEGORY_ID]);
-      }
-
-      Utility.displaySpinnerThenGoTo(o.join(''));
+      submitRequestFor(index, desiredProductType);
       return;
     }
 
@@ -230,6 +215,33 @@ function selectLocation(index, desiredProductType)
     selectedLocation = index;
     displayProductTypeTab();
   }
+}
+
+// *************************************************************************************************
+// Go to the submit request page, to request the location with the given index in the locations
+// table, and the product type with the given index in the availableProductTypes table.
+// productTypeIndex is optional. If not present, only the location will be passed.
+function submitRequestFor(locationIndex, productTypeIndex)
+{
+  var o, p;
+
+  if (!Utility.isValidIndex(locationIndex, locations))
+    return;
+
+  o = new Array(6);
+  p = 0;
+
+  o[p++] = '/subscription/html/submit_request.php?location_id=';
+  o[p++] = String(locations[locationIndex][c.loc.ID]);
+  o[p++] = '&start_date=';
+  o[p++] = calendar.selectedDate;
+  if (productTypeIndex && Utility.isValidIndex(productTypeIndex, availableProductTypes))
+  {
+    o[p++] = '&category_id=';
+    o[p++] = String(availableProductTypes[productTypeIndex][c.apt.CATEGORY_ID]);
+  }
+
+  Utility.displaySpinnerThenGoTo(o.join(''));
 }
 
 // *************************************************************************************************
@@ -414,7 +426,12 @@ function displayAvailableProductTypes()
     if (availableProductTypes[i][c.apt.IS_AVAILABLE])
       o[p++] = getAvailableProductType(i);
     else
-      o[p++] = getUnavailableProductType(i);
+    {
+      if (maskUnavailableStatus())
+        o[p++] = getMaskedUnavailableProductType(i);
+      else
+        o[p++] = getUnavailableProductType(i);
+    }
   }
 
   // If we had product types, display the list. If not, just display a message.
@@ -456,7 +473,7 @@ function getAvailableProductType(index)
   p = 0;
 
   // Write name. Left aligned.
-  o[p++] = '<div class="button-box product-type-box "><div class="product-type-box-left"><h3>';
+  o[p++] = '<div class="button-box product-type-box"><div class="product-type-box-left"><h3>';
   o[p++] = availableProductTypes[index][c.apt.NAME];
   o[p++] = '</h3>';
   // Add the "few available" notice, if appropriate.
@@ -528,6 +545,44 @@ function getAvailableProductType(index)
 // does exist at the selected location, but there are no free products, so the product type cannot
 // be booked. The product type in question has the given index in the availableProductTypes table.
 // This method performs no error checking on index.
+//
+// This method displays the product type to look like it's available, and redirects to the submit
+// request page when selected.
+function getMaskedUnavailableProductType(index)
+{
+  var o, p;
+
+  o = new Array(11);
+  p = 0;
+
+  // Write name. Left aligned. Terminate the line afterwards.
+  o[p++] = '<div class="button-box product-type-box"><div class="product-type-box-left"><h3>';
+  o[p++] = availableProductTypes[index][c.apt.NAME];
+  o[p++] = '</h3></div><br>';
+
+  // Write empty box. Left aligned.
+  o[p++] = '<div class="product-type-box-left">&nbsp;</div>';
+
+  // Write select button. Right aligned.
+  o[p++] = '<div class="product-type-box-right"><button type="button" class="wide-button" onclick="submitRequestFor(';
+  o[p++] = String(selectedLocation);
+  o[p++] = ', ';
+  o[p++] = String(index);
+  o[p++] = ');">';
+  o[p++] = getText(0, 'Velg');
+  o[p++] = '&nbsp;&nbsp;<i class="fa-solid fa-chevron-right"></i></button></div></div>';
+
+  return o.join('');
+}
+
+// *************************************************************************************************
+// Return HTML code to display an available product type that is, in fact, unavailable - in that it
+// does exist at the selected location, but there are no free products, so the product type cannot
+// be booked. The product type in question has the given index in the availableProductTypes table.
+// This method performs no error checking on index.
+//
+// This method displays the product type to look like it's unavailable, and offers alternatives
+// where possible.
 function getUnavailableProductType(index)
 {
   var o, p, freeFromDate;
@@ -993,6 +1048,17 @@ function closeCategoryFilterDialogue()
 {
   Utility.hide(editCategoryFilterDialogue);
   Utility.hide(overlay);
+}
+
+// *************************************************************************************************
+// Return true if the current settings specify that an unavailable product type at the currently
+// selected location should be shown as available, but with a link to submit a request.
+function maskUnavailableStatus()
+{
+  // The status should be masked if we do it everywhere, or if we do it at the selected location.
+  return (settings.fullMode === FULL_MODE_REQUEST) ||
+    ((settings.fullMode === FULL_MODE_REQUEST_AT_SOME_LOCATIONS) &&
+    settings.fullModeLocations.includes(locations[selectedLocation][c.loc.ID]));
 }
 
 // *************************************************************************************************

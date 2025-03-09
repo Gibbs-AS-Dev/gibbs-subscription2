@@ -55,6 +55,7 @@
 var TIMESTAMP = '<?= Utility::get_timestamp() ?>';
 var resultCode = <?= $result_code ?>;
 var locations = <?= $locations ?>;
+var bookingUrl = '<?= Utility::get_booking_url() ?>';
 
     </script>
   </head>
@@ -74,6 +75,25 @@ var locations = <?= $locations ?>;
     <div id="overlay" class="overlay" style="display: none;">
       &nbsp;
     </div>
+
+    <div id="bookingUrlDialogue" class="dialogue booking-url-dialogue" style="display: none;">
+      <div class="dialogue-header">
+        <h1><?= $text->get(2, 'URL for bestilling') ?></h1>
+      </div>
+      <div class="dialogue-content">
+        <div class="form-element">
+          <span class="help-text"><?= $text->get(3, 'URL for &aring; la en kunde bestille lagerbod ved dette lageret.') ?></span>
+        </div>
+        <div class="form-element">
+          <input id="bookingUrlEdit" type="text" readonly="readonly" class="url-text" />
+          <button type="button" class="icon-button" onclick="Utility.copyToClipboard('bookingUrlEdit');"><i class="fa-solid fa-copy"></i></button>
+        </div>
+      </div>
+      <div class="dialogue-footer">
+        <button type="button" onclick="closeBookingUrlDialogue();"><i class="fa-solid fa-xmark"></i> <?= $text->get(4, 'Lukk') ?></button>
+      </div>
+    </div>
+
     <div id="editLocationDialogue" class="dialogue edit-location-dialogue" style="display: none;">
       &nbsp;
     </div>

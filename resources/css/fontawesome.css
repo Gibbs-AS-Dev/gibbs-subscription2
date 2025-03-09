@@ -445,6 +445,7 @@ readers do not read off random characters that represent icons */
 .fa-caret-left { --fa: "\f0d9"; --fa--fa: "\f0d9\f0d9"; }
 .fa-caret-right { --fa: "\f0da"; --fa--fa: "\f0da\f0da"; }
 .fa-caret-up { --fa: "\f0d8"; --fa--fa: "\f0d8\f0d8"; }
+.fa-chain { --fa: "\f0c1"; --fa--fa: "\f0c1\f0c1"; }
 .fa-check { --fa: "\f00c"; --fa--fa: "\f00c\f00c"; }
 .fa-check-circle { --fa: "\f058"; --fa--fa: "\f058\f058"; }
 .fa-check-double { --fa: "\f560"; --fa--fa: "\f560\f560"; }
@@ -485,6 +486,7 @@ readers do not read off random characters that represent icons */
 .fa-input-text { --fa: "\e1bf"; --fa--fa: "\e1bf\e1bf"; }
 .fa-key { --fa: "\f084"; --fa--fa: "\f084\f084"; }
 .fa-left-right { --fa: "\f337"; --fa--fa: "\f337\f337"; }
+.fa-link { --fa: "\f0c1"; --fa--fa: "\f0c1\f0c1"; }
 .fa-list { --fa: "\f03a"; --fa--fa: "\f03a\f03a"; }
 .fa-list-squares { --fa: "\f03a"; --fa--fa: "\f03a\f03a"; }
 .fa-location-dot { --fa: "\f3c5"; --fa--fa: "\f3c5\f3c5"; }

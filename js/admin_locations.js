@@ -6,7 +6,7 @@
 // *** Variables.
 // *************************************************************************************************
 // Pointers to user interface elements.
-var locationsBox, overlay, editLocationDialogue;
+var locationsBox, overlay, bookingUrlDialogue, bookingUrlEdit, editLocationDialogue;
 
 // Pointers to dynamically generated user interface elements. These will be populated once the HTML
 // code to display them has been generated.
@@ -25,7 +25,8 @@ var menu;
 function initialise()
 {
   // Obtain pointers to user interface elements.
-  Utility.readPointers(['locationsBox', 'overlay', 'editLocationDialogue']);
+  Utility.readPointers(['locationsBox', 'overlay', 'bookingUrlDialogue', 'bookingUrlEdit',
+    'editLocationDialogue']);
 
   // Create the popup menu.
   menu = new PopupMenu(getPopupMenuContents, 250);
@@ -130,7 +131,7 @@ function getPopupMenuContents(sender, index)
   index = parseInt(index, 10);
   if (!Utility.isValidIndex(index, locations))
     return '';
-  o = new Array(4);
+  o = new Array(5);
   p = 0;
 
   // Edit location button.
@@ -147,7 +148,31 @@ function getPopupMenuContents(sender, index)
   o[p++] = sender.getMenuItem(getText(22, 'Opprett abonnement her'), 'fa-plus', true,
     'Utility.displaySpinnerThenGoTo(\'/subscription/html/admin_book_subscription.php?initial_location_id=' +
     String(locations[index][c.loc.ID]) + '\');');
+  // Display URL to book from this location as a customer.
+  o[p++] = sender.getMenuItem(getText(23, 'URL for bestilling'), 'fa-link', true,
+    'displayBookingUrl(' + String(index) + ');');
   return o.join('');
+}
+
+// *************************************************************************************************
+// Display the URL that customers would use to open book_subscription with the location with the
+// given index in the locations table pre-selected.
+function displayBookingUrl(index)
+{
+  if (Utility.isValidIndex(index, locations))
+  {
+    bookingUrlEdit.value = bookingUrl + '&location_id=' + String(locations[index][c.loc.ID]);
+    Utility.display(overlay);
+    Utility.display(bookingUrlDialogue);
+  }
+}
+
+// *************************************************************************************************
+
+function closeBookingUrlDialogue()
+{
+  Utility.hide(bookingUrlDialogue);
+  Utility.hide(overlay);
 }
 
 // *************************************************************************************************

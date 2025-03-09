@@ -23,11 +23,15 @@
       "Tjenester:",
       "&Aring;pningstider",
       "Tjenester",
-      "Opprett abonnement her"
+      "Opprett abonnement her",
+      "URL for bestilling"
     ],
   "php_texts":
     [
       "Lager",
-      "Opprett nytt lager"
+      "Opprett nytt lager",
+      "URL for bestilling",
+      "URL for &aring; la en kunde bestille lagerbod ved dette lageret.",
+      "Lukk"
     ]
 }

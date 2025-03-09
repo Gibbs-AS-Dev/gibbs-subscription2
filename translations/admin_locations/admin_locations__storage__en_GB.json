@@ -23,11 +23,15 @@
       "Services:",
       "Hours",
       "Services",
-      "Create subscription here"
+      "Create subscription here",
+      "Booking URL"
     ],
   "php_texts":
     [
       "Warehouses",
-      "Create warehouse"
+      "Create warehouse",
+      "Booking URL",
+      "URL which allows the customer to book a storage unit with this warehouse pre-selected.",
+      "Close"
     ]
 }

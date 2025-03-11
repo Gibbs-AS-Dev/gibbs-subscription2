@@ -106,6 +106,7 @@
 // *********************************************************************************************************************
 // *** Done.
 // *********************************************************************************************************************
+// - In admin_subscriptions, add link to admin_edit_user.
 // - In admin_locations, add dialogue box with the URL to book_subscription with the location pre-selected.
 // - Use the full mode when determining how to display product types.
 // - Display unavailable product types as if they were available, and redirect to submit_request.

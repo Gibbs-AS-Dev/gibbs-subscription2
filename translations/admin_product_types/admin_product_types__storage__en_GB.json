@@ -17,7 +17,8 @@
       "Cancel",
       "Category",
       "Price",
-      "Delete storage unit type: $1. Are you sure? Note that a storage unit type cannot be deleted if there are storage units of that type."
+      "Delete storage unit type: $1. Are you sure? Note that a storage unit type cannot be deleted if there are storage units of that type.",
+      "Notes"
     ],
   "php_texts":
     [

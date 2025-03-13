@@ -154,14 +154,16 @@ function doDisplaySubscriptions()
       continue;
     // Find the user that owns this subscription.
     user = getUser(subscriptions[i][c.sua.BUYER_ID]);
-    // If the user was not found, do not display the subscription. This should not happen.
-    if (user === null)
-      continue;
+    
     displayedCount++;
 
     // Buyer's name.
     o[p++] = '<tr><td>';
-    o[p++] = user[c.rqu.NAME];
+    if (user === null) {
+      o[p++] = '<span style="color: #cc0000;">' + getText(60, 'Bruker ikke funnet') + ' (ID: ' + subscriptions[i][c.sua.BUYER_ID] + ')</span>';
+    } else {
+      o[p++] = user[c.rqu.NAME];
+    }
     // Location name.
     o[p++] = '</td><td>';
     o[p++] = Utility.getLocationName(subscriptions[i][c.sua.LOCATION_ID]);
@@ -225,9 +227,12 @@ function getPopupMenuContents(sender, index)
   o[p++] = sender.getMenuItem(getText(50, 'Si opp abonnement'), 'fa-hand-wave',
     subscriptions[index][c.sua.STATUS] === st.sub.ONGOING,
     'displayCancelSubscriptionDialogue(' + String(index) + ');');
-  // Delete subscription button (hide from UI).
-  o[p++] = sender.getMenuItem('Slett abbonnement', 'fa-trash', true,
-    'deleteSubscription(' + String(index) + ');');
+  // Delete subscription button - show when status is "Avsluttet" (EXPIRED) or "Error while booking" (INACTIVE)
+  if (subscriptions[index][c.sua.STATUS] === st.sub.EXPIRED || 
+      subscriptions[index][c.sua.STATUS] === st.sub.INACTIVE) {
+    o[p++] = sender.getMenuItem('Slett abbonnement', 'fa-trash', true,
+      'deleteSubscription(' + String(index) + ');');
+  }
   // Display customer button.
   o[p++] = sender.getMenuItem(getText(59, 'Vis kundekort'), 'fa-up-right-from-square', true,
     'Utility.displaySpinnerThenGoTo(\'/subscription/html/admin_edit_user.php?user_id=' +
@@ -959,10 +964,18 @@ function closePaymentHistoryDialogue()
 
 function displayFilterToolbar()
 {
-  var o, p;
+  var o, p, totalActiveSubscriptions, i;
   
   o = new Array(30);
   p = 0;
+
+  // Count total active (non-deleted) subscriptions
+  totalActiveSubscriptions = 0;
+  for (i = 0; i < subscriptions.length; i++) {
+    if (subscriptions[i][c.sua.ACTIVE] !== 2) {
+      totalActiveSubscriptions++;
+    }
+  }
 
   // Clear all filters button.
   o[p++] = getText(35, 'Filter:');
@@ -1013,11 +1026,11 @@ function displayFilterToolbar()
   o[p++] = '" onkeydown="freetextEditKeyDown(event);" /><button type="button" class="freetext-filter-button" onclick="updateFreetextFilter();"><i class="fa-solid fa-search"></i></button>';
   // Display counter box.
   o[p++] = '<span class="counter">';
-  if (displayedCount === subscriptions.length)
-    o[p++] = getText(37, 'Viser $1 abonnementer', [String(subscriptions.length)]);
+  if (displayedCount === totalActiveSubscriptions)
+    o[p++] = getText(37, 'Viser $1 abonnementer', [String(totalActiveSubscriptions)]);
   else
     o[p++] = getText(38, 'Viser $1 av $2 abonnementer',
-      [String(displayedCount), String(subscriptions.length)]);
+      [String(displayedCount), String(totalActiveSubscriptions)]);
   o[p++] = '</span>';
 
   filterToolbar.innerHTML = o.join('');

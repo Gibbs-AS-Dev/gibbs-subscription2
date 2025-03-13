@@ -15,6 +15,25 @@
   require_once $_SERVER['DOCUMENT_ROOT'] . '/subscription/components/data/user_data_manager.php';
   require_once $_SERVER['DOCUMENT_ROOT'] . '/subscription/components/user/user.php';
 
+  // *******************************************************************************************************************
+  // *** Functions.
+  // *******************************************************************************************************************
+  // Return true if the given $location_id is the ID of a location found in the given $location_list.
+  function is_valid_location_id($location_id, $location_list)
+  {
+    $location_count = count($location_list);
+    for ($i = 0; $i < $location_count; $i++)
+    {
+      if (intval($location_list[$i]->id) === $location_id)
+      {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  // *******************************************************************************************************************
+
   // See if the user is already logged in as an ordinary user, or else try to let him use the booking process
   // anonymously.
   $access_token = User::verify_is_user_or_anonymous();
@@ -44,17 +63,36 @@
     $has_insurance_products = $insurance_products !== '[]';
   }
 
+  // Read parameters.
+  // Location. If a valid location ID is passed, use that. If there is only one location, use that.
+  $location_specified = false;
+  $initial_location_id = 'null';
+  if (Utility::integer_passed('initial_location_id'))
+  {
+    $location_id = Utility::read_passed_integer('initial_location_id');
+    if (is_valid_location_id($location_id, $location_list))
+    {
+      $location_specified = true;
+      $initial_location_id = $location_id;
+    }
+  }
+  elseif (count($location_list) === 1)
+  {
+    $location_specified = true;
+    $initial_location_id = intval($location_list[0]->id);
+  }
+
   // Calculate tab indices.
   $next_index = 0;
   // Location. If there is only one, don't bother displaying the tab. We can guess what the user is going to select.
-  if (count($location_list) === 1)
+  // Also, if the parameter has already specified a location, don't let the user select another.
+  if ($location_specified)
   {
     // If the customer needs to submit a request when booking at this location, redirect him to the submit request page
     // straight away, and stop executing this script.
-    $location_id = intval($location_list[0]->id);
-    if ($settings->submit_request_when_booking_at($location_id))
+    if ($settings->submit_request_when_booking_at($initial_location_id))
     {
-      Utility::redirect_to('/subscription/html/submit_request.php?location_id=' . $location_id);
+      Utility::redirect_to('/subscription/html/submit_request.php?location_id=' . $initial_location_id);
     }
     $location_tab_index = -1;
   }
@@ -137,7 +175,7 @@ var summaryTabIndex = <?= $summary_tab_index ?>;
 
     </script>
   </head>
-  <body onload="initialise();">
+  <body onload="initialise(<?= $initial_location_id ?>);">
     <div class="content-area">
       <div class="toolbar">
         <div class="back-button-box">

@@ -24,6 +24,11 @@ class Settings
   public const BOOKING_TYPE_BOTH = 2;
   public const BOOKING_TYPE_REQUEST_AT_SOME_LOCATIONS = 3;
 
+  // When full mode constants. When changing, also modify common.js FULL_MODE_ constants.
+  public const FULL_MODE_ALTERNATIVES = 0;
+  public const FULL_MODE_REQUEST = 1;
+  public const FULL_MODE_REQUEST_AT_SOME_LOCATIONS = 2;
+
   // *******************************************************************************************************************
   // *** Fields.
   // *******************************************************************************************************************
@@ -44,6 +49,20 @@ class Settings
   // IDs of the locations at which a request will be sent - that is, locations at which self service booking is not
   // available.
   protected $booking_type_locations = array();
+
+  // How a product type is displayed when there are no free products. Use the FULL_MODE_ constants.
+  //   FULL_MODE_ALTERNATIVES                 Tell the customer that the product type is not available. If the product
+  //                                          type will be available later, display the date. If the product type is
+  //                                          available at another location, display a list of locations.
+  //   FULL_MODE_REQUEST                      The user interface will not show that the product type is unavailable.
+  //                                          When selected, a request will be sent instead.
+  //   FULL_MODE_REQUEST_AT_SOME_LOCATIONS    Requests will be sent for locations given in $full_mode_locations.
+  //                                          Otherwise, alternatives will be displayed.
+  protected $full_mode = self::FULL_MODE_ALTERNATIVES;
+
+  // When full mode is FULL_MODE_REQUEST_AT_SOME_LOCATIONS, this field holds an array of integers, which are the IDs of
+  // the locations at which a request will be sent.
+  protected $full_mode_locations = array();
 
   // The types of payment available to customers who are private individuals. Array of numbers, each of which represents
   // an eligible payment method. If more than one payment method is available, the user will be given a choice. For the
@@ -223,12 +242,11 @@ class Settings
     }
 
     $terms_url_table = $this->get_terms_url_table();
-    $url = $terms_url_table[$language];
-    if (!isset($url))
+    if (!isset($terms_url_table[$language]))
     {
       return '';
     }
-    return $url;
+    return $terms_url_table[$language];
   }
 
   // *******************************************************************************************************************
@@ -241,6 +259,8 @@ class Settings
     $this->set_application_role(self::get_value_from_array('application_role', $source));
     $this->set_booking_type(self::get_value_from_array('booking_type', $source));
     $this->set_booking_type_locations(array_map('intval', explode(',', self::get_value_from_array('booking_type_locations', $source))));
+    $this->set_full_mode(self::get_value_from_array('full_mode', $source));
+    $this->set_full_mode_locations(array_map('intval', explode(',', self::get_value_from_array('full_mode_locations', $source))));
     $this->set_payment_methods_private(array_map('intval', explode(',', self::get_value_from_array('payment_methods_private', $source))));
     $this->set_payment_methods_company(array_map('intval', explode(',', self::get_value_from_array('payment_methods_company', $source))));
     $this->set_require_check_after_cancel(self::get_value_from_array('require_check_after_cancel', $source));
@@ -313,6 +333,33 @@ class Settings
       }
     }
     $this->set_booking_type_locations($booking_type_locations);
+
+    if (Utility::integer_posted('full_mode'))
+    {
+      $this->set_full_mode(Utility::read_posted_integer('full_mode'));
+    }
+
+    // If the full mode is FULL_MODE_REQUEST_AT_SOME_LOCATIONS, read the list of locations. Otherwise, store an empty
+    // array. The client will post a location_count field that holds the number of locations that could possibly be
+    // selected. Each location will have a checkbox. If the checkbox is checked, the location ID should be posted as
+    // the value. Otherwise, nothing will be posted for that location.
+    $full_mode_locations = array();
+    if ($this->get_full_mode() === self::FULL_MODE_REQUEST_AT_SOME_LOCATIONS)
+    {
+      $location_count = Utility::read_posted_integer('location_count');
+      if ($location_count > 0)
+      {
+        for ($i = 0; $i < $location_count; $i++)
+        {
+          $location_id = Utility::read_posted_integer('full_mode_location_' . strval($i));
+          if ($location_id >= 0)
+          {
+            $full_mode_locations[] = $location_id;
+          }
+        }
+      }
+    }
+    $this->set_full_mode_locations($full_mode_locations);
 
     // Read individual boolean values for all supported payment types for both private individuals and companies, and
     // compose an array of selected types. If selected, add the payment method to the array.
@@ -493,6 +540,8 @@ class Settings
     $js .= self::get_string_key_value_pair('applicationRole', $this->get_application_role());
     $js .= self::get_integer_key_value_pair('bookingType', $this->get_booking_type());
     $js .= self::get_array_key_value_pair('bookingTypeLocations', $this->get_booking_type_locations());
+    $js .= self::get_integer_key_value_pair('fullMode', $this->get_full_mode());
+    $js .= self::get_array_key_value_pair('fullModeLocations', $this->get_full_mode_locations());
     $js .= self::get_array_key_value_pair('paymentMethodsPrivate', $this->get_payment_methods_private());
     $js .= self::get_array_key_value_pair('paymentMethodsCompany', $this->get_payment_methods_company());
     $js .= self::get_boolean_key_value_pair('requireCheckAfterCancel', $this->get_require_check_after_cancel());
@@ -541,6 +590,8 @@ class Settings
       'application_role' => $this->get_application_role(),
       'booking_type' => strval($this->get_booking_type()),
       'booking_type_locations' => implode(',', $this->get_booking_type_locations()),
+      'full_mode' => strval($this->get_full_mode()),
+      'full_mode_locations' => implode(',', $this->get_full_mode_locations()),
       'payment_methods_private' => implode(',', $this->get_payment_methods_private()),
       'payment_methods_company' => implode(',', $this->get_payment_methods_company()),
       'require_check_after_cancel' => ($this->get_require_check_after_cancel() ? 'true' : 'false'),
@@ -580,7 +631,7 @@ class Settings
   // Return the number of settings in this class.
   public function get_item_count()
   {
-    return 34;
+    return 36;
   }
 
   // *******************************************************************************************************************
@@ -786,6 +837,70 @@ class Settings
       }
       // The value is an ID. Add it as the sole member of an array.
       $this->booking_type_locations = array($value);
+    }
+  }
+
+  // *******************************************************************************************************************
+  // Return the $full_mode property.
+  public function get_full_mode()
+  {
+    return $this->full_mode;
+  }
+
+  // *******************************************************************************************************************
+  // Set the $full_mode property.
+  public function set_full_mode($value)
+  {
+    if (is_numeric($value))
+    {
+      $value = intval($value);
+      if (($value >= self::FULL_MODE_ALTERNATIVES) && ($value <= self::FULL_MODE_REQUEST_AT_SOME_LOCATIONS))
+      {
+        $this->full_mode = $value;
+      }
+    }
+  }
+
+  // *******************************************************************************************************************
+  // Return the $full_mode_locations property.
+  public function get_full_mode_locations()
+  {
+    return $this->full_mode_locations;
+  }
+
+  // *******************************************************************************************************************
+  // Set the $full_mode_locations property.
+  public function set_full_mode_locations($value)
+  {
+    if (is_array($value))
+    {
+      // The value is an array. Verify each element of the array.
+      foreach ($value as $id)
+      {
+        if (!is_numeric($id))
+        {
+          return;
+        }
+      }
+      array_map('intval', $value);
+      foreach ($value as $id)
+      {
+        if ($id < 0)
+        {
+          return;
+        }
+      }
+      $this->full_mode_locations = $value;
+    }
+    elseif(is_numeric($value))
+    {
+      $value = intval($value);
+      if ($value < 0)
+      {
+        return;
+      }
+      // The value is an ID. Add it as the sole member of an array.
+      $this->full_mode_locations = array($value);
     }
   }
 

@@ -64,6 +64,14 @@ var TRIGGER_DESCRIPTIONS = <?= $text->get(3, "['N&aring;r en bruker registrerer 
 var MESSAGE_TYPE_TEXTS = <?= $text->get(4, "['SMS', 'E-post']") ?>;
 var TRIGGER_HEADLINES = <?= $text->get(2, "['Nytt abonnement opprettet', 'Ny ordre opprettet', 'Betaling feilet', 'Ikke i bruk', 'Abonnement har blitt inaktivt', 'Abonnement har f&aring;tt sluttdato']") ?>;
 var TRIGGER_DESCRIPTIONS = <?= $text->get(3, "['Beskrivelse mangler', 'Beskrivelse mangler', 'Beskrivelse mangler', 'Beskrivelse mangler', 'Beskrivelse mangler', 'Beskrivelse mangler']") ?>;
+// When editing data field texts, also modify the DATA_FIELDS constant in the Javascript file.
+var DATA_FIELD_CATEGORIES = <?= $text->get(5, "['Kundeinformasjon', 'Informasjon om abonnement', 'Ordreinformasjon']") ?>;
+var DATA_FIELD_NAMES =
+  [
+    <?= $text->get(6, "['Fornavn', 'Etternavn', 'Telefonnummer']") ?>,
+    <?= $text->get(7, "['ID', 'Startdato', 'Sluttdato', 'Bodnavn', 'Bodtype', 'Produktkategori', 'Lagerets navn', 'Lagerets adresse', 'Adgangskode']") ?>,
+    <?= $text->get(8, "['ID', 'Betalingsm&aring;te, ID', 'Betalingsm&aring;te, tekst', 'Forfallsdato']") ?>
+  ];
 
 // The current message type filter, or null if all message types are displayed. The filter is an
 // array of integers, containing the message types that should be displayed. Use the MESSAGE_TYPE_
@@ -108,6 +116,9 @@ var templates = <?= $templates ?>;
       &nbsp;
     </div>
     <div id="editTemplateDialogue" class="dialogue edit-template-dialogue" style="display: none;">
+      &nbsp;
+    </div>
+    <div id="selectFieldDialogue" class="dialogue select-field-dialogue" style="display: none;">
       &nbsp;
     </div>
     <div id="editMessageTypeFilterDialogue" class="dialogue edit-message-type-filter-dialogue" style="display: none;">

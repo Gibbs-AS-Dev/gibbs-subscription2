@@ -66,11 +66,21 @@
       "Select for each warehouse",
       "Select warehouses where requests are submitted. The rest will have self service.",
       "All",
-      "None"
+      "None",
+      "Unit type unavailable:",
+      "Display status and alternatives",
+      "Hide status and submit a request",
+      "Select warehouses where requests are submitted. The rest will display status and alternatives."
     ],
   "php_texts":
     [
       "Settings",
-      "Save"
+      "Save",
+      "When a storage unit type is not available",
+      "Display status and alternatives",
+      "The customer will see that the storage unit type is not available. Alternatives will be offered if available.",
+      "Hide status and submit a request",
+      "The customer will not see that the storage unit type is unavailable. When they click &quot;Select&quot;, a request will be submitted.",
+      "Close"
     ]
 }

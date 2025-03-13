@@ -59,7 +59,8 @@
       "Confirm",
       "Loses access immediately.",
       "Loses one day's rent.",
-      "Search"
+      "Search",
+      "Display customer"
     ],
   "php_texts":
     [

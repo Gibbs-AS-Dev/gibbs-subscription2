@@ -36,7 +36,11 @@
       "All",
       "None",
       "Search",
-      "Copy to:"
+      "Copy to:",
+      "Insert data field",
+      "Select data field",
+      "Insert",
+      "Close"
     ],
   "php_texts":
     [
@@ -44,6 +48,10 @@
       "Create template",
       "['New subscription is created', 'New order is created', 'Payment failed', 'Not in use', 'Subscription became inactive', 'Subscription end date set']",
       "['Description missing', 'Description missing', 'Description missing', 'Description missing', 'Description missing', 'Description missing']",
-      "['Text', 'E-mail']"
+      "['Text', 'E-mail']",
+      "['Customer information', 'Subscription information', 'Order information']",
+      "['First name', 'Surname', 'Phone number']",
+      "['ID', 'Start date', 'End date', 'Storage unit name', 'Storage unit type', 'Product category', 'Warehouse name', 'Warehouse address', 'Access code']",
+      "['ID', 'Payment method ID', 'Payment method name', 'Pay-by date']"
     ]
 }

@@ -25,6 +25,8 @@
 //   checking?
 // - Bug: In book_subscription, if there is no available insurance, you go directly to the summary tab. But if you click
 //   "Tilbake", you'll go to an empty tab. You should go further back.
+// - Bug: When settings were saved, a lot of settings just disappeared. Nets keys, URLs and e-mail information. Was
+//   everything reset to defaults? If so, why?
 
 // *********************************************************************************************************************
 // *** To do before release.
@@ -60,6 +62,8 @@
 //   Separate tab in Settings? Separate menu option?
 
 // Other:
+// - In SidebarMenu._getLinkItem, do processing in a separate function. Support shift-click as well as ctrl-click.
+// - Ensure all links support opening in a separate tab or separate window.
 // - Prevent an administrator from creating a subscription. They should create a test user for this instead. What do we
 //   do if a user with existing subscriptions is promoted to administrator? Prevent that too?
 // - Delete a product. Is the sorting preserved?
@@ -102,6 +106,17 @@
 // *********************************************************************************************************************
 // *** Done.
 // *********************************************************************************************************************
+// - In admin_subscriptions, add link to admin_edit_user.
+// - In admin_locations, add dialogue box with the URL to book_subscription with the location pre-selected.
+// - Use the full mode when determining how to display product types.
+// - Display unavailable product types as if they were available, and redirect to submit_request.
+// - Display info icon and dialogue box with screenshots to see how the full mode works.
+// - Add to settings a full mode, and a list of locations.
+// - Edit the full mode in admin_settings.
+// - Add location_id parameter to select_booking_type. Verify that the submitted ID is valid.
+// - Add initial_location_id parameter to book_subscription. Verify that the submitted ID is valid.
+// - In admin_book_subscription, verify that submitted location IDs are valid.
+// - Add user interface to insert data fields in e-mail and SMS templates.
 // - Set default sort order in admin_email_sms_log.
 // - In admin_email_sms_log, always display the button to view message contents in a dialogue. Line breaks might cause
 //   the message to be different from what is displayed in the  table.

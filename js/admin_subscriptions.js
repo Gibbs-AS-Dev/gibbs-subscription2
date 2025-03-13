@@ -215,7 +215,7 @@ function getPopupMenuContents(sender, index)
   index = parseInt(index, 10);
   if (!Utility.isValidIndex(index, subscriptions))
     return '';
-  o = new Array(2);
+  o = new Array(3);
   p = 0;
 
   // Payment history button.
@@ -225,6 +225,10 @@ function getPopupMenuContents(sender, index)
   o[p++] = sender.getMenuItem(getText(50, 'Si opp abonnement'), 'fa-hand-wave',
     subscriptions[index][c.sua.STATUS] === st.sub.ONGOING,
     'displayCancelSubscriptionDialogue(' + String(index) + ');');
+  // Display customer button.
+  o[p++] = sender.getMenuItem(getText(59, 'Vis kundekort'), 'fa-up-right-from-square', true,
+    'Utility.displaySpinnerThenGoTo(\'/subscription/html/admin_edit_user.php?user_id=' +
+    String(subscriptions[index][c.sua.BUYER_ID]) + '\');');
   return o.join('');
 }
 

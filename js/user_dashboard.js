@@ -124,6 +124,20 @@ function displaySubscriptions()
     o[p++] = ');"><i class="fa-solid fa-file-invoice"></i>&nbsp;&nbsp;';
     o[p++] = getText(11, 'Se betalinger');
     o[p++] = '</button></td></tr>';
+    
+    // Payment method update button - only show for ongoing subscriptions with Nets payment method
+    if (isOngoing && subscriptions[i][c.sub.PAYMENT_METHOD] === Utility.PAYMENT_METHOD_NETS && 
+        subscriptions[i][c.sub.NETS_SUBSCRIPTION_ID])
+    {
+      o[p++] = '<tr><td class="subscription-caption">';
+      o[p++] = getText(16, 'Betalingskort');
+      o[p++] = '</td><td class="subscription-data"><button type="button" class="low-profile wide-button" onclick="updatePaymentCard(';
+      o[p++] = String(i);
+      o[p++] = ');"><i class="fa-solid fa-credit-card"></i>&nbsp;&nbsp;';
+      o[p++] = UPDATE_PAYMENT_CARD_TEXT;
+      o[p++] = '</button></td></tr>';
+    }
+    
     // Access code.
     if ((subscriptions[i][c.sub.STATUS] === st.sub.ONGOING) || (subscriptions[i][c.sub.STATUS] === st.sub.CANCELLED))
     {
@@ -944,4 +958,23 @@ get nextItem()
 
 // *************************************************************************************************
 
+}
+
+// *************************************************************************************************
+// *** Update payment card functions
+// *************************************************************************************************
+// Redirect to the update payment card page for the subscription with the given index
+function updatePaymentCard(index)
+{
+  index = parseInt(index, 10);
+  if (Utility.isValidIndex(index, subscriptions))
+  {
+    const subscriptionId = subscriptions[index][c.sub.ID];
+    const netsSubscriptionId = subscriptions[index][c.sub.NETS_SUBSCRIPTION_ID];
+    
+    if (netsSubscriptionId) {
+      Utility.displaySpinnerThenGoTo('/subscription/html/update_payment_card.php?subscription_id=' + 
+        encodeURIComponent(subscriptionId) + '&nets_subscription_id=' + encodeURIComponent(netsSubscriptionId));
+    }
+  }
 }

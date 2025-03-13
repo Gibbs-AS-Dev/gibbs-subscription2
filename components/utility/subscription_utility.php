@@ -135,8 +135,8 @@ class Subscription_Utility
             'subscription_id' => $subscription_id,
             'buyer_id' => intval($subscription_row['buyer_id']),
             'owner_id' => intval($subscription_row['owner_id']),
-            'active' => isset($subscription_row['active']) && is_numeric($subscription_row['active']) &&
-              (intval($subscription_row['active']) === 1),
+            'active' => isset($subscription_row['active']) && is_numeric($subscription_row['active']) ?
+              intval($subscription_row['active']) : 0,
             'start_date' => $subscription_row['start_date'],
             'end_date' => $subscription_row['end_date'],
             'product_id' => intval($subscription_row['product_id']),
@@ -268,7 +268,7 @@ class Subscription_Utility
     );
     if (isset($source['active']))
     {
-      $is_active = !!$source['active'];
+      $is_active = intval($source['active']);
     }
     else
     {
@@ -292,7 +292,7 @@ class Subscription_Utility
   protected static function get_subscription_status($subscription, $reference_date, $is_active)
   {
     // If the subscription is not active, that's the subscription's status, regardless of any other fields.
-    if (isset($is_active) && ($is_active === false))
+    if (isset($is_active) && ($is_active === false || $is_active === 0 || $is_active === 2))
     {
       return Utility::SUB_INACTIVE;
     }

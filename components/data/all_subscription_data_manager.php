@@ -21,6 +21,7 @@ class All_Subscription_Data_Manager extends Single_Table_Data_Manager
   {
     parent::__construct($new_access_token);
     $this->add_action('cancel_subscription', Utility::ROLE_COMPANY_ADMIN, 'cancel_subscription_any_time');
+    $this->add_action('delete_subscription', Utility::ROLE_COMPANY_ADMIN, 'delete_subscription');
     $this->database_table = 'subscriptions';
   }
 
@@ -226,6 +227,9 @@ class All_Subscription_Data_Manager extends Single_Table_Data_Manager
         $table .= "], null, ";
         // Buyer ID.
         $table .= $subscription['buyer_id'];
+        // Active status.
+        $table .= ", ";
+        $table .= $subscription['active'];
         $table .= "],";
       }
       $table = Utility::remove_final_comma($table);
@@ -293,6 +297,43 @@ class All_Subscription_Data_Manager extends Single_Table_Data_Manager
     // Store the end date.
     return Subscription_Utility::set_subscription_end_date(Utility::read_posted_integer($this->id_posted_name),
       $end_date, $this->access_token);
+  }
+
+  // *******************************************************************************************************************
+  // Delete the subscription by setting active=2 in the database. This will hide it from the UI but not actually
+  // delete it from the database. Return an integer result code that can be used to inform the user of the result
+  // of the operation:
+  //   OK                             The operation was successful.
+  //   MISSING_INPUT_FIELD            The user did not pass all the required fields.
+  //   DATABASE_QUERY_FAILED          The call to update the database failed, for reasons unknown.
+  //
+  // This method is available to administrators only.
+  public function delete_subscription()
+  {
+    global $wpdb;
+    
+    // Ensure the ID was posted.
+    if (!Utility::integer_posted($this->id_posted_name))
+    {
+      return Result::MISSING_INPUT_FIELD;
+    }
+    
+    // Get the subscription ID
+    $subscription_id = Utility::read_posted_integer($this->id_posted_name);
+    
+    // Update the active field to 2 (deleted)
+    $result = $wpdb->update(
+      $this->database_table,
+      array('active' => 2),
+      array('id' => $subscription_id)
+    );
+    
+    if ($result === false)
+    {
+      return Result::DATABASE_QUERY_FAILED;
+    }
+    
+    return Result::OK;
   }
 
   // *******************************************************************************************************************

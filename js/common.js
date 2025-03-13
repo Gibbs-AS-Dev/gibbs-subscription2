@@ -162,6 +162,7 @@ c.sua =
     PRICE_PLANS: 8,
     PAYMENT_HISTORY: 9,
     BUYER_ID: 10,
+    ACTIVE: 11, // The active status. 0 = inactive, 1 = active, 2 = deleted
     // Price plan column indexes:
     PLAN_TYPE: 0, // The type of additional product for which the price plan applies, or -1 if the
                   // price plan applies to the rent.
@@ -1779,7 +1780,6 @@ static getEditBox(id, name, label, value, handler, labelClass, editClass, isMand
 // 
 // isMandatory is a boolean flag that says whether the edit box must be filled in. If true, it will
 // display a visible mark next to the label. It is optional, and may be omitted. The default value
-// is true.
 static getNumericEditBox(id, name, label, value, min, max, handler, labelClass, editClass,
   isMandatory)
 {

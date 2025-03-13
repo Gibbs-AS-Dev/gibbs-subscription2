@@ -215,7 +215,7 @@ function getPopupMenuContents(sender, index)
   index = parseInt(index, 10);
   if (!Utility.isValidIndex(index, subscriptions))
     return '';
-  o = new Array(3);
+  o = new Array(4);
   p = 0;
 
   // Payment history button.
@@ -225,6 +225,9 @@ function getPopupMenuContents(sender, index)
   o[p++] = sender.getMenuItem(getText(50, 'Si opp abonnement'), 'fa-hand-wave',
     subscriptions[index][c.sua.STATUS] === st.sub.ONGOING,
     'displayCancelSubscriptionDialogue(' + String(index) + ');');
+  // Delete subscription button (hide from UI).
+  o[p++] = sender.getMenuItem('Slett abbonnement', 'fa-trash', true,
+    'deleteSubscription(' + String(index) + ');');
   // Display customer button.
   o[p++] = sender.getMenuItem(getText(59, 'Vis kundekort'), 'fa-up-right-from-square', true,
     'Utility.displaySpinnerThenGoTo(\'/subscription/html/admin_edit_user.php?user_id=' +
@@ -507,6 +510,43 @@ function closeCancelSubscriptionDialogue()
 {
   Utility.hide(cancelSubscriptionDialogue);
   Utility.hide(overlay);
+}
+
+// *************************************************************************************************
+// Delete subscription (hide from UI) by setting active=2 in the database.
+function deleteSubscription(index)
+{
+  index = parseInt(index, 10);
+  if (!Utility.isValidIndex(index, subscriptions))
+    return;
+  
+  if (confirm(getText(60, 'Er du sikker?')))
+  {
+    // Create a form to submit
+    var form = document.createElement('form');
+    form.method = 'post';
+    form.action = '/subscription/html/admin_subscriptions.php';
+    
+    // Add the page state elements
+    form.innerHTML = getPageStateFormElements();
+    
+    // Add action and ID
+    var actionInput = document.createElement('input');
+    actionInput.type = 'hidden';
+    actionInput.name = 'action';
+    actionInput.value = 'delete_subscription';
+    form.appendChild(actionInput);
+    
+    var idInput = document.createElement('input');
+    idInput.type = 'hidden';
+    idInput.name = 'id';
+    idInput.value = subscriptions[index][c.sua.ID];
+    form.appendChild(idInput);
+    
+    // Submit the form
+    document.body.appendChild(form);
+    Utility.displaySpinnerThenSubmit(form);
+  }
 }
 
 // *************************************************************************************************
@@ -990,6 +1030,11 @@ function displayFilterToolbar()
 // Return true if the list of subscriptions should not include the given subscription.
 function shouldHide(subscription)
 {
+  // Hide deleted subscriptions (active=2)
+  if (subscription[c.sua.ACTIVE] === 2) {
+    return true;
+  }
+  
   return ((locationFilter !== null) && !locationFilter.includes(subscription[c.sua.LOCATION_ID])) ||
     ((productTypeFilter !== null) && !productTypeFilter.includes(subscription[c.sua.PRODUCT_TYPE_ID])) ||
     ((statusFilter !== null) && !statusFilter.includes(subscription[c.sua.STATUS])) ||

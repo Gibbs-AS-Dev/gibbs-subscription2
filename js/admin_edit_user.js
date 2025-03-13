@@ -14,7 +14,7 @@ var userInfoBox, subscriptionsFrame, subscriptionsBox, expiredSubscriptionsCheck
 var individualDataBox, companyDataBox, firstNameEdit, lastNameEdit, companyNameEdit, companyIdEdit,
   userNameEdit, phoneEdit, passwordEdit, submitButton, cancelSubscriptionForm, standardCancelBox,
   immediateCancelBox, customCancelBox, customCancelResultBox, endDateEdit, openCalendarButton,
-  closeCalendarButton, calendarBox, userNotesTextArea;
+  closeCalendarButton, calendarBox, userNotesTextArea, inlineUserNotesTextArea;
 
 // The sorting object that controls the sorting of the subscriptions table. Only present if editing
 // an existing user.
@@ -47,7 +47,67 @@ function initialise()
   // Obtain pointers to user interface elements.
   Utility.readPointers(['userInfoBox', 'subscriptionsFrame', 'subscriptionsBox',
    'expiredSubscriptionsCheckbox', 'overlay', 'userNotesDialogue', 'pricePlanDialogue',
-   'paymentHistoryDialogue', 'cancelSubscriptionDialogue']);
+   'paymentHistoryDialogue', 'cancelSubscriptionDialogue', 'inlineUserNotesTextArea', 'notesForm', 'notesTarget']);
+
+  // Set up form handlers
+  if (notesForm) {
+    console.log("Setting up form submission handler");
+    notesForm.onsubmit = function() {
+      // Show loading spinner instead of alert
+      var saveButton = document.getElementById('saveNotesButton');
+      var spinner = document.getElementById('saveNotesSpinner');
+      
+      if (saveButton && spinner) {
+        saveButton.disabled = true;
+        spinner.style.display = 'inline-block';
+      }
+      
+      // Encode line breaks before submission
+      return encodeNotesBeforeSubmit();
+    };
+  } else {
+    console.log("Notes form not found");
+  }
+
+  // Set up iframe load handler
+  if (notesTarget) {
+    console.log("Setting up iframe load handler");
+    notesTarget.onload = function() {
+      // Hide spinner and re-enable button when form is submitted
+      var saveButton = document.getElementById('saveNotesButton');
+      var spinner = document.getElementById('saveNotesSpinner');
+      
+      if (saveButton && spinner) {
+        saveButton.disabled = false;
+        spinner.style.display = 'none';
+      }
+      
+      try {
+        var iframeContent = notesTarget.contentDocument || notesTarget.contentWindow.document;
+        var responseText = iframeContent.body.innerText;
+        if (responseText) {
+          console.log("Notes saved successfully! Response: " + responseText);
+          
+          // Try to parse the JSON response
+          try {
+            var response = JSON.parse(responseText);
+            if (response && response.userNotes) {
+              // Decode line breaks and update the textarea
+              userNotes = Utility.decodeLineBreaks(response.userNotes);
+              inlineUserNotesTextArea.value = userNotes;
+              console.log("Notes updated with line breaks preserved");
+            }
+          } catch (jsonError) {
+            console.error("Error parsing JSON response: " + jsonError.message);
+          }
+        }
+      } catch (e) {
+        console.error("Error processing iframe response: ", e);
+      }
+    };
+  } else {
+    console.log("Notes target iframe not found");
+  }
 
   // Create the popup menu.
   menu = new PopupMenu(getPopupMenuContents);
@@ -104,6 +164,32 @@ function initialise()
       alert(getText(0, 'Det oppstod en feil. Vennligst kontakt kundeservice og oppgi feilkode $1. Tidspunkt: $2.',
         [String(resultCode), TIMESTAMP]));
     }
+
+  // Show user notes directly when page loads
+  if (!isNewUser) {
+    // Make a direct request to get the notes
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', '/subscription/json/user_notes.php?user_id=' + user.id, true);
+    xhr.onload = function() {
+      console.log("XHR Status: " + xhr.status);
+      console.log("XHR Response: " + xhr.responseText);
+      if (xhr.status === 200) {
+        try {
+          var response = JSON.parse(xhr.responseText);
+          if (response && response.userNotes) {
+            userNotes = response.userNotes;
+            console.log("Loaded user notes: " + userNotes);
+            if (inlineUserNotesTextArea) {
+              inlineUserNotesTextArea.value = userNotes;
+            }
+          }
+        } catch (e) {
+          console.error("Error parsing response: " + e.message);
+        }
+      }
+    };
+    xhr.send();
+  }
 }
 
 // *************************************************************************************************
@@ -207,11 +293,12 @@ function displayUserInfo()
 */
   if (!isNewUser)
   {
-    o[p++] = '<div class="button-container fixed-width-container"><button type="button" class="wide-button" onclick="changePassword();"><i class="fa-solid fa-key"></i> ';
+    o[p++] = '<div class="button-container fixed-width-container">';
+    // Commented out the edit password button
+    /* o[p++] = '<button type="button" class="wide-button" onclick="changePassword();"><i class="fa-solid fa-key"></i> ';
     o[p++] = getText(10, 'Endre passord');
-    o[p++] = '</button> <button type="button" class="wide-button" onclick="loadUserNotes();"><i class="fa-solid fa-user-pen"></i> ';
-    o[p++] = getText(65, 'Se notater');
-    o[p++] = '</button></div>';
+    o[p++] = '</button>'; */
+    o[p++] = '</div>';
   }
   o[p++] = '</form>';
 
@@ -318,20 +405,30 @@ function changePassword()
 
 function loadUserNotes()
 {
-  // If the user notes have already been loaded, 
-  if (userNotes !== null)
-    displayUserNotes();
-  else
-  {
-    // Fetch the user notes from the server, then store and display them.
-    userNotesDialogue.innerHTML = '<p>' +
-      getText(66, 'Laster notater. Vennligst vent...') + '</p>';
-    Utility.display(overlay);
-    Utility.display(userNotesDialogue);
+  // If the user notes have already been loaded, populate the field
+  if (userNotes !== null) {
+    console.log("Using cached user notes");
+    inlineUserNotesTextArea.value = userNotes;
+  } else {
+    // Fetch the user notes from the server, then store and display them
+    console.log("Fetching user notes for user ID: " + user.id);
+    Utility.displaySpinner();
     errorDisplayed = false;
     fetch('/subscription/json/user_notes.php?user_id=' + String(user.id))
-      .then(Utility.extractJson)
-      .then(storeUserNotes)
+      .then(function(response) {
+        console.log("Notes fetch response status: " + response.status);
+        // Check if response is OK
+        if (!response.ok) {
+          throw new Error('Network response was not ok: ' + response.status);
+        }
+        // Use Utility.extractJson if available, otherwise use response.json()
+        if (typeof Utility !== 'undefined' && typeof Utility.extractJson === 'function') {
+          return Utility.extractJson(response);
+        } else {
+          return response.json();
+        }
+      })
+      .then(storeUserNotesInline)
       .catch(logUserNotesError);
   }
 }
@@ -340,53 +437,52 @@ function loadUserNotes()
 // Log an error that occurred while fetching user notes from the server.
 function logUserNotesError(error)
 {
-  console.error('Error fetching or updating user notes: ' + error);
-  closeUserNotesDialogue();
+  console.error('Error fetching user notes: ', error);
+  alert(getText(0, 'Det oppstod en feil. Vennligst kontakt kundeservice.'));
+  Utility.hideSpinner();
 }
 
 // *************************************************************************************************
-// Store and display the user notes for the user being edited. These are the administrator's private
-// notes concerning that user.
-function storeUserNotes(data)
+// Store and display the user notes in the inline text area 
+function storeUserNotesInline(data)
 {
+  console.log("Notes fetch response data:", data);
+  
   // See if the request has already failed.
   if (errorDisplayed)
     return;
 
-  if (data && data.resultCode)
+  if (data && data.resultCode !== undefined)
   {
     if (Utility.isError(data.resultCode))
     {
-      console.error('Error fetching or updating user notes: result code: ' +
+      console.error('Error fetching user notes: result code: ' +
         String(data.resultCode));
       errorDisplayed = true;
       alert(getText(0, 'Det oppstod en feil. Vennligst kontakt kundeservice og oppgi feilkode $1. Tidspunkt: $2.',
         [String(data.resultCode), Utility.getTimestamp()]));
-      closeUserNotesDialogue();
+      Utility.hideSpinner();
     }
     else
     {
       if (typeof data.userNotes !== 'undefined')
       {
+        console.log("Successfully fetched user notes");
         userNotes = Utility.decodeLineBreaks(data.userNotes);
-        // If the result was OK, that means the user notes were stored. Close the dialogue.
-        // Otherwise, display it.
-        if (data.resultCode === result.OK)
-          closeUserNotesDialogue();
-        else
-          displayUserNotes();
+        inlineUserNotesTextArea.value = userNotes;
+        Utility.hideSpinner();
       }
       else
       {
-        console.error('Error fetching or updating user notes: user notes field missing.');
-        closeUserNotesDialogue();
+        console.error('Error fetching user notes: userNotes field missing from response.');
+        Utility.hideSpinner();
       }
     }
   }
   else
   {
-    console.error('Error fetching or updating user notes: data object or result code missing.');
-    closeUserNotesDialogue();
+    console.error('Error fetching user notes: data object or resultCode missing.');
+    Utility.hideSpinner();
   }
 }
 
@@ -431,20 +527,74 @@ function saveUserNotes()
 {
   var options, requestData;
 
+  // Show spinner while saving
+  Utility.displaySpinner();
+  
+  // Prepare the form data
   requestData = new FormData();
   requestData.append('action', 'set_user_notes');
   requestData.append('user_id', String(user.id));
   requestData.append('user_notes', Utility.encodeLineBreaks(userNotesTextArea.value));
-  options =
-    {
-      method: 'POST',
-      body: requestData
-    };
+  
+  options = {
+    method: 'POST',
+    body: requestData
+  };
+  
   errorDisplayed = false;
+  
+  // Send the request
   fetch('/subscription/json/user_notes.php', options)
-    .then(Utility.extractJson)
-    .then(storeUserNotes)
-    .catch(logUserNotesError);
+    .then(function(response) {
+      console.log("Response status: " + response.status);
+      // Check if response is OK
+      if (!response.ok) {
+        throw new Error('Network response was not ok: ' + response.status);
+      }
+      // Use Utility.extractJson if available, otherwise use response.json()
+      if (typeof Utility !== 'undefined' && typeof Utility.extractJson === 'function') {
+        return Utility.extractJson(response);
+      } else {
+        return response.json();
+      }
+    })
+    .then(function(data) {
+      console.log("Response data:", data);
+      
+      if (data && data.resultCode !== undefined) {
+        if (Utility.isError(data.resultCode)) {
+          // Handle error
+          console.error('Error saving user notes: result code: ' + String(data.resultCode));
+          errorDisplayed = true;
+          alert(getText(0, 'Det oppstod en feil. Vennligst kontakt kundeservice og oppgi feilkode $1. Tidspunkt: $2.',
+            [String(data.resultCode), Utility.getTimestamp()]));
+        } else {
+          // Success
+          if (typeof data.userNotes !== 'undefined') {
+            userNotes = Utility.decodeLineBreaks(data.userNotes);
+            userNotesTextArea.value = userNotes;
+            // Don't show alert, just close the dialog
+            closeUserNotesDialogue();
+          } else {
+            console.error('Response missing userNotes field:', data);
+            alert(getText(0, 'Det oppstod en feil. Vennligst kontakt kundeservice.'));
+          }
+        }
+      } else {
+        // Handle missing data
+        console.error('Invalid response data:', data);
+        alert(getText(0, 'Det oppstod en feil. Vennligst kontakt kundeservice og oppgi feilkode $1. Tidspunkt: $2.',
+          ['?', Utility.getTimestamp()]));
+      }
+      Utility.hideSpinner();
+    })
+    .catch(function(error) {
+      // Handle network or other errors
+      console.error('Error saving user notes: ' + error);
+      alert(getText(0, 'Det oppstod en feil. Vennligst kontakt kundeservice og oppgi feilkode $1. Tidspunkt: $2.',
+        ['?', Utility.getTimestamp()]));
+      Utility.hideSpinner();
+    });
 }
 
 // *************************************************************************************************
@@ -1226,6 +1376,102 @@ function closePaymentHistoryDialogue()
 {
   Utility.hide(paymentHistoryDialogue);
   Utility.hide(overlay);
+}
+
+// *************************************************************************************************
+// Encode line breaks in the notes textarea before form submission
+function encodeNotesBeforeSubmit() {
+  try {
+    var notesTextarea = document.getElementById('inlineUserNotesTextArea');
+    var encodedField = document.getElementById('encodedUserNotes');
+    
+    if (notesTextarea && encodedField) {
+      // Store the original value in the user_notes field for display
+      var originalValue = notesTextarea.value;
+      
+      // Encode line breaks and store in the hidden field
+      encodedField.value = Utility.encodeLineBreaks(originalValue);
+      
+      // Update the form to use the encoded value
+      notesTextarea.name = 'original_user_notes'; // Rename original field
+      
+      console.log("Notes encoded for submission");
+      return true;
+    } else {
+      console.error("Could not find required form elements");
+      return false;
+    }
+  } catch (e) {
+    console.error("Error encoding notes: " + e.message);
+    return false;
+  }
+}
+
+// *************************************************************************************************
+// Add a simple backup save function with minimal code for testing
+function saveInlineUserNotes()
+{
+  try {
+    // Show loading spinner
+    var saveButton = document.getElementById('saveNotesButton');
+    var spinner = document.getElementById('saveNotesSpinner');
+    
+    if (saveButton && spinner) {
+      saveButton.disabled = true;
+      spinner.style.display = 'inline-block';
+    }
+    
+    var formData = new FormData();
+    formData.append('action', 'set_user_notes');
+    formData.append('user_id', String(user.id));
+    formData.append('user_notes', Utility.encodeLineBreaks(inlineUserNotesTextArea.value));
+    
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '/subscription/json/user_notes.php', true);
+    
+    xhr.onload = function() {
+      // Hide spinner and re-enable button
+      if (saveButton && spinner) {
+        saveButton.disabled = false;
+        spinner.style.display = 'none';
+      }
+      
+      if (xhr.status === 200) {
+        console.log("Notes saved successfully!");
+        try {
+          var response = JSON.parse(xhr.responseText);
+          if (response && response.userNotes) {
+            userNotes = Utility.decodeLineBreaks(response.userNotes);
+            inlineUserNotesTextArea.value = userNotes;
+            console.log("Notes updated: " + userNotes);
+          }
+        } catch (e) {
+          console.error("Response parsing error: " + e.message);
+        }
+      } else {
+        console.error("Server returned status: " + xhr.status);
+      }
+    };
+    
+    xhr.onerror = function() {
+      // Hide spinner and re-enable button on error
+      if (saveButton && spinner) {
+        saveButton.disabled = false;
+        spinner.style.display = 'none';
+      }
+      console.error("Request failed");
+    };
+    
+    xhr.send(formData);
+    console.log("Request sent");
+  } catch (e) {
+    // Hide spinner and re-enable button on error
+    if (saveButton && spinner) {
+      saveButton.disabled = false;
+      spinner.style.display = 'none';
+    }
+    console.error("Error in save function: " + e.message);
+  }
 }
 
 // *************************************************************************************************

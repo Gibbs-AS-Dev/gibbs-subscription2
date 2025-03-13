@@ -235,11 +235,23 @@ class Role_Data_Manager extends Single_User_Data_Manager
     global $wpdb;
 
     // Read parameters.
-    if (!Utility::string_posted('user_notes'))
+    if (Utility::string_posted('encoded_user_notes'))
+    {
+      // Use the encoded notes if available
+      $user_notes = Utility::read_posted_string('encoded_user_notes');
+      // Decode the special character back to line breaks
+      $user_notes = str_replace('¤', "\n", $user_notes);
+    }
+    else if (Utility::string_posted('user_notes'))
+    {
+      // Fallback to regular notes field
+      $user_notes = Utility::read_posted_string('user_notes');
+    }
+    else
     {
       return Result::MISSING_INPUT_FIELD;
     }
-    $user_notes = Utility::read_posted_string('user_notes');
+    
     if (Utility::integer_posted('user_id'))
     {
       $this->set_user_id(Utility::read_posted_integer('user_id'));

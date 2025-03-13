@@ -12,7 +12,7 @@ var productTypesBox, editProductTypeDialogue;
 // Pointers to dynamically generated user interface elements. These will be populated once the HTML
 // code to display them has been generated.
 var editProductTypeForm, productTypeSubmitButton, productTypeCategoryCombo, productTypeNameEdit,
-  productTypePriceEdit;
+  productTypePriceEdit, productTypeNotesEdit;
 
 // The sorting object that controls the sorting of the product types table.
 var sorting;
@@ -91,7 +91,7 @@ function doDisplayProductTypes()
     return;
   }
 
-  o = new Array((productTypes.length * 9) + 7);
+  o = new Array((productTypes.length * 10) + 7);
   p = 0;
   
   // Header.
@@ -99,6 +99,7 @@ function doDisplayProductTypes()
   o[p++] = sorting.getTableHeader(0, getText(14, 'Kategori'));
   o[p++] = sorting.getTableHeader(1, getText(3, 'Navn'));
   o[p++] = sorting.getTableHeader(2, getText(15, 'Pris'));
+  o[p++] = '<th>Notater</th>';
   o[p++] = sorting.getTableHeader(3, '&nbsp;');
   o[p++] = '</tr></thead><tbody>';
   for (i = 0; i < productTypes.length; i++)
@@ -112,8 +113,11 @@ function doDisplayProductTypes()
     // Base price.
     o[p++] = '</td><td>';
     o[p++] = String(productTypes[i][c.typ.PRICE]);
-    // Buttons.
     o[p++] = ',-</td><td>';
+    // Notes
+    o[p++] = productTypes[i][c.typ.NOTES] || '';
+    // Buttons.
+    o[p++] = '</td><td>';
     o[p++] = menu.getMenuButton(i);
     o[p++] = '</td></tr>';
   }
@@ -185,7 +189,7 @@ function displayEditProductTypeDialogue(index)
     return;
   }
 
-  o = new Array((categories.length * 7) + 29);
+  o = new Array((categories.length * 7) + 40);
   p = 0;
   
   o[p++] = '<div class="dialogue-header"><h1>';
@@ -237,7 +241,12 @@ function displayEditProductTypeDialogue(index)
     o[p++] = String(productTypes[index][c.typ.PRICE]);
     o[p++] = '"';
   }
-  o[p++] = ' /></div></form></div><div class="dialogue-footer"><button type="button" id="productTypeSubmitButton" onclick="Utility.displaySpinnerThenSubmit(editProductTypeForm);"><i class="fa-solid fa-check"></i> ';
+  o[p++] = ' /></div><div class="form-element"><label for="productTypeNotesEdit" class="standard-label">Notater:</label> <textarea id="productTypeNotesEdit" name="notes" class="long-text" rows="4">';
+  if (!isNew && productTypes[index][c.typ.NOTES])
+  {
+    o[p++] = productTypes[index][c.typ.NOTES];
+  }
+  o[p++] = '</textarea></div></form></div><div class="dialogue-footer"><button type="button" id="productTypeSubmitButton" onclick="Utility.displaySpinnerThenSubmit(editProductTypeForm);"><i class="fa-solid fa-check"></i> ';
   if (isNew)
     o[p++] = getText(11, 'Opprett');
   else
@@ -250,7 +259,7 @@ function displayEditProductTypeDialogue(index)
 
   // Obtain pointers to user interface elements.
   Utility.readPointers(['editProductTypeForm', 'productTypeSubmitButton',
-    'productTypeCategoryCombo', 'productTypeNameEdit', 'productTypePriceEdit']);
+    'productTypeCategoryCombo', 'productTypeNameEdit', 'productTypePriceEdit', 'productTypeNotesEdit']);
 
   Utility.display(overlay);
   Utility.display(editProductTypeDialogue);

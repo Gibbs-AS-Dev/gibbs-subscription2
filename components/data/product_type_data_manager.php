@@ -26,6 +26,7 @@ class Product_Type_Data_Manager extends Single_Table_Data_Manager
   //   name
   //   price
   //   category_id
+  //   notes
   // If an error occurred, the method will return null.
   public function get_product_type($id)
   {
@@ -36,7 +37,8 @@ class Product_Type_Data_Manager extends Single_Table_Data_Manager
           id,
           name,
           price,
-          category_id
+          category_id,
+          notes
         FROM
           {$this->database_table}
         WHERE
@@ -61,13 +63,14 @@ class Product_Type_Data_Manager extends Single_Table_Data_Manager
   //   name
   //   price
   //   category_id
+  //   notes
   // If an error occurred, the method will return an empty array.
   public function get_product_types()
   {
     global $wpdb;
 
     $results = $wpdb->get_results("
-      SELECT id, name, price, category_id
+      SELECT id, name, price, category_id, notes
       FROM {$this->database_table}
       WHERE owner_id = {$this->get_user_group_user_id()}
       ORDER BY name;
@@ -102,6 +105,9 @@ class Product_Type_Data_Manager extends Single_Table_Data_Manager
         $table .= $product_type->price;
         $table .= ", ";
         $table .= $product_type->category_id;
+        $table .= ", '";
+        $table .= addslashes($product_type->notes ?? '');
+        $table .= "'";
         $table .= "],";
       }
       $table = Utility::remove_final_comma($table);
@@ -263,26 +269,22 @@ class Product_Type_Data_Manager extends Single_Table_Data_Manager
   // the fields was not passed from the client, the method will return null.
   protected function get_data_item()
   {
+    $name = isset($_POST['name']) ? sanitize_text_field($_POST['name']) : '';
+    $price = isset($_POST['price']) ? sanitize_text_field($_POST['price']) : '';
+    $category_id = isset($_POST['category_id']) ? sanitize_text_field($_POST['category_id']) : '';
+    $notes = isset($_POST['notes']) ? sanitize_textarea_field($_POST['notes']) : '';
+
     if (!Utility::string_posted('name') || !Utility::integers_posted(array('price', 'category_id')))
     {
       return null;
     }
-
-    $category = array(
-      'owner_id' => $this->get_user_group_user_id(),
-      'name' => Utility::read_posted_string('name'),
-      'price' => Utility::read_posted_integer('price'),
-      'category_id' => Utility::read_posted_integer('category_id'),
-      'updated_at' => current_time('mysql')
+    return array(
+      'name' => $name,
+      'price' => $price,
+      'category_id' => $category_id,
+      'notes' => $notes,
+      'owner_id' => $this->get_user_group_user_id()
     );
-    if (!Utility::non_empty_strings($category, array('name')))
-    {
-      return null;
-    }
-    // We do not need to ensure that the category_id refers to an existing category, as the database will not permit
-    // the operation if it does not.
-
-    return $category;
   }
 
   // *******************************************************************************************************************

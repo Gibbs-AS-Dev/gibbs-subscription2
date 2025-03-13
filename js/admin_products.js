@@ -176,7 +176,7 @@ function doDisplayProducts()
     o[p++] = products[i][c.prd.NAME];
     // Product type.
     o[p++] = '</td><td>';
-    o[p++] = Utility.getProductTypeName(products[i][c.prd.PRODUCT_TYPE_ID]);
+    o[p++] = Utility.getProductTypeNameWithNotes(products[i][c.prd.PRODUCT_TYPE_ID]);
     // Enabled status.
     o[p++] = '</td><td>';
     o[p++] = Utility.getStatusLabel(st.enabled.TEXTS, st.enabled.COLOURS,
@@ -326,6 +326,10 @@ function displayEditProductDialogue(index)
       o[p++] = ' selected="selected"';
     o[p++] = '>';
     o[p++] = productTypes[i][c.typ.NAME];
+    if (productTypes[i][c.typ.NOTES]) {
+      o[p++] = ' - ';
+      o[p++] = productTypes[i][c.typ.NOTES];
+    }
     o[p++] = '</option>';
   }
   o[p++] = '</select></div><div class="form-element"><label class="standard-label">&nbsp;</label><input type="checkbox" id="enabledCheckbox" name="enabled" value="1" ';
@@ -823,6 +827,10 @@ function displayProductTypeFilterDialogue()
     o[p++] = String(i);
     o[p++] = 'Checkbox">';
     o[p++] = productTypes[i][c.typ.NAME];
+    if (productTypes[i][c.typ.NOTES]) {
+      o[p++] = ' - ';
+      o[p++] = productTypes[i][c.typ.NOTES];
+    }
     o[p++] = '</label></div>';
   }
   o[p++] = '</form></div><div class="dialogue-footer"><div class="dialogue-footer-button-group"><button type="button" onclick="setAllProductTypesTo(true);"><i class="fa-solid fa-check-double"></i>&nbsp;&nbsp;';

@@ -70,6 +70,7 @@
 st.sub.TEXTS = <?= $text->get(1, "['Feil ved bestilling', 'Avsluttet', 'L&oslash;pende', 'Sagt opp', 'Bestilt']") ?>;
 var PAYMENT_STATUS_TEXTS = <?= $text->get(4, "['Ukjent', 'Ikke betalt', 'Betalt', 'Delvis betalt', 'Ikke betalt - forfalt', 'Ikke betalt - betalingsp&aring;minnelse sendt', 'Ikke betalt - purring sendt', 'Ikke betalt - sendt til inkasso', 'Betalt - betalt til inkassoselskap', 'Tapt / kan ikke kreves inn', 'Kreditert', 'Feil hos betalingsselskap', 'Teknisk feil ved betaling', 'Betalt - refundert', 'Omstridt krav', 'Faktura ikke sendt', 'Faktura sendt', 'Betaling startet', 'Slettet']") ?>;
 var PAYMENT_METHOD_TEXTS = <?= $text->get(5, "['Ukjent', 'Kredittkort', 'Faktura', 'Kort, s&aring; faktura']") ?>;
+var UPDATE_PAYMENT_CARD_TEXT = <?= $text->get(36, "'Oppdater betalingskort'") ?>;
 
 var displayExpiredSubscriptions = false;
 

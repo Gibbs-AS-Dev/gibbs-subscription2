@@ -56,6 +56,39 @@
         // change_password method can sanitise and validate it.
         $result_code = User::change_password($user_id, $_POST['new_password']);
       }
+      else if ($requested_action === 'update_user')
+      {
+        // Save basic billing information
+        update_user_meta($user_id, 'billing_first_name', sanitize_text_field($_POST['billing_first_name']));
+        update_user_meta($user_id, 'billing_last_name', sanitize_text_field($_POST['billing_last_name']));
+        update_user_meta($user_id, 'billing_phone', sanitize_text_field($_POST['billing_phone']));
+        update_user_meta($user_id, 'billing_email', sanitize_text_field($_POST['billing_email']));
+        update_user_meta($user_id, 'billing_address_1', sanitize_text_field($_POST['billing_address_1']));
+        update_user_meta($user_id, 'billing_postcode', sanitize_text_field($_POST['billing_postcode']));
+        update_user_meta($user_id, 'billing_city', sanitize_text_field($_POST['billing_city']));
+        update_user_meta($user_id, 'country_code', sanitize_text_field($_POST['country_code']));
+        
+        // Check if this is a company and handle company data
+        $user_data = User_Data_Manager::get_user_data($user_id);
+        if ($user_data && $user_data['entity_type'] === Utility::ENTITY_TYPE_COMPANY) {
+          // Save company name and ID
+          if (isset($_POST['company_name'])) {
+            wp_update_user([
+              'ID' => $user_id,
+              'display_name' => sanitize_text_field($_POST['company_name'])
+            ]);
+            // Also save as billing_company
+            update_user_meta($user_id, 'billing_company', sanitize_text_field($_POST['company_name']));
+          }
+          
+          if (isset($_POST['company_id_number'])) {
+            update_user_meta($user_id, 'company_number', sanitize_text_field($_POST['company_id_number']));
+            error_log("Updated company ID number to: " . $_POST['company_id_number']);
+          }
+        }
+        
+        $result_code = Result::OK;
+      }
       else
       {
         // Cancel subscriptions.

@@ -1816,12 +1816,15 @@ function doCreateUser()
   {
     requestData.append('company_name', newCompanyNameEdit.value);
     requestData.append('company_id_number', newCompanyIdEdit.value);
+    // Also add as billing_company for consistency
+    requestData.append('billing_company', newCompanyNameEdit.value);
   }
   requestData.append('user_name', newUserNameEdit.value);
   requestData.append('phone', newPhoneEdit.value);
   requestData.append('address', newAddressEdit.value);
   requestData.append('postcode', newPostcodeEdit.value);
   requestData.append('area', newAreaEdit.value);
+  requestData.append('country_code', '+47'); // Add default country code
   // requestData.append('password', newPasswordEdit.value);
   options =
     {

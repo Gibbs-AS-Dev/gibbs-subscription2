@@ -46,7 +46,7 @@ class User_Data_Manager
         {$wpdb->prefix}usermeta um ON u.ID = um.user_id
       WHERE
         u.ID IN ({$id_string}) AND
-        ((um.meta_key IS NULL) OR (um.meta_key IN ('first_name', 'last_name', 'phone', 'billing_address_1', 'billing_postcode', 'billing_city', 'profile_type', 'company_number')))
+        ((um.meta_key IS NULL) OR (um.meta_key IN ('first_name', 'last_name', 'phone', 'billing_first_name', 'billing_last_name', 'billing_phone', 'billing_email', 'billing_address_1', 'billing_postcode', 'billing_city', 'profile_type', 'company_number', 'country_code', 'billing_company')))
       ORDER BY
         display_name;
     ";
@@ -156,21 +156,40 @@ class User_Data_Manager
       LEFT JOIN {$wpdb->prefix}usermeta um ON u.ID = um.user_id
       WHERE
         u.ID = {$user_id} AND
-        ((um.meta_key IS NULL) OR (um.meta_key IN ('first_name', 'last_name', 'phone', 'billing_address_1', 'billing_postcode', 'billing_city', 'profile_type', 'company_number')))
+        ((um.meta_key IS NULL) OR (um.meta_key IN ('first_name', 'last_name', 'phone', 'billing_first_name', 'billing_last_name', 'billing_phone', 'billing_email', 'billing_address_1', 'billing_postcode', 'billing_city', 'profile_type', 'company_number', 'country_code', 'billing_company')))
       ORDER BY
         display_name;
     ";
+    
+    // Debug the SQL query (without sensitive data)
+    error_log("Executing user data query for user_id: {$user_id}");
+    
     $results = $wpdb->get_results($query, ARRAY_A);
     if (!Utility::non_empty_array($results))
     {
       return null;
     }
+    
+    // Debug the query results count
+    error_log("Found " . count($results) . " rows for user_id: {$user_id}");
+    
     $user = self::get_simple_user_array($results[0]);
     foreach ($results as $result_row)
     {
+      // Debug each metadata row for company data
+      if ($result_row['meta_key'] === 'company_number' || $result_row['meta_key'] === 'profile_type') {
+        error_log("Found important metadata: {$result_row['meta_key']} = {$result_row['meta_value']}");
+      }
+      
       self::add_metadata_to_user($result_row, $user);
     }
     self::replace_display_name_with_full_name($user, false);
+    
+    // Debug final user data for company
+    if (isset($user['entity_type']) && $user['entity_type'] === Utility::ENTITY_TYPE_COMPANY) {
+      error_log("Final company data: company_id_number = " . (isset($user['company_id_number']) ? $user['company_id_number'] : 'NOT SET'));
+    }
+    
     return $user;
   }
 
@@ -198,6 +217,12 @@ class User_Data_Manager
       return self::get_empty_user();
     }
 
+    // Debug for company data
+    if ($user['entity_type'] === Utility::ENTITY_TYPE_COMPANY) {
+      error_log("Company user data: " . print_r($user, true));
+      error_log("Company ID number: " . (isset($user['company_id_number']) ? $user['company_id_number'] : 'not set'));
+    }
+
     $object = '{"id": ';
     $object .= $user['user_id'];
     $object .= ', "name": "';
@@ -205,9 +230,22 @@ class User_Data_Manager
     $object .= '", ';
     if ($user['entity_type'] === Utility::ENTITY_TYPE_COMPANY)
     {
+      // Ensure company_id_number is never empty in JSON
+      $company_id = !empty($user['company_id_number']) ? $user['company_id_number'] : '';
+      
       $object .= '"companyIdNumber": "';
-      $object .= $user['company_id_number'];
+      $object .= $company_id;
       $object .= '", ';
+      
+      // Add billing_company if available
+      if (isset($user['billing_company'])) {
+        $object .= '"billingCompany": "';
+        $object .= $user['billing_company'];
+        $object .= '", ';
+      }
+      
+      // Debug the company ID being included in JSON
+      error_log("Adding company ID to JSON: " . $company_id);
     }
     else
     {
@@ -216,18 +254,103 @@ class User_Data_Manager
       $object .= '", "lastName": "';
       $object .= $user['last_name'];
       $object .= '", ';
+      
+      // Add original first name and last name if available
+      if (isset($user['orig_first_name'])) {
+        $object .= '"orig_first_name": "';
+        $object .= $user['orig_first_name'];
+        $object .= '", ';
+      }
+      
+      if (isset($user['orig_last_name'])) {
+        $object .= '"orig_last_name": "';
+        $object .= $user['orig_last_name'];
+        $object .= '", ';
+      }
+      
+      // Add billing first name and last name if available
+      if (isset($user['billing_first_name'])) {
+        $object .= '"billing_first_name": "';
+        $object .= $user['billing_first_name'];
+        $object .= '", ';
+      }
+      
+      if (isset($user['billing_last_name'])) {
+        $object .= '"billing_last_name": "';
+        $object .= $user['billing_last_name'];
+        $object .= '", ';
+      }
     }
     $object .= '"eMail": "';
     $object .= $user['email'];
-    $object .= '", "phone": "';
+    $object .= '", ';
+    
+    // Add billing email if available
+    if (isset($user['billing_email'])) {
+      $object .= '"billingEmail": "';
+      $object .= $user['billing_email'];
+      $object .= '", ';
+    }
+    
+    // Add country code if available
+    if (isset($user['country_code'])) {
+      $object .= '"countryCode": "';
+      $object .= $user['country_code'];
+      $object .= '", ';
+    }
+    
+    $object .= '"phone": "';
     $object .= $user['phone'];
-    $object .= '", "address": "';
+    $object .= '", ';
+    
+    // Add original phone if available
+    if (isset($user['orig_phone'])) {
+      $object .= '"orig_phone": "';
+      $object .= $user['orig_phone'];
+      $object .= '", ';
+    }
+    
+    // Add billing phone if available
+    if (isset($user['billing_phone'])) {
+      $object .= '"billing_phone": "';
+      $object .= $user['billing_phone'];
+      $object .= '", ';
+    }
+    
+    $object .= '"address": "';
     $object .= $user['address'];
-    $object .= '", "postcode": "';
+    $object .= '", ';
+    
+    // Add billing address if available
+    if (isset($user['billing_address'])) {
+      $object .= '"billing_address": "';
+      $object .= $user['billing_address'];
+      $object .= '", ';
+    }
+    
+    $object .= '"postcode": "';
     $object .= $user['postcode'];
-    $object .= '", "area": "';
+    $object .= '", ';
+    
+    // Add billing postcode if available
+    if (isset($user['billing_postcode'])) {
+      $object .= '"billing_postcode": "';
+      $object .= $user['billing_postcode'];
+      $object .= '", ';
+    }
+    
+    $object .= '"area": "';
     $object .= $user['area'];
-    $object .= '", "entityType": ';
+    $object .= '", ';
+    
+    // Add billing city if available
+    if (isset($user['billing_city'])) {
+      $object .= '"billing_city": "';
+      $object .= $user['billing_city'];
+      $object .= '", ';
+    }
+    
+    $object .= '"entityType": ';
     $object .= strval($user['entity_type']);
     $object .= '}';
     return $object;
@@ -471,50 +594,114 @@ class User_Data_Manager
       'postcode' => '',
       'area' => '',
       'company_id_number' => '',
-      'entity_type' => Utility::ENTITY_TYPE_INDIVIDUAL
+      'entity_type' => Utility::ENTITY_TYPE_INDIVIDUAL,
+      'country_code' => '+47'
     );
   }
 
   // *******************************************************************************************************************
   // Check the given source array for the presence of a meta_key field. If a key with the value "first_name",
-  // "last_name", "phone", 'billing_address_1', 'billing_postcode' or 'billing_city' exists, add the corresponding
-  // meta_value to the appropriate field in the given user array. Note that, without passing the reference to $user, the
-  // original object would not be affected.
+  // "last_name", "phone", etc. exists, add the corresponding meta_value to the appropriate field in the given user array.
+  // Billing fields are stored separately to allow displaying both original and billing information.
   public static function add_metadata_to_user($source, &$user)
   {
+    // Always log metadata for debugging
+    error_log("Processing metadata: {$source['meta_key']} = " . (isset($source['meta_value']) ? $source['meta_value'] : 'NULL'));
+    
     if ($source['meta_key'] === 'first_name')
     {
       $user['first_name'] = $source['meta_value'];
+      $user['orig_first_name'] = $source['meta_value'];
     }
     elseif ($source['meta_key'] === 'last_name')
     {
       $user['last_name'] = $source['meta_value'];
+      $user['orig_last_name'] = $source['meta_value'];
     }
     elseif ($source['meta_key'] === 'phone')
     {
       $user['phone'] = $source['meta_value'];
+      $user['orig_phone'] = $source['meta_value'];
+    }
+    elseif ($source['meta_key'] === 'billing_company')
+    {
+      $user['billing_company'] = $source['meta_value'];
+      // Debug for billing company
+      error_log("Found billing_company metadata: " . $source['meta_value']);
+    }
+    elseif ($source['meta_key'] === 'billing_first_name')
+    {
+      // Store billing field separately
+      $user['billing_first_name'] = $source['meta_value'];
+      // Only use for main field if regular first_name was not found
+      if (empty($user['first_name'])) {
+        $user['first_name'] = $source['meta_value'];
+      }
+    }
+    elseif ($source['meta_key'] === 'billing_last_name')
+    {
+      // Store billing field separately
+      $user['billing_last_name'] = $source['meta_value'];
+      // Only use for main field if regular last_name was not found
+      if (empty($user['last_name'])) {
+        $user['last_name'] = $source['meta_value'];
+      }
+    }
+    elseif ($source['meta_key'] === 'billing_phone')
+    {
+      // Store billing field separately
+      $user['billing_phone'] = $source['meta_value'];
+      // Only use for main field if regular phone was not found
+      if (empty($user['phone'])) {
+        $user['phone'] = $source['meta_value'];
+      }
+    }
+    elseif ($source['meta_key'] === 'billing_email')
+    {
+      // Don't override the primary email address, but store it for reference
+      $user['billing_email'] = $source['meta_value'];
+    }
+    elseif ($source['meta_key'] === 'country_code')
+    {
+      $user['country_code'] = $source['meta_value'];
     }
     elseif ($source['meta_key'] === 'billing_address_1')
     {
-      $user['address'] = $source['meta_value'];
+      $user['billing_address'] = $source['meta_value'];
+      // Only use for main field if not already set
+      if (empty($user['address'])) {
+        $user['address'] = $source['meta_value'];
+      }
     }
     elseif ($source['meta_key'] === 'billing_postcode')
     {
-      $user['postcode'] = $source['meta_value'];
+      $user['billing_postcode'] = $source['meta_value'];
+      // Only use for main field if not already set
+      if (empty($user['postcode'])) {
+        $user['postcode'] = $source['meta_value'];
+      }
     }
     elseif ($source['meta_key'] === 'billing_city')
     {
-      $user['area'] = $source['meta_value'];
+      $user['billing_city'] = $source['meta_value'];
+      // Only use for main field if not already set
+      if (empty($user['area'])) {
+        $user['area'] = $source['meta_value'];
+      }
     }
     elseif ($source['meta_key'] === 'company_number')
     {
       $user['company_id_number'] = $source['meta_value'];
+      // Debug for company ID
+      error_log("Found company_number metadata: " . $source['meta_value']);
     }
     elseif ($source['meta_key'] === 'profile_type')
     {
       if ($source['meta_value'] === 'company')
       {
         $user['entity_type'] = Utility::ENTITY_TYPE_COMPANY;
+        // Debug for company type
+        error_log("Profile type set to company");
       }
       else
       {

@@ -7,3 +7,4 @@ alwaysApply: true
 - All css code, should be added in css file, accordingly
 - JS code. check where is the most suitable place to add new code, according to existing code, before adding it
 - Make sure when changes are done to labes, to update the translation file, and be sure that correct string is translated
+- Find the file and do translations accordinly from the folder /subscription/translations

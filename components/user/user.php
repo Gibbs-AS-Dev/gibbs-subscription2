@@ -278,12 +278,12 @@ class User
       if ($entity_type === Utility::ENTITY_TYPE_INDIVIDUAL)
       {
         $data = Utility::read_posted_strings(array('user_name', 'password', 'first_name', 'last_name',
-          'phone', 'address', 'postcode', 'area'));
+          'phone', 'address', 'postcode', 'area', 'country_code'));
       }
       else
       {
         $data = Utility::read_posted_strings(array('user_name', 'password', 'company_name', 'company_id_number',
-          'phone', 'address', 'postcode', 'area'));
+          'phone', 'address', 'postcode', 'area', 'country_code'));
       }
 
       // If a password was not posted, use the default value.
@@ -291,6 +291,11 @@ class User
       if (!$password_posted)
       {
         $data['password'] = $default_password;
+      }
+      
+      // If country_code was not posted, use the default value
+      if (empty($data['country_code'])) {
+        $data['country_code'] = '+47';
       }
 
       // Verify that all fields were posted, and display an error message if they were not.
@@ -365,16 +370,26 @@ class User
       }
 
       // Store entity type and, for a company, the company ID number.
-      update_user_meta($new_user_id, 'profile_type', array('personal', 'company')[$entity_type]);
+      update_user_meta($new_user_id, 'profile_type', $entity_type === Utility::ENTITY_TYPE_COMPANY ? 'company' : 'personal');
       if ($entity_type === Utility::ENTITY_TYPE_COMPANY)
       {
         update_user_meta($new_user_id, 'company_number', $data['company_id_number']);
+        // Add billing company field
+        update_user_meta($new_user_id, 'billing_company', $data['company_name']);
       }
 
-      // Store address.
+      // Store address and customer details with billing_ prefix
       update_user_meta($new_user_id, 'billing_address_1', $data['address']);
       update_user_meta($new_user_id, 'billing_postcode', $data['postcode']);
       update_user_meta($new_user_id, 'billing_city', $data['area']);
+      
+      // Add billing meta fields
+      update_user_meta($new_user_id, 'billing_first_name', $data['first_name']);
+      update_user_meta($new_user_id, 'billing_last_name', $data['last_name']);
+      update_user_meta($new_user_id, 'billing_phone', $data['phone']);
+      update_user_meta($new_user_id, 'billing_email', $data['user_name']);
+      update_user_meta($new_user_id, 'country_code', $data['country_code']);
+      
       return Result::OK;
     }
     return Result::NO_ACTION_TAKEN;

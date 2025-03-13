@@ -1,0 +1,28 @@
+---
+description: Rules for Adding New Code in the Existing Project
+globs: 
+alwaysApply: true
+---
+
+1. Maintain Code Consistency
+Before adding new code, check which files are connected to the current file and update them accordingly.
+Ensure consistency across CSS, PHP, and JS files.
+
+2. Handle Labels & Translations Properly
+When modifying labels, update the translation file accordingly.
+Ensure that the correct string is translated.
+Locate and update translations in the folder:
+/subscription/translations.
+
+3. Follow Existing Component Structure
+Adhere to the established structure of components in the project.
+Avoid unnecessary modifications to the project’s architecture.
+
+4. Dependency Management
+Do not add external libraries unless absolutely necessary.
+Always check for existing code that can be reused.
+If an external library is required, request confirmation before adding it.
+
+5. Code Functionality Verification
+Confirm that the added code works as expected before finalizing changes.
+Run necessary tests to ensure stability.

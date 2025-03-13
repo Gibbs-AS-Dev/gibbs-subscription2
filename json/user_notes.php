@@ -62,5 +62,5 @@
 {
   "resultCode": <?= $result_code ?>,
   "userId": <?= $user_id ?>,
-  "userNotes": "<?= $user_notes ?>"
+  "userNotes": <?= json_encode($user_notes) ?>
 }

@@ -124,9 +124,32 @@ var subscriptions = <?= $subscriptions ?>;
   <body onload="initialise();">
     <?= Sidebar::get_admin_sidebar() ?>
     <?= Header::get_header_with_user_info($access_token, $text->get(0, 'Kundekort'), 'fa-user') ?>
-    <div class="content">
-      <div id="userInfoBox">
+    <div class="content" style="display: flex; gap: 20px;">
+      <div id="userInfoBox" style="flex: 1;">
         &nbsp;
+      </div>
+      <div id="userNotesBox" style="flex: 1; display: <?= $is_new_user ? 'none' : 'block' ?>;">
+        <div class="toolbar">
+          <h3><?= $text->get(67, 'Notater') ?></h3>
+        </div>
+        <div class="form-element help-text">
+          <?= $text->get(68, 'Deres private notater om denne kunden. Kunden vil ikke få tilgang til disse.') ?>
+        </div>
+        <div id="userNotesContent">
+          <form action="/subscription/json/user_notes.php" method="post" id="notesForm" target="notesTarget" onsubmit="return encodeNotesBeforeSubmit();">
+            <input type="hidden" name="action" value="set_user_notes">
+            <input type="hidden" name="user_id" value="<?= $user_id ?>">
+            <textarea id="inlineUserNotesTextArea" name="user_notes" style="width: 100%; min-height: 200px;"></textarea>
+            <input type="hidden" id="encodedUserNotes" name="encoded_user_notes" value="">
+            <div class="button-container" style="margin-top: 10px;">
+              <button type="submit" id="saveNotesButton">
+                <i class="fa-solid fa-check"></i> <?= $text->get(23, 'Lagre') ?>
+                <span id="saveNotesSpinner" class="button-spinner" style="display: none;"><i class="fa-solid fa-spinner fa-spin"></i></span>
+              </button>
+            </div>
+          </form>
+          <iframe id="notesTarget" name="notesTarget" style="display:none;"></iframe>
+        </div>
       </div>
     </div>
     <div id="subscriptionsFrame" class="content">

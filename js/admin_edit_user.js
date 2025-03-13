@@ -49,6 +49,18 @@ function initialise()
    'expiredSubscriptionsCheckbox', 'overlay', 'userNotesDialogue', 'pricePlanDialogue',
    'paymentHistoryDialogue', 'cancelSubscriptionDialogue', 'inlineUserNotesTextArea', 'notesForm', 'notesTarget']);
 
+  // Add logging for debugging company loading issue
+  if (user && user.entityType === ENTITY_TYPE_COMPANY) {
+    console.log("Loading company user:", user);
+    console.log("Company ID number:", user.companyIdNumber);
+  }
+  
+  // Failsafe to hide spinner after 10 seconds in case of loading issues
+  setTimeout(function() {
+    console.log("Applying failsafe to hide spinner");
+    Utility.hideSpinner();
+  }, 10000);
+
   // Set up form handlers
   if (notesForm) {
     console.log("Setting up form submission handler");
@@ -217,96 +229,159 @@ function displayUserInfo()
 {
   var o, p;
 
-  o = new Array(37);
+  o = new Array(70); // Increased array size for more HTML
   p = 0;
 
-  o[p++] = '<div class="toolbar"><h3>';
-  if (isNewUser)
-    o[p++] = getText(2, 'Opprett kunde');
+  // Create a flex container for the two columns
+  o[p++] = '<div style="display: flex; gap: 20px; width: 100%;">';
+  
+  // ********** LEFT SIDE - User Information (Read-Only) **********
+  o[p++] = '<div style="flex: 1; border: 1px solid #ddd; border-radius: 5px; padding: 15px; background-color: #f9f9f9;">';
+  o[p++] = '<div class="toolbar"><h3>' + getText(200, 'Bruker opplysninger') + '</h3></div>';
+  
+  // Entity type display
+  o[p++] = '<div class="form-element">';
+  if (user.entityType === ENTITY_TYPE_COMPANY)
+    o[p++] = getText(47, 'Bedrift');
   else
-    o[p++] = getText(3, 'Personopplysninger');
-  o[p++] = '</h3></div><form action="/subscription/html/admin_edit_user.php" method="post">';
+    o[p++] = getText(46, 'Privatperson');
+  o[p++] = '</div>';
+
+  // Display first and last name for individuals
+  if (user.entityType === ENTITY_TYPE_INDIVIDUAL)
+  {
+    o[p++] = '<div class="form-element">';
+    o[p++] = '<label class="standard-label">' + getText(4, 'Fornavn:') + '</label>';
+    o[p++] = '<div class="read-only-field">' + (user.orig_first_name || user.firstName || '') + '</div>';
+    o[p++] = '</div>';
+    
+    o[p++] = '<div class="form-element">';
+    o[p++] = '<label class="standard-label">' + getText(5, 'Etternavn:') + '</label>';
+    o[p++] = '<div class="read-only-field">' + (user.orig_last_name || user.lastName || '') + '</div>';
+    o[p++] = '</div>';
+  }
+
+  // Display company name and ID for companies
+  if (user.entityType === ENTITY_TYPE_COMPANY)
+  {
+    o[p++] = '<div class="form-element">';
+    o[p++] = '<label class="standard-label">' + getText(48, 'Navn:') + '</label>';
+    o[p++] = '<div class="read-only-field">' + (user.name || '') + '</div>';
+    o[p++] = '</div>';
+    
+    o[p++] = '<div class="form-element">';
+    o[p++] = '<label class="standard-label">' + getText(49, 'Org. nr:') + '</label>';
+    o[p++] = '<div class="read-only-field">' + (user.companyIdNumber || '') + '</div>';
+    o[p++] = '</div>';
+    
+    // Log company data for debugging
+    console.log("Setting up company edit fields:");
+    console.log("Company name:", user.name);
+    console.log("Company ID:", user.companyIdNumber);
+  }
+
+  // Email (original)
+  o[p++] = '<div class="form-element">';
+  o[p++] = '<label class="standard-label">' + getText(6, 'E-post:') + '</label>';
+  o[p++] = '<div class="read-only-field">' + (user.eMail || '') + '</div>';
+  o[p++] = '</div>';
+
+  // Phone (original)
+  o[p++] = '<div class="form-element">';
+  o[p++] = '<label class="standard-label">' + getText(7, 'Telefonnr:') + '</label>';
+  o[p++] = '<div class="read-only-field">' + (user.orig_phone || user.phone || '') + '</div>';
+  o[p++] = '</div>';
+  
+  // End left side column
+  o[p++] = '</div>';
+
+  // ********** RIGHT SIDE - Billing Information (Editable) **********
+  o[p++] = '<div style="flex: 1; border: 1px solid #ddd; border-radius: 5px; padding: 15px; background-color: #fff;">';
+  o[p++] = '<div class="toolbar"><h3>' + getText(201, 'Faktura opplysninger') + '</h3></div>';
+  
+  // Form starts here
+  o[p++] = '<form action="/subscription/html/admin_edit_user.php" method="post">';
   if (!isNewUser)
     o[p++] = getPageStateFormElements();
 
-  o[p++] = '<div class="form-element">';
-  if (isNewUser)
-  {
-    o[p++] = '<label><input type="radio" id="newIndividualButton" name="entity_type" value="0" checked="checked" onchange="selectEntityType();" />';
-    o[p++] = getText(46, 'Privatperson');
-    o[p++] = '<span class="mandatory">*</span></label><label><input type="radio" id="newCompanyButton" name="entity_type" value="1" onchange="selectEntityType();" />';
-    o[p++] = getText(47, 'Bedrift');
-    o[p++] = '<span class="mandatory">*</span></label>';
-  }
-  else
-  {
-    if (user.entityType === ENTITY_TYPE_COMPANY)
-      o[p++] = getText(47, 'Bedrift');
-    else
-      o[p++] = getText(46, 'Privatperson');
-  }
-  o[p++] = '</div>';
+  // Add action parameter for existing users
+  if (!isNewUser)
+    o[p++] = '<input type="hidden" name="action" value="update_user" />';
 
-  // First and last name for individuals.
-  if (isNewUser || (user.entityType === ENTITY_TYPE_INDIVIDUAL))
+  // First and last name for individuals (billing)
+  if (user.entityType === ENTITY_TYPE_INDIVIDUAL)
   {
     o[p++] = '<div id="individualDataBox">';
-    o[p++] = Utility.getEditBox('firstNameEdit', 'first_name', getText(4, 'Fornavn:'),
-      user.firstName);
-    o[p++] = Utility.getEditBox('lastNameEdit', 'last_name', getText(5, 'Etternavn:'),
-      user.lastName);
+    o[p++] = Utility.getEditBox('firstNameEdit', 'billing_first_name', getText(4, 'Fornavn:'),
+      user.billing_first_name || user.firstName || '');
+    o[p++] = Utility.getEditBox('lastNameEdit', 'billing_last_name', getText(5, 'Etternavn:'),
+      user.billing_last_name || user.lastName || '');
     o[p++] = '</div>';
   }
 
-  // Name and ID number for companies.
-  if (isNewUser || (user.entityType === ENTITY_TYPE_COMPANY))
+  // Name and ID number for companies (billing)
+  if (user.entityType === ENTITY_TYPE_COMPANY)
   {
     o[p++] = '<div id="companyDataBox">';
-    o[p++] = Utility.getEditBox('companyNameEdit', 'company_name', getText(48, 'Navn:'), user.name);
-    o[p++] = Utility.getEditBox('companyIdEdit', 'company_id_number', getText(49, 'Org. nr:'),
-      user.companyIdNumber);
+    // Make sure to stringify these values and handle undefined/null cases
+    var companyName = user.name || '';
+    var companyIdNumber = user.companyIdNumber || '';
+    
+    o[p++] = Utility.getEditBox('companyNameEdit', 'company_name', getText(48, 'Navn:'), companyName);
+    o[p++] = Utility.getEditBox('companyIdEdit', 'company_id_number', getText(49, 'Org. nr:'), companyIdNumber);
+    
+    // Log company data for debugging
+    console.log("Setting up company edit fields:");
+    console.log("Company name:", companyName);
+    console.log("Company ID:", companyIdNumber);
+    
     o[p++] = '</div>';
   }
 
-  o[p++] = Utility.getEditBox('userNameEdit', 'user_name', getText(6, 'E-post:'), user.eMail);
-  o[p++] = Utility.getEditBox('phoneEdit', 'phone', getText(7, 'Telefonnr:'), user.phone);
-  o[p++] = Utility.getEditBox('addressEdit', 'address', getText(42, 'Adresse:'), user.address);
-  o[p++] = Utility.getEditBox('postcodeEdit', 'postcode', getText(44, 'Postnr:'),
-    user.postcode);
-  o[p++] = Utility.getEditBox('areaEdit', 'area', getText(45, 'Poststed:'), user.area);
-  if (isNewUser)
-  {
-    o[p++] = '<div class="form-element"><label for="passwordEdit" class="standard-label">';
-    o[p++] = getText(8, 'Passord:');
-    o[p++] = Utility.getMandatoryMark();
-    o[p++] = '</label><input type="password" id="passwordEdit" name="password" class="long-text" onkeyup="enableSubmitButton();" onchange="enableSubmitButton();" /> <span class="help-text">';
-    o[p++] = getText(9, '(minst $1 tegn)', [String(PASSWORD_MIN_LENGTH)]);
-    o[p++] = '</span></div>';
-  }
-/*
+  // Email (billing)
+  o[p++] = Utility.getEditBox('billingEmailEdit', 'billing_email', getText(6, 'E-post:'), 
+    user.billingEmail || user.eMail || '');
+  
+  // Country code
+  o[p++] = Utility.getEditBox('countryCodeEdit', 'country_code', 'Landkode:', user.countryCode || '+47');
+  
+  // Phone (billing)
+  o[p++] = Utility.getEditBox('phoneEdit', 'billing_phone', getText(7, 'Telefonnr:'), 
+    user.billing_phone || user.phone || '');
+  
+  // Address (billing)
+  o[p++] = Utility.getEditBox('addressEdit', 'billing_address_1', getText(42, 'Adresse:'), 
+    user.billing_address || user.address || '');
+  
+  // Postcode (billing)
+  o[p++] = Utility.getEditBox('postcodeEdit', 'billing_postcode', getText(44, 'Postnr:'),
+    user.billing_postcode || user.postcode || '');
+  
+  // Area (billing)
+  o[p++] = Utility.getEditBox('areaEdit', 'billing_city', getText(45, 'Poststed:'), 
+    user.billing_city || user.area || '');
+  
+  // Submit button
   o[p++] = '<div class="button-container fixed-width-container"><button type="submit" id="submitButton" class="wide-button"><i class="fa-solid fa-check"></i> ';
-  if (isNewUser)
-    o[p++] = getText(2, 'Opprett kunde');
-  else
-    o[p++] = getText(12, 'Lagre endringer');
+  o[p++] = getText(12, 'Lagre endringer');
   o[p++] = '</button></div>';
-*/
-  if (!isNewUser)
-  {
-    o[p++] = '<div class="button-container fixed-width-container">';
-    // Commented out the edit password button
-    /* o[p++] = '<button type="button" class="wide-button" onclick="changePassword();"><i class="fa-solid fa-key"></i> ';
-    o[p++] = getText(10, 'Endre passord');
-    o[p++] = '</button>'; */
-    o[p++] = '</div>';
-  }
+  
   o[p++] = '</form>';
+  
+  // End right side column
+  o[p++] = '</div>';
+  
+  // End flex container
+  o[p++] = '</div>';
+
+  // Add CSS for read-only fields
+  o[p++] = '<style>.read-only-field { padding: 6px 0; font-weight: normal; }</style>';
 
   userInfoBox.innerHTML = o.join('');
 
-  // Obtain pointers to user interface elements.
+  // Obtain pointers to user interface elements
   Utility.readPointers(['individualDataBox', 'companyDataBox', 'firstNameEdit', 'lastNameEdit',
-    'companyNameEdit', 'companyIdEdit', 'userNameEdit', 'phoneEdit', 'passwordEdit',
+    'companyNameEdit', 'companyIdEdit', 'billingEmailEdit', 'countryCodeEdit', 'phoneEdit',
     'submitButton']);
 
   enableSubmitButton();
@@ -344,15 +419,17 @@ function setEntityType(newValue)
 
 function enableSubmitButton()
 {
-  // var invalid;
+  var invalid;
   
-    // *** // Creating or updating customers is currently not implemented.
-  // submitButton.disabled = true;
-
-/*
   // The form cannot be submitted if the main edit boxes are empty.
-  invalid = ((firstNameEdit.value === '') && (lastNameEdit.value === '')) ||
-    (userNameEdit.value === '') || (phoneEdit.value === '');
+  if (selectedEntityType === ENTITY_TYPE_INDIVIDUAL) {
+    invalid = ((firstNameEdit.value === '') && (lastNameEdit.value === '')) ||
+      (billingEmailEdit.value === '') || (phoneEdit.value === '');
+  } else {
+    invalid = (companyNameEdit.value === '') ||
+      (billingEmailEdit.value === '') || (phoneEdit.value === '');
+  }
+  
   if (isNewUser)
   {
     // For a new customer, the user also has to fill in the password, and it has to contain at least
@@ -360,17 +437,8 @@ function enableSubmitButton()
     invalid = invalid || (passwordEdit.value === '') ||
       (passwordEdit.value.length < PASSWORD_MIN_LENGTH);
   }
-  else
-  {
-    // For an existing customer, the contents have to differ from the stored value. If nothing has
-    // changed, there is no point in saving.
-    invalid = invalid || ((firstNameEdit.value === user.firstName) &&
-      (lastNameEdit.value === user.lastName) && (userNameEdit.value === user.eMail) &&
-      (phoneEdit.value === user.phone));
-  }
 
   submitButton.disabled = invalid;
-*/
 }
 
 // *************************************************************************************************

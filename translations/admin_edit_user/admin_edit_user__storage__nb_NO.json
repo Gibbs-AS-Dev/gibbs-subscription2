@@ -24,7 +24,7 @@
       "Til dato",
       "Forsikring",
       "Vis ordrehistorikk",
-      "Lagre",
+      "Lagre notater",
       "Kunden beholder lagerboden til og med siste dag i innev&aelig;rende m&aring;ned.",
       "Kunden trekkes for neste m&aring;ned, og beholder lagerboden til og med siste dag neste m&aring;ned.",
       "Pris",
@@ -69,7 +69,9 @@
       "Se notater",
       "Laster notater. Vennligst vent...",
       "Notater",
-      "Deres private notater om denne kunden. Kunden vil ikke f&aring tilgang til disse."
+      "Deres private notater om denne kunden. Kunden vil ikke f&aring tilgang til disse.",
+      "Bruker opplysninger",
+      "Faktura opplysninger"
     ],
   "php_texts":
     [

@@ -1709,3 +1709,7 @@ div.popup-menu .help-text
   padding: 0 10px;
   display: inline-block;
 }
+
+div.dialogue {
+  min-width: 450px;
+}

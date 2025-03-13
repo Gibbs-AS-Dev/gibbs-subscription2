@@ -8,11 +8,14 @@
 // Pointers to user interface elements.
 var subscriptionsBox, filterToolbar, overlay, pricePlanDialogue, paymentHistoryDialogue,
   cancelSubscriptionDialogue, editLocationFilterDialogue, editProductTypeFilterDialogue,
-  editStatusFilterDialogue;
+  editStatusFilterDialogue, editStartDateDialogue;
 
 var cancelSubscriptionForm, standardCancelBox, immediateCancelBox, customCancelBox,
   customCancelResultBox, endDateEdit, openCalendarButton, closeCalendarButton, calendarBox,
   freetextEdit;
+
+// Edit Start Date dialog elements  
+var editStartDateForm, startDateEdit, startOpenCalendarButton, startCloseCalendarButton, startCalendarBox;
 
 // The sorting object that controls the sorting of the subscriptions table.
 var sorting;
@@ -23,6 +26,9 @@ var menu;
 // The number of displayed subscriptions. This depends on the current filter settings.
 var displayedCount = 0;
 
+// Calendar components
+var calendar, startCalendar;
+
 // *************************************************************************************************
 // *** Functions.
 // *************************************************************************************************
@@ -32,7 +38,7 @@ function initialise()
   // Obtain pointers to user interface elements.
   Utility.readPointers(['subscriptionsBox', 'filterToolbar', 'overlay', 'pricePlanDialogue',
     'paymentHistoryDialogue', 'cancelSubscriptionDialogue', 'editLocationFilterDialogue',
-    'editProductTypeFilterDialogue', 'editStatusFilterDialogue']);
+    'editProductTypeFilterDialogue', 'editStatusFilterDialogue', 'editStartDateDialogue']);
 
   // Create the popup menu.
   menu = new PopupMenu(getPopupMenuContents, 250);
@@ -175,7 +181,7 @@ function doDisplaySubscriptions()
     // Status.
     o[p++] = '</td><td>';
     o[p++] = Utility.getStatusLabel(st.sub.TEXTS, st.sub.COLOURS, subscriptions[i][c.sua.STATUS]);
-    // Start date.
+    // Start date with edit button.
     o[p++] = '</td><td>';
     o[p++] = subscriptions[i][c.sua.START_DATE];
     // End date.
@@ -215,7 +221,7 @@ function getPopupMenuContents(sender, index)
   index = parseInt(index, 10);
   if (!Utility.isValidIndex(index, subscriptions))
     return '';
-  o = new Array(3);
+  o = new Array(4);
   p = 0;
 
   // Payment history button.
@@ -225,6 +231,9 @@ function getPopupMenuContents(sender, index)
   o[p++] = sender.getMenuItem(getText(50, 'Si opp abonnement'), 'fa-hand-wave',
     subscriptions[index][c.sua.STATUS] === st.sub.ONGOING,
     'displayCancelSubscriptionDialogue(' + String(index) + ');');
+  // Add Change start date button
+  o[p++] = sender.getMenuItem(getText(60, 'Endre fra dato'), 'fa-calendar', true,
+    'displayEditStartDateDialogue(' + String(index) + ');');
   // Display customer button.
   o[p++] = sender.getMenuItem(getText(59, 'Vis kundekort'), 'fa-up-right-from-square', true,
     'Utility.displaySpinnerThenGoTo(\'/subscription/html/admin_edit_user.php?user_id=' +
@@ -783,15 +792,11 @@ function displayPaymentHistory(index)
     o[p++] = '</button></td><td';
     o[p++] = style;
     o[p++] = '>';
-    o[p++] = paymentHistory[i][c.pay.NAME];
+    o[p++] = PAYMENT_METHOD_TEXTS[paymentHistory[i][c.pay.PAYMENT_METHOD]];
     o[p++] = '</td><td';
     o[p++] = style;
     o[p++] = '>';
     o[p++] = paymentHistory[i][c.pay.ID];
-    o[p++] = '</td><td';
-    o[p++] = style;
-    o[p++] = '>';
-    o[p++] = PAYMENT_METHOD_TEXTS[paymentHistory[i][c.pay.PAYMENT_METHOD]];
     o[p++] = '</td><td';
     o[p++] = style;
     o[p++] = '>';
@@ -990,10 +995,23 @@ function displayFilterToolbar()
 // Return true if the list of subscriptions should not include the given subscription.
 function shouldHide(subscription)
 {
-  return ((locationFilter !== null) && !locationFilter.includes(subscription[c.sua.LOCATION_ID])) ||
-    ((productTypeFilter !== null) && !productTypeFilter.includes(subscription[c.sua.PRODUCT_TYPE_ID])) ||
-    ((statusFilter !== null) && !statusFilter.includes(subscription[c.sua.STATUS])) ||
-    ((freetextFilter !== '') && !matchesFreetextFilter(subscription));
+  if (locationFilter !== null && !locationFilter.includes(subscription[c.sua.LOCATION_ID])) {
+    return true;
+  }
+  
+  if (productTypeFilter !== null && !productTypeFilter.includes(subscription[c.sua.PRODUCT_TYPE_ID])) {
+    return true;
+  }
+  
+  if (statusFilter !== null && !statusFilter.includes(subscription[c.sua.STATUS])) {
+    return true;
+  }
+  
+  if (freetextFilter !== '' && !matchesFreetextFilter(subscription)) {
+    return true;
+  }
+  
+  return false;
 }
 
 // *************************************************************************************************
@@ -1347,20 +1365,318 @@ function matchesFreetextFilter(subscription)
 
   filter = freetextFilter.toLowerCase();
   user = getUser(subscription[c.sua.BUYER_ID]);
-  if (user === null)
-      return false;
-  // If there is no filter (or no subscription), everything matches. Otherwise, return a match if
-  // the subscription's buyer's name, location name, product name, product type name, status, start
-  // date, end date or insurance name fields contain the filter text.
-  return (subscription === null) || (filter === '') ||
-    (user[c.rqu.NAME].toLowerCase().indexOf(filter) >= 0) ||
-    (Utility.getLocationName(subscription[c.sua.LOCATION_ID]).toLowerCase().indexOf(filter) >= 0) ||
-    (subscription[c.sua.PRODUCT_NAME].toLowerCase().indexOf(filter) >= 0) ||
-    (Utility.getProductTypeName(subscription[c.sua.PRODUCT_TYPE_ID]).toLowerCase().indexOf(filter) >= 0) ||
-    (st.sub.TEXTS[subscription[c.sua.STATUS]].toLowerCase().indexOf(filter) >= 0) ||
-    (subscription[c.sua.START_DATE].indexOf(filter) >= 0) ||
-    (subscription[c.sua.END_DATE].indexOf(filter) >= 0) ||
-    (subscription[c.sua.INSURANCE_NAME].toLowerCase().indexOf(filter) >= 0);
+  
+  if (user === null) {
+    return false;
+  }
+  
+  // Check if any field contains the filter text
+  if (user[c.rqu.NAME].toLowerCase().indexOf(filter) >= 0) {
+    return true;
+  }
+  
+  if (Utility.getLocationName(subscription[c.sua.LOCATION_ID]).toLowerCase().indexOf(filter) >= 0) {
+    return true;
+  }
+  
+  if (subscription[c.sua.PRODUCT_NAME].toLowerCase().indexOf(filter) >= 0) {
+    return true;
+  }
+  
+  if (Utility.getProductTypeName(subscription[c.sua.PRODUCT_TYPE_ID]).toLowerCase().indexOf(filter) >= 0) {
+    return true;
+  }
+  
+  if (st.sub.TEXTS[subscription[c.sua.STATUS]].toLowerCase().indexOf(filter) >= 0) {
+    return true;
+  }
+  
+  if (subscription[c.sua.START_DATE].indexOf(filter) >= 0) {
+    return true;
+  }
+  
+  if (subscription[c.sua.END_DATE].indexOf(filter) >= 0) {
+    return true;
+  }
+  
+  if (subscription[c.sua.INSURANCE_NAME].toLowerCase().indexOf(filter) >= 0) {
+    return true;
+  }
+  
+  return false;
+}
+
+// *************************************************************************************************
+
+// Display a dialogue box that allows the user to edit the start date of a subscription.
+function displayEditStartDateDialogue(index)
+{
+  var o, p, today;
+
+  today = Utility.getCurrentIsoDate();
+  index = parseInt(index, 10);
+  if (!Utility.isValidIndex(index, subscriptions))
+    return;
+
+  o = new Array(30);
+  p = 0;
+
+  // Header - matching exact structure of other dialogs
+  o[p++] = '<div class="dialogue-header"><h1>';
+  o[p++] = getText(60, 'Endre fra dato');
+  o[p++] = '</h1></div>';
+  
+  // Content with form - adjusted to match other dialogs with proper structure
+  o[p++] = '<div class="dialogue-content"><form id="editStartDateForm" action="/subscription/html/admin_subscriptions.php" method="post">';
+  o[p++] = getPageStateFormElements();
+  o[p++] = '<input type="hidden" name="action" value="edit_start_date" />';
+  o[p++] = Utility.getHidden('id', subscriptions[index][c.sua.ID]);
+  
+  // Confirmation caption
+  o[p++] = '<div class="form-element"><p>';
+  o[p++] = getText(61, 'Endre fra dato for $1', [subscriptions[index][c.sua.PRODUCT_NAME]]);
+  o[p++] = '</p></div>';
+  
+  // Date edit field - EXACT same structure as in cancel subscription
+  o[p++] = '<div class="form-element"><label for="startDateEdit" class="standard-label">';
+  o[p++] = getText(62, 'Fra dato:');
+  o[p++] = '</label><input type="text" id="startDateEdit" name="start_date" readonly="readonly" value="';
+  o[p++] = subscriptions[index][c.sua.START_DATE];
+  o[p++] = '" /><button type="button" id="startOpenCalendarButton" class="icon-button" onclick="openStartCalendar();"><i class="fa-solid fa-calendar-days"></i></button><button type="button" id="startCloseCalendarButton" class="icon-button" style="display: none;" onclick="closeStartCalendar();"><i class="fa-solid fa-xmark"></i></button><div id="startCalendarBox" class="calendar-box" style="display: none;">&nbsp;</div></div>';
+  
+  // End of content
+  o[p++] = '</form></div>';
+  
+  // Footer with buttons - corrected structure to match other dialogs
+  o[p++] = '<div class="dialogue-footer">';
+  o[p++] = '<button type="button" onclick="Utility.displaySpinnerThenSubmit(editStartDateForm);"><i class="fa-solid fa-check"></i> ';
+  o[p++] = getText(53, 'Velg');
+  o[p++] = '</button> ';
+  o[p++] = '<button type="button" onclick="closeEditStartDateDialogue();"><i class="fa-solid fa-xmark"></i> ';
+  o[p++] = getText(45, 'Avbryt');
+  o[p++] = '</button>';
+  o[p++] = '</div>';
+
+  editStartDateDialogue.innerHTML = o.join('');
+  
+  // Obtain pointers to user interface elements.
+  Utility.readPointers(['editStartDateForm', 'startDateEdit', 'startOpenCalendarButton',
+    'startCloseCalendarButton', 'startCalendarBox']);
+
+  // Complete rewrite of Calendar implementation for past date selection
+  // We'll create a custom calendar implementation to ensure all past dates are selectable
+  var MyCalendar = function() {
+    this.init = function() {
+      // Create the standard calendar with a wide date range (20 years)
+      this.calendar = new Calendar(240, 'startCalendarBox');
+      this.calendar.dayNames = DAY_NAMES;
+      this.calendar.monthNames = MONTH_NAMES;
+      this.calendar.monthNamesInSentence = MONTH_NAMES_IN_SENTENCE;
+      
+      // Keep the selectedDate property working
+      var self = this;
+      this.calendar.onSelectDate = function(sender, date) {
+        selectStartDate(sender, date);
+      };
+      
+      // Set initial value to the subscription's start date
+      var currentDate = subscriptions[index][c.sua.START_DATE];
+      this.calendar.selectedDate = currentDate;
+      
+      // Override key methods that would prevent past date selection
+      this.calendar._isSelectable = function(dateIso) {
+        // Always return true to make all dates selectable
+        return true;
+      };
+      
+      // Override the display method to ensure month navigation works
+      this.overrideDisplay();
+      
+      // Set up proper initial date display
+      var dateParts = currentDate.split('-');
+      if (dateParts.length === 3) {
+        var year = parseInt(dateParts[0], 10);
+        var month = parseInt(dateParts[1], 10) - 1;
+        
+        // Find the right month index to display
+        for (var i = 0; i < this.calendar._selectableMonths.length; i++) {
+          if (this.calendar._selectableMonths[i].year === year && 
+              this.calendar._selectableMonths[i].month === month) {
+            this.calendar._displayedMonthIndex = i;
+            break;
+          }
+        }
+      }
+    };
+    
+    this.overrideDisplay = function() {
+      // Store original methods for chaining
+      var originalRender = this.calendar._render;
+      var originalDisplayPrevMonth = this.calendar.displayPreviousMonth;
+      var originalDisplayNextMonth = this.calendar.displayNextMonth;
+      var self = this;
+      
+      // Override render method to modify DOM after rendering
+      this.calendar._render = function() {
+        // Call original render
+        if (originalRender) {
+          originalRender.apply(this, arguments);
+        }
+        
+        // Fix all date cells to make them selectable
+        self.fixDateCells();
+        
+        // Ensure month navigation buttons are always visible
+        self.showMonthButtons();
+      };
+      
+      // Override month navigation to ensure it works for past months
+      this.calendar.displayPreviousMonth = function() {
+        // First use original method
+        originalDisplayPrevMonth.apply(this, arguments);
+        
+        // Then fix all date cells
+        self.fixDateCells();
+        
+        // Ensure buttons remain visible
+        self.showMonthButtons();
+      };
+      
+      this.calendar.displayNextMonth = function() {
+        // First use original method
+        originalDisplayNextMonth.apply(this, arguments);
+        
+        // Then fix all date cells
+        self.fixDateCells();
+        
+        // Ensure buttons remain visible
+        self.showMonthButtons();
+      };
+    };
+    
+    this.fixDateCells = function() {
+      var calendarBox = document.getElementById('startCalendarBox');
+      if (!calendarBox) return;
+      
+      // Find all date cells
+      var dateCells = calendarBox.querySelectorAll('td');
+      
+      // Loop through each cell
+      for (var i = 0; i < dateCells.length; i++) {
+        var cell = dateCells[i];
+        
+        // Skip empty cells or header cells
+        if (!cell.innerText || isNaN(parseInt(cell.innerText))) {
+          continue;
+        }
+        
+        // If the cell is disabled, make it selectable
+        if (cell.classList.contains('disabled')) {
+          cell.classList.remove('disabled');
+          cell.classList.add('selectable');
+          
+          // Get the date for this cell
+          var day = parseInt(cell.innerText, 10);
+          var currentMonth = this.calendar._selectableMonths[this.calendar._displayedMonthIndex];
+          var dateIso = Utility.getIsoDate(currentMonth.year, currentMonth.month, day);
+          
+          // Set the click handler directly
+          cell.setAttribute('onclick', "Utility.getInstance(" + this.calendar._registryIndex + ").selectedDate = '" + dateIso + "';");
+        }
+      }
+    };
+    
+    this.showMonthButtons = function() {
+      var calendarBox = document.getElementById('startCalendarBox');
+      if (!calendarBox) return;
+      
+      // Find month navigation buttons
+      var buttons = calendarBox.getElementsByClassName('month-scroll-button');
+      
+      // Make them visible and functional
+      for (var i = 0; i < buttons.length; i++) {
+        buttons[i].style.display = 'block';
+        buttons[i].classList.remove('disabled');
+        
+        // Add inline style to ensure they're visible
+        buttons[i].style.visibility = 'visible';
+        buttons[i].style.opacity = '1';
+      }
+    };
+    
+    this.display = function() {
+      // Display the calendar
+      this.calendar.display();
+      
+      // Immediately fix the cells and buttons
+      this.fixDateCells();
+      this.showMonthButtons();
+    };
+    
+    // Initialize
+    this.init();
+  };
+  
+  // Create and use our custom calendar
+  startCalendar = new MyCalendar();
+  startCalendar.display();
+  
+  // Show the overlay and dialogue
+  Utility.display(overlay);
+  Utility.display(editStartDateDialogue);
+}
+
+// Open the calendar for selecting a start date
+function openStartCalendar()
+{
+  Utility.hide(startOpenCalendarButton);
+  Utility.display(startCloseCalendarButton);
+  Utility.display(startCalendarBox);
+  
+  // Force buttons to be visible when opening
+  setTimeout(function() {
+    var calendarBox = document.getElementById('startCalendarBox');
+    if (calendarBox) {
+      var buttons = calendarBox.getElementsByClassName('month-scroll-button');
+      for (var i = 0; i < buttons.length; i++) {
+        buttons[i].style.display = 'block';
+        buttons[i].style.visibility = 'visible';
+        buttons[i].classList.remove('disabled');
+      }
+      
+      // Also fix date cells again
+      var dateCells = calendarBox.querySelectorAll('td');
+      for (var j = 0; j < dateCells.length; j++) {
+        var cell = dateCells[j];
+        if (cell.classList.contains('disabled') && !isNaN(parseInt(cell.innerText))) {
+          cell.classList.remove('disabled');
+          cell.classList.add('selectable');
+        }
+      }
+    }
+  }, 50);
+}
+
+// Close the calendar
+function closeStartCalendar()
+{
+  Utility.hide(startCloseCalendarButton);
+  Utility.display(startOpenCalendarButton);
+  Utility.hide(startCalendarBox);
+}
+
+// Handle date selection for start date
+function selectStartDate(sender, selectedDate)
+{
+  startDateEdit.value = selectedDate;
+  closeStartCalendar();
+}
+
+// Close the edit start date dialogue
+function closeEditStartDateDialogue()
+{
+  Utility.hide(editStartDateDialogue);
+  Utility.hide(overlay);
 }
 
 // *************************************************************************************************

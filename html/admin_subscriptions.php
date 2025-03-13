@@ -138,5 +138,8 @@ var subscriptionUsers = <?= $subscription_users ?>;
     <div id="editStatusFilterDialogue" class="dialogue edit-status-filter-dialogue" style="display: none;">
       &nbsp;
     </div>
+    <div id="editStartDateDialogue" class="dialogue edit-start-date-dialogue" style="display: none;">
+      &nbsp;
+    </div>
   </body>
 </html>

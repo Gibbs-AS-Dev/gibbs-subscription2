@@ -21,6 +21,7 @@ class All_Subscription_Data_Manager extends Single_Table_Data_Manager
   {
     parent::__construct($new_access_token);
     $this->add_action('cancel_subscription', Utility::ROLE_COMPANY_ADMIN, 'cancel_subscription_any_time');
+    $this->add_action('edit_start_date', Utility::ROLE_COMPANY_ADMIN, 'edit_start_date');
     $this->database_table = 'subscriptions';
   }
 
@@ -293,6 +294,52 @@ class All_Subscription_Data_Manager extends Single_Table_Data_Manager
     // Store the end date.
     return Subscription_Utility::set_subscription_end_date(Utility::read_posted_integer($this->id_posted_name),
       $end_date, $this->access_token);
+  }
+
+  public function edit_start_date()
+  {
+    global $wpdb;
+
+    // Check if required parameters exist
+    if (!Utility::integer_posted('id') || !Utility::date_posted('start_date'))
+    {
+      return Result::MISSING_INPUT_FIELD;
+    }
+
+    $subscription_id = Utility::read_posted_integer('id');
+    $start_date = Utility::read_posted_string('start_date');
+
+    // Validate that the subscription exists and belongs to the current user group
+    $subscription_query = $wpdb->prepare("
+      SELECT id
+      FROM {$this->database_table}
+      WHERE id = %d AND owner_id = %d",
+      $subscription_id,
+      $this->get_user_group_user_id()
+    );
+
+    $subscription = $wpdb->get_row($subscription_query);
+    if ($subscription === null)
+    {
+      return Result::INVALID_ID;
+    }
+
+    // Update the start date
+    $result = $wpdb->update(
+      $this->database_table,
+      array('start_date' => $start_date, 'updated_at' => current_time('mysql')),
+      array('id' => $subscription_id),
+      array('%s', '%s'),
+      array('%d')
+    );
+
+    if ($result === false)
+    {
+      error_log("Error while updating start date for subscription {$subscription_id}: {$wpdb->last_error}.");
+      return Result::DATABASE_QUERY_FAILED;
+    }
+
+    return Result::OK;
   }
 
   // *******************************************************************************************************************

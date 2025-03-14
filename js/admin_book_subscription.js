@@ -2038,7 +2038,7 @@ function displayPricePlanDialogue()
   // Write the contents of the edit price plan dialogue.
   displayPricePlan();
 
-  // Display the filter dialogue.
+  // Display the edit price plan dialogue.
   Utility.display(overlay);
   Utility.display(editPricePlanDialogue);
 }

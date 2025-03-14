@@ -1323,6 +1323,17 @@ div.booking-url-dialogue
   max-height: 300px;
 }
 
+div.edit-price-plan-dialogue .date-edit,
+div.edit-price-plan-dialogue .price-edit
+{
+  width: 120px;
+}
+
+div.edit-price-plan-dialogue .delete-column
+{
+  width: 40px;
+}
+
 /* ********************************************************************************************** */
 /* Sidebar */
 /* ********************************************************************************************** */

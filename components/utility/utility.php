@@ -34,6 +34,17 @@
 
 // Changes for Lagergutta.
 
+// Change subscription prices.
+// - Define constant for PLAN_TYPE for the subscription itself. Don't pass -1.
+// - Add methods to copy a price plan to price_plan.js?
+// - In admin_subscriptions, create dialogue box to edit a price plan: date, price and description. Display past dates
+//   as read only, but allow editing future dates. Copy the price plan before modifying it.
+// - In admin_subscriptions, remove the option to edit the insurance price plan if the subscription does not include
+//   insurance.
+// - In admin_subscriptions, use a calendar to edit dates when editing a price plan.
+// - In admin_subscriptions, add menu options to edit the price plans for rent and insurance.
+// - In all_subscription_data_manager, add action to edit a price plan. Ensure past dates are not altered.
+
 // Modifications from test:
 // - In admin_book_subscription, display help text to say that negative price modifiers are discounts.
 // - In admin_book_subscription, display the payment notification in red if invoice is not permitted for the currently

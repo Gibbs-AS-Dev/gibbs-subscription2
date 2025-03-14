@@ -129,6 +129,9 @@ var subscriptionUsers = <?= $subscription_users ?>;
     <div id="cancelSubscriptionDialogue" class="dialogue cancel-subscription-dialogue" style="display: none;">
       &nbsp;
     </div>
+    <div id="editPricePlanDialogue" class="dialogue edit-price-plan-dialogue" style="display: none;">
+      &nbsp;
+    </div>
     <div id="editLocationFilterDialogue" class="dialogue edit-location-filter-dialogue" style="display: none;">
       &nbsp;
     </div>

@@ -7,8 +7,8 @@
 // *************************************************************************************************
 // Pointers to user interface elements.
 var subscriptionsBox, filterToolbar, overlay, pricePlanDialogue, paymentHistoryDialogue,
-  cancelSubscriptionDialogue, editLocationFilterDialogue, editProductTypeFilterDialogue,
-  editStatusFilterDialogue;
+  cancelSubscriptionDialogue, editPricePlanDialogue, editLocationFilterDialogue,
+  editProductTypeFilterDialogue, editStatusFilterDialogue;
 
 var cancelSubscriptionForm, standardCancelBox, immediateCancelBox, customCancelBox,
   customCancelResultBox, endDateEdit, openCalendarButton, closeCalendarButton, calendarBox,
@@ -23,6 +23,11 @@ var menu;
 // The number of displayed subscriptions. This depends on the current filter settings.
 var displayedCount = 0;
 
+// Array of price plan lines currently being edited in the edit price plan dialogue box, or null if
+// the dialogue box is not open. The array has the same format as the price plan lines in the
+// subscriptions table. Use the c.sua.LINE_ column constants to index them.
+var editedPricePlanLines = null;
+
 // *************************************************************************************************
 // *** Functions.
 // *************************************************************************************************
@@ -31,11 +36,11 @@ function initialise()
 {
   // Obtain pointers to user interface elements.
   Utility.readPointers(['subscriptionsBox', 'filterToolbar', 'overlay', 'pricePlanDialogue',
-    'paymentHistoryDialogue', 'cancelSubscriptionDialogue', 'editLocationFilterDialogue',
-    'editProductTypeFilterDialogue', 'editStatusFilterDialogue']);
+    'paymentHistoryDialogue', 'cancelSubscriptionDialogue', 'editPricePlanDialogue',
+    'editLocationFilterDialogue', 'editProductTypeFilterDialogue', 'editStatusFilterDialogue']);
 
   // Create the popup menu.
-  menu = new PopupMenu(getPopupMenuContents, 250);
+  menu = new PopupMenu(getPopupMenuContents, 300);
 
   // Initialise sorting.
   sorting = new Sorting(subscriptions,
@@ -210,12 +215,12 @@ function doDisplaySubscriptions()
 // will be called when one of the menu buttons is clicked.
 function getPopupMenuContents(sender, index)
 {
-  var o, p;
+  var o, p, editable;
 
   index = parseInt(index, 10);
   if (!Utility.isValidIndex(index, subscriptions))
     return '';
-  o = new Array(3);
+  o = new Array(6);
   p = 0;
 
   // Payment history button.
@@ -229,6 +234,16 @@ function getPopupMenuContents(sender, index)
   o[p++] = sender.getMenuItem(getText(59, 'Vis kundekort'), 'fa-up-right-from-square', true,
     'Utility.displaySpinnerThenGoTo(\'/subscription/html/admin_edit_user.php?user_id=' +
     String(subscriptions[index][c.sua.BUYER_ID]) + '\');');
+  o[p++] = '<br />';
+  // Modify price buttons.
+  editable = (subscriptions[index][c.sua.STATUS] === st.sub.ONGOING) ||
+    (subscriptions[index][c.sua.STATUS] === st.sub.CANCELLED) ||
+    (subscriptions[index][c.sua.STATUS] === st.sub.BOOKED);
+  o[p++] = sender.getMenuItem(getText(-1, 'Endre pris p&aring; abonnement'), 'fa-pen-to-square',
+    editable, 'displayEditPricePlanDialogue(' + String(index) + ', -1);');
+  o[p++] = sender.getMenuItem(getText(-1, 'Endre pris p&aring; forsikring'), 'fa-pen-to-square',
+    editable, 'displayEditPricePlanDialogue(' + String(index) + ', ' +
+    String(ADDITIONAL_PRODUCT_INSURANCE) + ');');
   return o.join('');
 }
 
@@ -911,6 +926,162 @@ function closePaymentHistoryDialogue()
 {
   Utility.hide(paymentHistoryDialogue);
   Utility.hide(overlay);
+}
+
+// *************************************************************************************************
+// Edit price plan functions.
+// *************************************************************************************************
+// Open the edit price plan dialogue, and generate its contents in order to edit a price plan for
+// the subscription with the given index in the subscriptions table. planType indicates which price
+// plan to edit. Use the ADDITIONAL_PRODUCT_ constants, or pass -1 to edit the price plan for the
+// subscription itself. This function copies the price mods for the specified price plan, allowing
+// the user to edit it in the dialogue box without affecting anything else.
+function displayEditPricePlanDialogue(index, planType)
+{
+  var pricePlanIndex;
+
+  // Find the index of the price plan to be edited.
+  if (planType === ADDITIONAL_PRODUCT_INSURANCE)
+    pricePlanIndex = PricePlan.getInsurancePricePlan(subscriptions, index);
+  else
+    pricePlanIndex = PricePlan.getProductPricePlan(subscriptions, index);
+  if (pricePlanIndex < 0)
+    return;
+
+  // Copy the current price mods to the editedPricePlanLines global variable. The copy is never
+  // null, although it might be an empty array.
+  editedPricePlanLines = copyPricePlanLines(PricePlan.getPricePlanLines(subscriptions, index, pricePlanIndex));
+
+  // Write the contents of the edit price plan dialogue.
+  displayPricePlanLines(index, planType);
+
+  // Display the edit price plan dialogue.
+  Utility.display(overlay);
+  Utility.display(editPricePlanDialogue);
+}
+
+// *************************************************************************************************
+// Display the editedPricePlanLines in the price plan dialogue.
+function displayPricePlanLines(index, planType)
+{
+  var o, p, i, today, isPast;
+
+  today = Utility.getCurrentIsoDate();
+  o = new Array(); // *** //
+  p = 0;
+
+  // Header.
+  o[p++] = '<div class="dialogue-header"><h3>';
+  if (planType === ADDITIONAL_PRODUCT_INSURANCE)
+    o[p++] = getText(-1, 'Endre prisplan for forsikring');
+  else
+    o[p++] = getText(-1, 'Endre prisplan for abonnement');
+  o[p++] = '</h3></div>';
+
+  // Content.
+  o[p++] = '<div class="dialogue-content"><table cellspacing="0" cellpadding="0"><thead><tr><th>';
+  o[p++] = getText(-1, 'Fra og med dato');
+  o[p++] = '</th><th>';
+  o[p++] = getText(-1, 'Ny pris');
+  o[p++] = '</th><th>';
+  o[p++] = getText(-1, 'Beskrivelse (synlig for kunden)');
+  o[p++] = '</th><th class="delete-column">&nbsp;</th></tr></thead><tbody>';
+  // Write the lines of this price plan. Note that a line cannot be edited if it applies today or
+  // previously. There's no point in changing the past, as billing has already happened. If the
+  // change applies as of today, billing may already have happened. If it applies from tomorrow, we
+  // know for sure billing has not happened, so we can change the line freely.
+  for (i = 0; i < editedPricePlanLines.length; i++)
+  {
+    isPast = editedPricePlanLines[i][c.sua.LINE_START_DATE] <= today;
+    // Date.
+    o[p++] = '<tr><td><input type="text" id="lineStartDateEdit_';
+    o[p++] = String(i);
+    o[p++] = '" value="';
+    o[p++] = editedPricePlanLines[i][c.sua.LINE_START_DATE];
+    o[p++] = '" disabled="disabled" class="date-edit" /></td>';
+
+    // Price.
+    o[p++] = '<td><input type="number" id="linePriceEdit_';
+    o[p++] = String(i);
+    o[p++] = '" min="0" value="';
+    o[p++] = String(editedPricePlanLines[i][c.sua.LINE_PRICE]);
+    o[p++] = '"';
+    if (isPast)
+      o[p++] = ' disabled="disabled"';
+    o[p++] = ' class="price-edit" onchange="" /></td>';
+
+    // Description.
+    o[p++] = '<td><input type="text" id="lineDescriptionEdit_';
+    o[p++] = String(i);
+    o[p++] = '" value="';
+    o[p++] = String(editedPricePlanLines[i][c.sua.LINE_DESCRIPTION]);
+    o[p++] = '"';
+    if (isPast)
+      o[p++] = ' disabled="disabled"';
+    o[p++] = ' onchange="" /></td>';
+
+    // Delete button.
+    o[p++] = '<td><button type="button" class="icon-button" onclick="deletePricePlanLine(';
+    o[p++] = String(i);
+    o[p++] = ');"';
+    if (isPast)
+      o[p++] = ' disabled="disabled"';
+    o[p++] = '><i class="fa-solid fa-trash"></i></button></td></tr>';
+  }
+  o[p++] = '</tbody></table></div>';
+
+  // Footer.
+  o[p++] = '<div class="dialogue-footer"><button type="button" onclick="storePricePlan();"><i class="fa-solid fa-check"></i>&nbsp;&nbsp;';
+  o[p++] = getText(44, 'Oppdater');
+  o[p++] = '</button> <button type="button" onclick="closeEditPricePlanDialogue();"><i class="fa-solid fa-xmark"></i>&nbsp;&nbsp;';
+  o[p++] = getText(45, 'Avbryt');
+  o[p++] = '</button></div>';
+
+
+  editPricePlanDialogue.innerHTML = o.join('');
+
+  // Obtain pointers to user interface elements.
+  // Utility.readPointers(['customBasePriceEdit', 'customInsurancePriceEdit', 'priceModEditorBox']);
+}
+
+// *************************************************************************************************
+// Delete the price plan line with the given index in the price plan currently being edited.
+function deletePricePlanLine(index)
+{
+    // *** //
+  alert('Delete ' + String(index));
+}
+
+// *************************************************************************************************
+
+function closeEditPricePlanDialogue()
+{
+  editedPricePlanLines = null;
+  Utility.hide(editPricePlanDialogue);
+  Utility.hide(overlay);
+}
+
+// *************************************************************************************************
+
+function storePricePlan()
+{
+    // *** //
+  closeEditPricePlanDialogue();
+}
+
+// *************************************************************************************************
+// Return a copy of the given price plan lines. If null is passed, the function returns an empty
+// array.
+function copyPricePlanLines(pricePlanLines)
+{
+  var result, i;
+
+  if (pricePlanLines === null)
+    return [];
+  result = new Array(pricePlanLines.length);
+  for (i = 0; i < pricePlanLines.length; i++)
+    result[i] = Array.from(pricePlanLines[i]);
+  return result;
 }
 
 // *************************************************************************************************

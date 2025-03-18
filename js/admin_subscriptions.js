@@ -7,12 +7,15 @@
 // *************************************************************************************************
 // Pointers to user interface elements.
 var subscriptionsBox, filterToolbar, overlay, pricePlanDialogue, paymentHistoryDialogue,
-  cancelSubscriptionDialogue, editPricePlanDialogue, editLocationFilterDialogue,
-  editProductTypeFilterDialogue, editStatusFilterDialogue;
+  cancelSubscriptionDialogue, editPricePlanDialogue, editPricePlanDateDialogue,
+  editPricePlanDateDialogueContent, editLocationFilterDialogue, editProductTypeFilterDialogue,
+  editStatusFilterDialogue;
 
+// Pointers to dynamically generated user interface elements. These will be populated once the HTML
+// code to display them has been generated.
 var cancelSubscriptionForm, standardCancelBox, immediateCancelBox, customCancelBox,
-  customCancelResultBox, endDateEdit, openCalendarButton, closeCalendarButton, calendarBox,
-  freetextEdit;
+  customCancelResultBox, endDateEdit, openEndDateCalendarButton, closeEndDateCalendarButton,
+  endDateCalendarBox, editPricePlanDialogueContent, storePricePlanButton, freetextEdit;
 
 // The sorting object that controls the sorting of the subscriptions table.
 var sorting;
@@ -23,10 +26,22 @@ var menu;
 // The number of displayed subscriptions. This depends on the current filter settings.
 var displayedCount = 0;
 
+// The calendar component that allows the user to select the end date when cancelling a
+// subscription.
+var endDateCalendar;
+
+// The calendar component that allows the user to select the start date of a price plan line when
+// editing a price plan.
+var pricePlanCalendar;
+
 // Array of price plan lines currently being edited in the edit price plan dialogue box, or null if
 // the dialogue box is not open. The array has the same format as the price plan lines in the
 // subscriptions table. Use the c.sua.LINE_ column constants to index them.
 var editedPricePlanLines = null;
+
+// The index of the line in the edited price plan whose date is currently being edited, or -1 if no
+// start date is currently being edited.
+var editedPricePlanLineIndex = -1;
 
 // *************************************************************************************************
 // *** Functions.
@@ -37,7 +52,8 @@ function initialise()
   // Obtain pointers to user interface elements.
   Utility.readPointers(['subscriptionsBox', 'filterToolbar', 'overlay', 'pricePlanDialogue',
     'paymentHistoryDialogue', 'cancelSubscriptionDialogue', 'editPricePlanDialogue',
-    'editLocationFilterDialogue', 'editProductTypeFilterDialogue', 'editStatusFilterDialogue']);
+    'editPricePlanDateDialogue', 'editPricePlanDateDialogueContent', 'editLocationFilterDialogue',
+    'editProductTypeFilterDialogue', 'editStatusFilterDialogue']);
 
   // Create the popup menu.
   menu = new PopupMenu(getPopupMenuContents, 300);
@@ -82,6 +98,12 @@ function initialise()
   // Set the initial sorting. If that didn't cause subscriptions to be displayed, do so now.
   if (!sorting.sortOn(initialUiColumn, initialDirection))
     doDisplaySubscriptions();
+
+  // Create calendar component for editing price plan lines.
+  pricePlanCalendar = new Calendar(24, 'editPricePlanDateDialogueContent');
+  pricePlanCalendar.dayNames = DAY_NAMES;
+  pricePlanCalendar.monthNames = MONTH_NAMES;
+  pricePlanCalendar.monthNamesInSentence = MONTH_NAMES_IN_SENTENCE;
 
   // Display the results of a previous operation, if required.
   if (Utility.isError(resultCode))
@@ -239,10 +261,11 @@ function getPopupMenuContents(sender, index)
   editable = (subscriptions[index][c.sua.STATUS] === st.sub.ONGOING) ||
     (subscriptions[index][c.sua.STATUS] === st.sub.CANCELLED) ||
     (subscriptions[index][c.sua.STATUS] === st.sub.BOOKED);
-  o[p++] = sender.getMenuItem(getText(-1, 'Endre pris p&aring; abonnement'), 'fa-pen-to-square',
+  o[p++] = sender.getMenuItem(getText(60, 'Endre pris p&aring; abonnement'), 'fa-pen-to-square',
     editable, 'displayEditPricePlanDialogue(' + String(index) + ', -1);');
-  o[p++] = sender.getMenuItem(getText(-1, 'Endre pris p&aring; forsikring'), 'fa-pen-to-square',
-    editable, 'displayEditPricePlanDialogue(' + String(index) + ', ' +
+  o[p++] = sender.getMenuItem(getText(61, 'Endre pris p&aring; forsikring'), 'fa-pen-to-square',
+    editable && (subscriptions[index][c.sua.INSURANCE_NAME] !== ''),
+    'displayEditPricePlanDialogue(' + String(index) + ', ' +
     String(ADDITIONAL_PRODUCT_INSURANCE) + ');');
   return o.join('');
 }
@@ -321,7 +344,7 @@ function displayCancelSubscriptionDialogue(index)
   o[p++] = getText(54, 'Siste dag:');
   o[p++] = '</label><input type="text" id="endDateEdit" name="end_date" readonly="readonly" value="';
   o[p++] = today;
-  o[p++] = '" /><button type="button" id="openCalendarButton" class="icon-button" onclick="openCalendar();"><i class="fa-solid fa-calendar-days"></i></button><button type="button" id="closeCalendarButton" class="icon-button" style="display: none;" onclick="closeCalendar();"><i class="fa-solid fa-xmark"></i></button><div id="calendarBox" class="calendar-box" style="display: none;">&nbsp;</div></div>';
+  o[p++] = '" /><button type="button" id="openEndDateCalendarButton" class="icon-button" onclick="openEndDateCalendar();"><i class="fa-solid fa-calendar-days"></i></button><button type="button" id="closeEndDateCalendarButton" class="icon-button" style="display: none;" onclick="closeEndDateCalendar();"><i class="fa-solid fa-xmark"></i></button><div id="endDateCalendarBox" class="calendar-box" style="display: none;">&nbsp;</div></div>';
   // Result caption.
   o[p++] = '<div id="customCancelResultBox" class="custom-cancel-result-box">';
   o[p++] = getCustomCancelResultText(today);
@@ -341,17 +364,17 @@ function displayCancelSubscriptionDialogue(index)
 
   // Obtain pointers to user interface elements.
   Utility.readPointers(['cancelSubscriptionForm', 'standardCancelBox', 'immediateCancelBox',
-    'customCancelBox', 'customCancelResultBox', 'endDateEdit', 'openCalendarButton',
-    'closeCalendarButton', 'calendarBox']);
+    'customCancelBox', 'customCancelResultBox', 'endDateEdit', 'openEndDateCalendarButton',
+    'closeEndDateCalendarButton', 'endDateCalendarBox']);
 
   // Create calendar component.
-  calendar = new Calendar(24);
-  calendar.dayNames = DAY_NAMES;
-  calendar.monthNames = MONTH_NAMES;
-  calendar.monthNamesInSentence = MONTH_NAMES_IN_SENTENCE;
-  calendar.selectedDate = today;
-  calendar.onSelectDate = selectDate;
-  calendar.display();
+  endDateCalendar = new Calendar(24, 'endDateCalendarBox');
+  endDateCalendar.dayNames = DAY_NAMES;
+  endDateCalendar.monthNames = MONTH_NAMES;
+  endDateCalendar.monthNamesInSentence = MONTH_NAMES_IN_SENTENCE;
+  endDateCalendar.selectedDate = today;
+  endDateCalendar.onSelectDate = selectEndDate;
+  endDateCalendar.display();
 
   Utility.display(overlay);
   Utility.display(cancelSubscriptionDialogue);
@@ -490,30 +513,30 @@ function switchCancelType()
 
 // *************************************************************************************************
 
-function openCalendar()
+function openEndDateCalendar()
 {
-  Utility.hide(openCalendarButton);
-  Utility.display(closeCalendarButton);
-  Utility.display(calendarBox);
+  Utility.hide(openEndDateCalendarButton);
+  Utility.display(closeEndDateCalendarButton);
+  Utility.display(endDateCalendarBox);
 }
 
 // *************************************************************************************************
 
-function closeCalendar()
+function closeEndDateCalendar()
 {
-  Utility.hide(closeCalendarButton);
-  Utility.display(openCalendarButton);
-  Utility.hide(calendarBox);
+  Utility.hide(closeEndDateCalendarButton);
+  Utility.display(openEndDateCalendarButton);
+  Utility.hide(endDateCalendarBox);
 }
 
 // *************************************************************************************************
 // Select the given date as the end date of the subscription. selectedDate is a string with a date
 // in ISO format - that is, "yyyy-mm-dd".
-function selectDate(sender, selectedDate)
+function selectEndDate(sender, selectedDate)
 {
   endDateEdit.value = selectedDate;
   customCancelResultBox.innerHTML = getCustomCancelResultText(selectedDate);
-  closeCalendar();
+  closeEndDateCalendar();
 }
 
 // *************************************************************************************************
@@ -950,41 +973,59 @@ function displayEditPricePlanDialogue(index, planType)
 
   // Copy the current price mods to the editedPricePlanLines global variable. The copy is never
   // null, although it might be an empty array.
-  editedPricePlanLines = copyPricePlanLines(PricePlan.getPricePlanLines(subscriptions, index, pricePlanIndex));
+  editedPricePlanLines = PricePlan.copyPricePlanLines(
+    PricePlan.getPricePlanLines(subscriptions, index, pricePlanIndex));
 
   // Write the contents of the edit price plan dialogue.
-  displayPricePlanLines(index, planType);
-
-  // Display the edit price plan dialogue.
-  Utility.display(overlay);
-  Utility.display(editPricePlanDialogue);
-}
-
-// *************************************************************************************************
-// Display the editedPricePlanLines in the price plan dialogue.
-function displayPricePlanLines(index, planType)
-{
-  var o, p, i, today, isPast;
-
-  today = Utility.getCurrentIsoDate();
-  o = new Array(); // *** //
-  p = 0;
+  var o = new Array(9);
+  var p = 0;
 
   // Header.
   o[p++] = '<div class="dialogue-header"><h3>';
   if (planType === ADDITIONAL_PRODUCT_INSURANCE)
-    o[p++] = getText(-1, 'Endre prisplan for forsikring');
+    o[p++] = getText(63, 'Endre prisplan for forsikring');
   else
-    o[p++] = getText(-1, 'Endre prisplan for abonnement');
+    o[p++] = getText(62, 'Endre prisplan for abonnement');
   o[p++] = '</h3></div>';
 
   // Content.
-  o[p++] = '<div class="dialogue-content"><table cellspacing="0" cellpadding="0"><thead><tr><th>';
-  o[p++] = getText(-1, 'Fra og med dato');
+  o[p++] = '<div id="editPricePlanDialogueContent" class="dialogue-content">&nbsp;</div>';
+
+  // Footer.
+  o[p++] = '<div class="dialogue-footer"><button type="button" id="storePricePlanButton" onclick="storePricePlan();"><i class="fa-solid fa-check"></i>&nbsp;&nbsp;';
+  o[p++] = getText(44, 'Oppdater');
+  o[p++] = '</button> <button type="button" onclick="closeEditPricePlanDialogue();"><i class="fa-solid fa-xmark"></i>&nbsp;&nbsp;';
+  o[p++] = getText(45, 'Avbryt');
+  o[p++] = '</button></div>';
+
+  editPricePlanDialogue.innerHTML = o.join('');
+
+  // Obtain pointers to user interface elements.
+  Utility.readPointers(['editPricePlanDialogueContent', 'storePricePlanButton']);
+
+  // Display the edit price plan dialogue and update its contents.
+  Utility.display(overlay);
+  Utility.display(editPricePlanDialogue);
+  displayPricePlanLines();
+}
+
+// *************************************************************************************************
+// Display the editedPricePlanLines in the price plan dialogue.
+function displayPricePlanLines()
+{
+  var o, p, i, today, isPast;
+
+  today = Utility.getCurrentIsoDate();
+  o = new Array((editedPricePlanLines.length * 42) + 11);
+  p = 0;
+
+  // Content.
+  o[p++] = '<table cellspacing="0" cellpadding="0"><thead><tr><th>';
+  o[p++] = getText(64, 'Fra og med dato');
   o[p++] = '</th><th>';
-  o[p++] = getText(-1, 'Ny pris');
+  o[p++] = getText(65, 'Ny pris');
   o[p++] = '</th><th>';
-  o[p++] = getText(-1, 'Beskrivelse (synlig for kunden)');
+  o[p++] = getText(66, 'Beskrivelse (synlig for kunden)');
   o[p++] = '</th><th class="delete-column">&nbsp;</th></tr></thead><tbody>';
   // Write the lines of this price plan. Note that a line cannot be edited if it applies today or
   // previously. There's no point in changing the past, as billing has already happened. If the
@@ -993,12 +1034,25 @@ function displayPricePlanLines(index, planType)
   for (i = 0; i < editedPricePlanLines.length; i++)
   {
     isPast = editedPricePlanLines[i][c.sua.LINE_START_DATE] <= today;
+
     // Date.
     o[p++] = '<tr><td><input type="text" id="lineStartDateEdit_';
     o[p++] = String(i);
     o[p++] = '" value="';
     o[p++] = editedPricePlanLines[i][c.sua.LINE_START_DATE];
-    o[p++] = '" disabled="disabled" class="date-edit" /></td>';
+    o[p++] = '"';
+    if (isPast)
+      o[p++] = ' disabled="disabled"';
+    o[p++] = ' class="date-edit" onkeyup="updatePricePlanLineDate(';
+    o[p++] = String(i);
+    o[p++] = ');" onchange="updatePricePlanLineDate(';
+    o[p++] = String(i);
+    o[p++] = ');" onblur="verifyEditedPricePlanDates();" /> <button type="button" id="openCalendarButton" class="icon-button"';
+    if (isPast)
+      o[p++] = ' disabled="disabled"';
+    o[p++] = ' onclick="displayEditPricePlanDateDialogue(';
+    o[p++] = String(i);
+    o[p++] = ');"><i class="fa-solid fa-calendar-days"></i></button></td>';
 
     // Price.
     o[p++] = '<td><input type="number" id="linePriceEdit_';
@@ -1008,7 +1062,11 @@ function displayPricePlanLines(index, planType)
     o[p++] = '"';
     if (isPast)
       o[p++] = ' disabled="disabled"';
-    o[p++] = ' class="price-edit" onchange="" /></td>';
+    o[p++] = ' class="price-edit" onkeyup="updatePricePlanLinePrice(';
+    o[p++] = String(i);
+    o[p++] = ');" onchange="updatePricePlanLinePrice(';
+    o[p++] = String(i);
+    o[p++] = ');" /></td>';
 
     // Description.
     o[p++] = '<td><input type="text" id="lineDescriptionEdit_';
@@ -1018,7 +1076,11 @@ function displayPricePlanLines(index, planType)
     o[p++] = '"';
     if (isPast)
       o[p++] = ' disabled="disabled"';
-    o[p++] = ' onchange="" /></td>';
+    o[p++] = ' class="description-edit" onkeyup="updatePricePlanLineDescription(';
+    o[p++] = String(i);
+    o[p++] = ');" onchange="updatePricePlanLineDescription(';
+    o[p++] = String(i);
+    o[p++] = ');" /></td>';
 
     // Delete button.
     o[p++] = '<td><button type="button" class="icon-button" onclick="deletePricePlanLine(';
@@ -1028,28 +1090,132 @@ function displayPricePlanLines(index, planType)
       o[p++] = ' disabled="disabled"';
     o[p++] = '><i class="fa-solid fa-trash"></i></button></td></tr>';
   }
-  o[p++] = '</tbody></table></div>';
-
-  // Footer.
-  o[p++] = '<div class="dialogue-footer"><button type="button" onclick="storePricePlan();"><i class="fa-solid fa-check"></i>&nbsp;&nbsp;';
-  o[p++] = getText(44, 'Oppdater');
-  o[p++] = '</button> <button type="button" onclick="closeEditPricePlanDialogue();"><i class="fa-solid fa-xmark"></i>&nbsp;&nbsp;';
-  o[p++] = getText(45, 'Avbryt');
+  o[p++] = '</tbody></table>';
+  
+  // Add line button.
+  o[p++] = '<div class="form-element"><button type="button" class="wide-button" onclick="addPricePlanLine();"><i class="fa-solid fa-plus"></i> ';
+  o[p++] = getText(67, 'Legg til linje');
   o[p++] = '</button></div>';
 
+  editPricePlanDialogueContent.innerHTML = o.join('');
+}
 
-  editPricePlanDialogue.innerHTML = o.join('');
+// *************************************************************************************************
+// Add a new line to the price plan currently being edited.
+function addPricePlanLine()
+{
+  var today, newDate, lastLineDate;
 
-  // Obtain pointers to user interface elements.
-  // Utility.readPointers(['customBasePriceEdit', 'customInsurancePriceEdit', 'priceModEditorBox']);
+  // By default, use tomorrow's date.
+  today = Utility.getCurrentIsoDate();
+  newDate = Utility.getDayAfter(today);
+
+  // If there are existing price plan lines, ensure the date is later than the last line's date.
+  if (editedPricePlanLines.length > 0)
+  {
+    lastLineDate = Utility.getDayAfter(
+      editedPricePlanLines[editedPricePlanLines.length - 1][c.sua.LINE_START_DATE]);
+    if (lastLineDate > newDate)
+      newDate = lastLineDate;
+  }
+
+  // Add a new line to the editedPricePlanLines array (LINE_START_DATE, LINE_PRICE, LINE_CAUSE,
+  // LINE_DESCRIPTION), and display the new table.
+  editedPricePlanLines.push([newDate, 0, 'Added by administrator ' + today, '']);
+  displayPricePlanLines();
+  enableStorePricePlanButton();
 }
 
 // *************************************************************************************************
 // Delete the price plan line with the given index in the price plan currently being edited.
 function deletePricePlanLine(index)
 {
-    // *** //
-  alert('Delete ' + String(index));
+  index = parseInt(index, 10);
+  if (!Utility.isValidIndex(index, editedPricePlanLines))
+    return;
+    
+  editedPricePlanLines.splice(index, 1);
+  displayPricePlanLines();
+  enableStorePricePlanButton();
+}
+
+// *************************************************************************************************
+// Update the start date of the edited price plan line with the given index.
+function updatePricePlanLineDate(index)
+{
+  var dateEdit;
+  
+  index = parseInt(index, 10);
+  if (!Utility.isValidIndex(index, editedPricePlanLines))
+    return;
+
+  dateEdit = Utility.getElement('lineStartDateEdit_' + String(index));
+  if (dateEdit)
+  {
+    editedPricePlanLines[index][c.sua.LINE_START_DATE] = dateEdit.value;
+    enableStorePricePlanButton();
+  }
+}
+
+// *************************************************************************************************
+// Update the price of the edited price plan line with the given index.
+function updatePricePlanLinePrice(index)
+{
+  var priceEdit;
+  
+  index = parseInt(index, 10);
+  if (!Utility.isValidIndex(index, editedPricePlanLines))
+    return;
+
+  priceEdit = document.getElementById('linePriceEdit_' + String(index));
+  if (priceEdit)
+  {
+    editedPricePlanLines[index][c.sua.LINE_PRICE] = parseInt(priceEdit.value, 10);
+    enableStorePricePlanButton();
+  }
+}
+
+// *************************************************************************************************
+// Update the description of the edited price plan line with the given index.
+function updatePricePlanLineDescription(index)
+{
+  var descriptionEdit;
+  
+  index = parseInt(index, 10);
+  if (!Utility.isValidIndex(index, editedPricePlanLines))
+    return;
+
+  descriptionEdit = document.getElementById('lineDescriptionEdit_' + String(index));
+  if (descriptionEdit)
+  {
+    editedPricePlanLines[index][c.sua.LINE_DESCRIPTION] = descriptionEdit.value;
+    enableStorePricePlanButton();
+  }
+}
+
+// *************************************************************************************************
+// Enable or disable the stor price plan button, depending on whether the contents of the dialogue
+// box are valid.
+function enableStorePricePlanButton()
+{
+  storePricePlanButton.disabled = !editedPricePlanValid();
+}
+
+// *************************************************************************************************
+// Return true if the edited price plan is valid.
+function editedPricePlanValid()
+{
+  var i;
+
+  // Check all lines in the price plan. Verify that the start date is a valid date string, and that
+  // the price is a positive integer.
+  for (i = 0; i < editedPricePlanLines.length; i++)
+  {
+    if (!Utility.isValidDate(editedPricePlanLines[i][c.sua.LINE_START_DATE]) ||
+      (Utility.getPositiveInteger(editedPricePlanLines[i][c.sua.LINE_PRICE], -1) < 0))
+      return false;
+  }
+  return true;
 }
 
 // *************************************************************************************************
@@ -1070,18 +1236,104 @@ function storePricePlan()
 }
 
 // *************************************************************************************************
-// Return a copy of the given price plan lines. If null is passed, the function returns an empty
-// array.
-function copyPricePlanLines(pricePlanLines)
+// Edit price plan date functions.
+// *************************************************************************************************
+// Display the dialogue box to edit a date for a price plan line being edited. This function assumes
+// that the editPricePlanDialogue is already displayed.
+function displayEditPricePlanDateDialogue(index)
 {
-  var result, i;
+  // Verify the index.
+  index = parseInt(index, 10);
+  if (!Utility.isValidIndex(index, editedPricePlanLines))
+    return;
 
-  if (pricePlanLines === null)
-    return [];
-  result = new Array(pricePlanLines.length);
-  for (i = 0; i < pricePlanLines.length; i++)
-    result[i] = Array.from(pricePlanLines[i]);
-  return result;
+  // Configure the calendar.
+  pricePlanCalendar.firstSelectableDate = getFirstPossibleDateFor(index);
+  if (Utility.isValidDate(editedPricePlanLines[index][c.sua.LINE_START_DATE]))
+  {
+    pricePlanCalendar.selectedDate = editedPricePlanLines[index][c.sua.LINE_START_DATE];
+    pricePlanCalendar.displaySelectedMonth();
+  }
+  else
+    pricePlanCalendar.selectedDate = null;
+  pricePlanCalendar.onSelectDate = selectPricePlanDate;
+  editedPricePlanLineIndex = index;
+
+  // Hide the edit price plan dialogue, and display the dialogue box to edit the start date.
+  pricePlanCalendar.display();
+  Utility.hide(editPricePlanDialogue);
+  Utility.display(editPricePlanDateDialogue);
+}
+
+// *************************************************************************************************
+// Select the given date as the start date of the price plan line being edited. selectedDate is a
+// string with a date in ISO format - that is, "yyyy-mm-dd".
+function selectPricePlanDate(sender, selectedDate)
+{
+  editedPricePlanLines[editedPricePlanLineIndex][c.sua.LINE_START_DATE] = selectedDate;
+  verifyEditedPricePlanDates();
+  closeEditPricePlanDateDialogue();
+  displayPricePlanLines();
+}
+
+// *************************************************************************************************
+// Return a string, in ISO format, that holds the first start date that can be selected for the
+// edited price plan line with the given index. The start date can be no earlier than tomorrow, but
+// in addition, it must be at least one day later than the previous price plan line's start date, if
+// a previous line exists.
+function getFirstPossibleDateFor(index)
+{
+  var tomorrow, previousDate;
+
+  // The first selectable date is tomorrow, by default.
+  tomorrow = Utility.getDayAfter(Utility.getCurrentIsoDate());
+
+  // Check whether a previous price plan line exists.
+  index = parseInt(index, 10);
+  if (!Utility.isValidIndex(index, editedPricePlanLines) || (index <= 0))
+    return tomorrow;
+
+  // If the previous line has a valid date, ensure that the returned date is at least one day later
+  // than the 
+  previousDate = editedPricePlanLines[index - 1][c.sua.LINE_START_DATE];
+  if (Utility.isValidDate(previousDate) && (previousDate >= tomorrow))
+    return Utility.getDayAfter(previousDate);
+  return tomorrow;
+}
+
+// *************************************************************************************************
+// Ensure that the dates in the edited price plan appear in order. If a date is before, or the same
+// as, the previous line's date, adjust it to be one day later. If any dates were modified, update
+// the user interface.
+function verifyEditedPricePlanDates()
+{
+  var i, thisDate, previousDate, modified;
+
+  modified = false;
+  for (i = 1; i < editedPricePlanLines.length; i++)
+  {
+    thisDate = editedPricePlanLines[i][c.sua.LINE_START_DATE];
+    previousDate = editedPricePlanLines[i - 1][c.sua.LINE_START_DATE];
+    if (Utility.isValidDate(previousDate) && Utility.isValidDate(thisDate) &&
+      (thisDate <= previousDate))
+    {
+      editedPricePlanLines[i][c.sua.LINE_START_DATE] = Utility.getDayAfter(previousDate);
+      modified = true;
+    }
+  }
+  if (modified)
+    displayPricePlanLines();
+}
+
+// *************************************************************************************************
+// Close the dialogue box to edit a date for a price plan line, and display the
+// editPricePlanDialogue again.
+function closeEditPricePlanDateDialogue()
+{
+  pricePlanCalendar.onSelectDate = null;
+  editedPricePlanLineIndex = -1;
+  Utility.hide(editPricePlanDateDialogue);
+  Utility.display(editPricePlanDialogue);
 }
 
 // *************************************************************************************************

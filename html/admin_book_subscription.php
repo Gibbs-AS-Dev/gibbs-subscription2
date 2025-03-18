@@ -168,6 +168,7 @@
     </style>
     <script type="text/javascript" src="/subscription/js/common.js?v=<?= Utility::BUILD_NO ?>"></script>
     <script type="text/javascript" src="/subscription/components/calendar/calendar.js?v=<?= Utility::BUILD_NO ?>"></script>
+    <script type="text/javascript" src="/subscription/components/price_plan/price_plan.js?v=<?= Utility::BUILD_NO ?>"></script>
     <script type="text/javascript" src="/subscription/js/admin_book_subscription.js?v=<?= Utility::BUILD_NO ?>"></script>
     <script type="text/javascript" src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <script type="text/javascript" src="/subscription/components/gibbs_leaflet_map/gibbs_leaflet_map.js?v=<?= Utility::BUILD_NO ?>"></script>

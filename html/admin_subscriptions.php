@@ -106,7 +106,7 @@ var subscriptionUsers = <?= $subscription_users ?>;
     <?= Header::get_header_with_user_info($access_token, $text->get(3, 'Abonnementer'), 'fa-repeat') ?>
     <div class="content">
       <div class="toolbar">
-        <button type="button" class="wide-button" onclick="window.location.href = '/subscription/html/admin_book_subscription.php';"><i class="fa-solid fa-plus"></i> <?= $text->get(-1, 'Opprett abonnement') ?></button>
+        <button type="button" class="wide-button" onclick="window.location.href = '/subscription/html/admin_book_subscription.php';"><i class="fa-solid fa-plus"></i> <?= $text->get(10, 'Opprett abonnement') ?></button>
         <div id="filterToolbar" class="filter filter-next-to-buttons">
           &nbsp;
         </div>
@@ -131,6 +131,21 @@ var subscriptionUsers = <?= $subscription_users ?>;
     </div>
     <div id="editPricePlanDialogue" class="dialogue edit-price-plan-dialogue" style="display: none;">
       &nbsp;
+    </div>
+    <div id="editPricePlanDateDialogue" class="dialogue edit-price-plan-date-dialogue" style="display: none;">
+      <div class="dialogue-header">
+        <h1><?= $text->get(9, "Velg startdato for prisendring") ?></h1>
+      </div>
+      <div class="dialogue-content">
+        <div class="form-element">
+          <div id="editPricePlanDateDialogueContent" class="calendar-box">
+            &nbsp;
+          </div>
+        </div>
+      </div>
+      <div class="dialogue-footer">
+        <button type="button" onclick="closeEditPricePlanDateDialogue();"><i class="fa-solid fa-xmark"></i> <?= $text->get(8, "Avbryt") ?></button>
+      </div>
     </div>
     <div id="editLocationFilterDialogue" class="dialogue edit-location-filter-dialogue" style="display: none;">
       &nbsp;

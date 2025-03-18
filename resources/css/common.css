@@ -1323,15 +1323,37 @@ div.booking-url-dialogue
   max-height: 300px;
 }
 
+div.edit-price-plan-dialogue
+{
+  width: 700px;
+}
+
+div.edit-price-plan-dialogue th,
+div.edit-price-plan-dialogue td
+{
+  padding: 5px 10px;
+}
+
 div.edit-price-plan-dialogue .date-edit,
 div.edit-price-plan-dialogue .price-edit
 {
-  width: 120px;
+  width: 100px;
+}
+
+div.edit-price-plan-dialogue .description-edit
+{
+  width: 330px;
 }
 
 div.edit-price-plan-dialogue .delete-column
 {
   width: 40px;
+}
+
+div.edit-price-plan-date-dialogue
+{
+  width: 480px;
+  max-height: 500px;
 }
 
 /* ********************************************************************************************** */

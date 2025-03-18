@@ -86,6 +86,21 @@ static getInsurancePricePlan(subscriptions, index)
 }
 
 // *************************************************************************************************
+// Return a copy of the given price plan lines. If null is passed, the function returns an empty
+// array.
+static copyPricePlanLines(pricePlanLines)
+{
+  var result, i;
+
+  if (pricePlanLines === null)
+    return [];
+  result = new Array(pricePlanLines.length);
+  for (i = 0; i < pricePlanLines.length; i++)
+    result[i] = Array.from(pricePlanLines[i]);
+  return result;
+}
+
+// *************************************************************************************************
 // *** Protected methods.
 // *************************************************************************************************
 // Return the index of the price plan with the given planType, for the subscription with the given

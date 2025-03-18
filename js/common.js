@@ -1290,6 +1290,13 @@ static getCurrentIsoDate()
 }
 
 // *************************************************************************************************
+// Return today's month as an ISO-style month string, in the format "yyyy-mm".
+static getCurrentIsoMonth()
+{
+  return Utility.getIsoMonth(new Date());
+}
+
+// *************************************************************************************************
 // Return a date as an ISO date string, in the format "yyyy-mm-dd". You can either pass a single
 // Javascript Date object, or integers for year, month and day. In the latter case, the month should
 // be in the Javascript format, which is zero based.
@@ -1308,6 +1315,26 @@ static getIsoDate(year, month, day)
 
   // Format the date.
   return Utility.pad(year, 4) + '-' + Utility.pad(month + 1, 2) + '-' + Utility.pad(day, 2);
+}
+
+// *************************************************************************************************
+// Return a month as an ISO-style month string, in the format "yyyy-mm". You can either pass a
+// single Javascript Date object, or integers for year and month. In the latter case, the month
+// should be in the Javascript format, which is zero based.
+static getIsoMonth(year, month)
+{
+  var date;
+
+  // Convert from a Javascript Date to year and month figures, if required.
+  if (year && (typeof month === 'undefined'))
+  {
+    date = year;
+    year = date.getFullYear();
+    month = date.getMonth();
+  }
+
+  // Format the date.
+  return Utility.pad(year, 4) + '-' + Utility.pad(month + 1, 2);
 }
 
 // *************************************************************************************************
@@ -1438,7 +1465,16 @@ static isValidIndex(index, array)
 }
 
 // *************************************************************************************************
-  // Return true if the given colour is a string that contains a valid CSS colour value.
+// Return true if the given isoDate string holds a string in the "yyyy-mm-dd" format.
+static isValidDate(isoDate)
+{
+  // Create a date based on the given string, and convert it to ISO format. If it matches the
+  // original, the original had the correct format.
+  return Utility.getIsoDate(new Date(isoDate)) === isoDate;
+}
+
+// *************************************************************************************************
+// Return true if the given colour is a string that contains a valid CSS colour value.
 static isValidColour(colour)
 {
   // The first test checks for hex colour code (e.g., #FFF, #FFFFFF). The second test checks for RGB

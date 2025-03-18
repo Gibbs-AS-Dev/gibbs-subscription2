@@ -3,118 +3,6 @@
 // *************************************************************************************************
 
 // *************************************************************************************************
-// *** class CalendarMonth
-// *************************************************************************************************
-// This class specifies a single month that can be displayed in the calendar.
-class CalendarMonth
-{
-// *************************************************************************************************
-// *** Constructor.
-// *************************************************************************************************
-// Create a new CalendarMonth object. year and month are integers. The month should be
-// zero-based, like Javascript dates.
-constructor (year, month, monthNames, monthNamesInSentence)
-{
-  this._year = year;
-  this._month = month;
-  this._monthName = null;
-  this._monthNameInSentence = null;
-  this._displayName = null;
-  this._displayNameInSentence = null;
-  this._monthNames = monthNames;
-  this._monthNamesInSentence = monthNamesInSentence;
-}
-
-// *************************************************************************************************
-// *** Public methods.
-// *************************************************************************************************
-// Return a new CalendarMonth object that represents the next month from this one, keeping in
-// mind that it might be next year.
-getNextMonth()
-{
-  var month, year;
-
-  month = this._month + 1;
-  if (month >= 12)
-  {
-    year = this._year + 1;
-    month = 0;
-  }
-  else
-    year = this._year;
-  return new CalendarMonth(year, month, this._monthNames, this._monthNamesInSentence);
-}
-
-// *************************************************************************************************
-// *** Property servicing methods.
-// *************************************************************************************************
-// Return the year property as an integer.
-get year()
-{
-  return this._year;
-}
-
-// *************************************************************************************************
-// Return the month property as an integer. The number will be in Javascript format, which is zero
-// based.
-get month()
-{
-  return this._month;
-}
-
-// *************************************************************************************************
-// Return the name of this month. The returned text does not include the year, and is intended for
-// use as a headline, or at the start of a sentence.
-get monthName()
-{
-  // Set the value, if it hasn't been read before.
-  if (!this['_displayName'])
-    this._monthName = this._monthNames[this._month];
-
-  return this._monthName;
-}
-
-// *************************************************************************************************
-// Return the name of this month. The returned text does not include the year, and is intended for
-// use as part of a sentence.
-get monthNameInSentence()
-{
-  // Set the value, if it hasn't been read before.
-  if (!this['_monthNameInSentence'])
-    this._monthNameInSentence = this._monthNamesInSentence[this._month];
-
-  return this._monthNameInSentence;
-}
-
-// *************************************************************************************************
-// Return the display name of this month. The returned text includes both the month and the year,
-// and is intended for use as a headline, or at the start of a sentence.
-get displayName()
-{
-  // Set the value, if it hasn't been read before.
-  if (!this['_displayName'])
-    this._displayName = this.monthName + ' ' + Utility.pad(this._year, 4);
-
-  return this._displayName;
-}
-
-// *************************************************************************************************
-// Return the display name of this month. The returned text includes both the month and the year,
-// and is intended for use as part of a sentence.
-get displayNameInSentence()
-{
-  // Set the value, if it hasn't been read before.
-  if (!this['_displayNameInSentence'])
-    this._displayNameInSentence = this.monthNameInSentence + ' ' + Utility.pad(this._year, 4);
-
-  return this._displayNameInSentence;
-}
-
-// *************************************************************************************************
-
-}
-
-// *************************************************************************************************
 // *** class Calendar
 // *************************************************************************************************
 // A calendar that can be displayed in HTML. It allows the user to select a date from among a set
@@ -152,6 +40,8 @@ constructor (selectableMonthCount, calendarBoxId)
   this._monthNamesInSentence = ['January', 'February', 'March', 'April', 'May', 'June', 'July',
     'August', 'September', 'October', 'November', 'December'];
   this._registryIndex = Utility.registerInstance(this);
+  // Array of months that appear in the calendar. Each entry is a CalendarMonth object.
+  this._selectableMonths = null;
   // Setting the selectable month count will generate the selectable months.
   this.selectableMonthCount = Utility.getValidInteger(selectableMonthCount, 6);
 }
@@ -173,6 +63,25 @@ displayNextMonth()
   this._displayedMonthIndex = Math.min(this._displayedMonthIndex + 1,
     this._selectableMonths.length - 1);
   this._render();
+}
+
+// *************************************************************************************************
+// Display the month in which the selected date is found.
+displaySelectedMonth()
+{
+  var selectedMonthIso, i;
+
+  // Find the month of the currently selected date, in "yyyy-mm" format.
+  selectedMonthIso = Utility.getIsoMonth(new Date(this._selectedDate));
+  // Search all selectable months, and display the one that matches.
+  for (i = 0; i < this._selectableMonths.length; i++)
+  {
+    if (this._selectableMonths[i].monthNameIso === selectedMonthIso)
+    {
+      this._displayedMonthIndex = i;
+      this._render();
+    }
+  }
 }
 
 // *************************************************************************************************
@@ -525,7 +434,7 @@ set selectedDate(newValue)
 {
   if (newValue === '')
     newValue = null;
-  if (newValue !== this._selectedDate)
+  if (((newValue === null) || Utility.isValidDate(newValue)) && (newValue !== this._selectedDate))
   {
     this._selectedDate = newValue;
     // When used as an event handler, we know the date is currently visible, as you can only select
@@ -563,12 +472,15 @@ set firstSelectableDate(newValue)
 {
   var actualFirstDate;
 
-  this._firstSelectableDate = newValue;
-  actualFirstDate = this.getActualFirstSelectableDate();
-  if (this._selectedDate < actualFirstDate)
-    this.selectedDate = actualFirstDate;
-  else
-    this._render();
+  if ((newValue === null) || Utility.isValidDate(newValue))
+  {
+    this._firstSelectableDate = newValue;
+    actualFirstDate = this.getActualFirstSelectableDate();
+    if (this._selectedDate < actualFirstDate)
+      this.selectedDate = actualFirstDate;
+    else
+      this._render();
+  }
 }
 
 // *************************************************************************************************
@@ -586,12 +498,134 @@ set lastSelectableDate(newValue)
 {
   var actualLastDate;
 
-  this._lastSelectableDate = newValue;
-  actualLastDate = this.getActualLastSelectableDate();
-  if (this._selectedDate > actualLastDate)
-    this.selectedDate = actualLastDate;
+  if ((newValue === null) || Utility.isValidDate(newValue))
+  {
+    this._lastSelectableDate = newValue;
+    actualLastDate = this.getActualLastSelectableDate();
+    if (this._selectedDate > actualLastDate)
+      this.selectedDate = actualLastDate;
+    else
+      this._render();
+  }
+}
+
+// *************************************************************************************************
+
+}
+
+// *************************************************************************************************
+// *** class CalendarMonth
+// *************************************************************************************************
+// This class specifies a single month that can be displayed in the calendar.
+class CalendarMonth
+{
+// *************************************************************************************************
+// *** Constructor.
+// *************************************************************************************************
+// Create a new CalendarMonth object. year and month are integers. The month should be
+// zero-based, like Javascript dates.
+constructor (year, month, monthNames, monthNamesInSentence)
+{
+  this._year = year;
+  this._month = month;
+  this._monthName = null;
+  this._monthNameInSentence = null;
+  this._displayName = null;
+  this._displayNameInSentence = null;
+  this._monthNames = monthNames;
+  this._monthNamesInSentence = monthNamesInSentence;
+}
+
+// *************************************************************************************************
+// *** Public methods.
+// *************************************************************************************************
+// Return a new CalendarMonth object that represents the next month from this one, keeping in
+// mind that it might be next year.
+getNextMonth()
+{
+  var month, year;
+
+  month = this._month + 1;
+  if (month >= 12)
+  {
+    year = this._year + 1;
+    month = 0;
+  }
   else
-    this._render();
+    year = this._year;
+  return new CalendarMonth(year, month, this._monthNames, this._monthNamesInSentence);
+}
+
+// *************************************************************************************************
+// *** Property servicing methods.
+// *************************************************************************************************
+// Return the year property as an integer.
+get year()
+{
+  return this._year;
+}
+
+// *************************************************************************************************
+// Return the month property as an integer. The number will be in Javascript format, which is zero
+// based.
+get month()
+{
+  return this._month;
+}
+
+// *************************************************************************************************
+// Return the name of this month in ISO-style format, that is "yyyy-mm".
+get monthNameIso()
+{
+  return Utility.getIsoMonth(this._year, this._month);
+}
+
+// *************************************************************************************************
+// Return the name of this month. The returned text does not include the year, and is intended for
+// use as a headline, or at the start of a sentence.
+get monthName()
+{
+  // Set the value, if it hasn't been read before.
+  if (!this['_displayName'])
+    this._monthName = this._monthNames[this._month];
+
+  return this._monthName;
+}
+
+// *************************************************************************************************
+// Return the name of this month. The returned text does not include the year, and is intended for
+// use as part of a sentence.
+get monthNameInSentence()
+{
+  // Set the value, if it hasn't been read before.
+  if (!this['_monthNameInSentence'])
+    this._monthNameInSentence = this._monthNamesInSentence[this._month];
+
+  return this._monthNameInSentence;
+}
+
+// *************************************************************************************************
+// Return the display name of this month. The returned text includes both the month and the year,
+// and is intended for use as a headline, or at the start of a sentence.
+get displayName()
+{
+  // Set the value, if it hasn't been read before.
+  if (!this['_displayName'])
+    this._displayName = this.monthName + ' ' + Utility.pad(this._year, 4);
+
+  return this._displayName;
+}
+
+// *************************************************************************************************
+// Return the display name of this month. The returned text includes both the month and the year,
+// and is intended for use as part of a sentence.
+get displayNameInSentence()
+{
+  // Set the value, if it hasn't been read before.
+  if (!this['_displayNameInSentence'])
+    this._displayNameInSentence = this.monthNameInSentence + ' ' + Utility.pad(this._year, 4);
+
+  return this._displayNameInSentence;
 }
 
 // *************************************************************************************************

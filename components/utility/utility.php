@@ -35,14 +35,6 @@
 // Changes for Lagergutta.
 
 // Change subscription prices.
-// - Define constant for PLAN_TYPE for the subscription itself. Don't pass -1.
-// - Add methods to copy a price plan to price_plan.js?
-// - In admin_subscriptions, create dialogue box to edit a price plan: date, price and description. Display past dates
-//   as read only, but allow editing future dates. Copy the price plan before modifying it.
-// - In admin_subscriptions, remove the option to edit the insurance price plan if the subscription does not include
-//   insurance.
-// - In admin_subscriptions, use a calendar to edit dates when editing a price plan.
-// - In admin_subscriptions, add menu options to edit the price plans for rent and insurance.
 // - In all_subscription_data_manager, add action to edit a price plan. Ensure past dates are not altered.
 
 // Modifications from test:
@@ -117,6 +109,18 @@
 // *********************************************************************************************************************
 // *** Done.
 // *********************************************************************************************************************
+// - Add methods to copy a price plan to price_plan.js.
+// - In admin_subscriptions, disable the option to edit the insurance price plan if the subscription does not include
+//   insurance.
+// - In admin_subscriptions, add menu options to edit the price plans for rent and insurance.
+// - In admin_subscriptions, create dialogue box to edit a price plan: date, price and description. Display past dates
+//   as read only, but allow editing future dates. Copy the price plan before modifying it.
+// - In admin_subscriptions, use a calendar to edit dates when editing a price plan.
+// - In admin_subscriptions, when editing a price plan line start date, ensure that it cannot be the same as or before
+//   the previous line.
+// - In admin_subscriptions, when editing a price plan line start date, ensure that subsequent dates are modified to
+//   always be at least one day later.
+// - In the calendar, add method to adjust the currently displayed so that the selected date is visible.
 // - In admin_subscriptions, add link to admin_edit_user.
 // - In admin_locations, add dialogue box with the URL to book_subscription with the location pre-selected.
 // - Use the full mode when determining how to display product types.
@@ -366,6 +370,7 @@
 // - On the admin_requests page, click the status to move to the next one? Right click to go back? No. I don't think so.
 
 // General:
+// - Define constant for PLAN_TYPE for the subscription itself. Don't pass -1.
 // - Can we find suitable icons for the rental statuses? Arrow up-right for moving out, arrow down-right for moving in,
 //   arrow right for rented? Big round zero for free?
 // - In book_subscription, when the user selects an alternate location, and the alternate location requires a request:

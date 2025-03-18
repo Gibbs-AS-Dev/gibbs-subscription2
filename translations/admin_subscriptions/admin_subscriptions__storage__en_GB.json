@@ -60,7 +60,15 @@
       "Loses access immediately.",
       "Loses one day's rent.",
       "Search",
-      "Display customer"
+      "Display customer",
+      "Change subscription price",
+      "Change insurance price",
+      "Change subscription price plan",
+      "Change insurance price plan",
+      "Starting from date",
+      "New price",
+      "Description (seen by customer)",
+      "Add line"
     ],
   "php_texts":
     [
@@ -71,6 +79,9 @@
       "['Unknown', 'Nets (card)', 'Invoice', 'Card, then invoice']",
       "['', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']",
       "['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']",
-      "['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']"
+      "['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']",
+      "Cancel",
+      "Select start date for price change",
+      "Create subscription"
     ]
 }

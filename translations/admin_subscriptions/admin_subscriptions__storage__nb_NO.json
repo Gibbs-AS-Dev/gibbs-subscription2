@@ -60,7 +60,15 @@
       "Mister tilgang umiddelbart.",
       "Mister &eacute;n dags leie.",
       "S&oslash;k",
-      "Vis kundekort"
+      "Vis kundekort",
+      "Endre pris p&aring; abonnement",
+      "Endre pris p&aring; forsikring",
+      "Endre prisplan for abonnement",
+      "Endre prisplan for forsikring",
+      "Fra og med dato",
+      "Ny pris",
+      "Beskrivelse (synlig for kunden)",
+      "Legg til linje"
     ],
   "php_texts":
     [
@@ -71,6 +79,9 @@
       "['Ukjent', 'Nets (kort)', 'Faktura', 'Kort, s&aring; faktura']",
       "['', 'Man', 'Tir', 'Ons', 'Tor', 'Fre', 'L&oslash;r', 'S&oslash;n']",
       "['Januar', 'Februar', 'Mars', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Desember']",
-      "['januar', 'februar', 'mars', 'april', 'mai', 'juni', 'juli', 'august', 'september', 'oktober', 'november', 'desember']"
+      "['januar', 'februar', 'mars', 'april', 'mai', 'juni', 'juli', 'august', 'september', 'oktober', 'november', 'desember']",
+      "Avbryt",
+      "Velg startdato for prisendring",
+      "Opprett abonnement"
     ]
 }

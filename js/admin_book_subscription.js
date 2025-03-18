@@ -2249,15 +2249,7 @@ function priceModsEqual(a, b)
 // function returns an empty array of price mods.
 function copyCurrentPriceMods()
 {
-  var source, result, i;
-
-  source = getPriceMods();
-  if (source === null)
-    return [];
-  result = new Array(source.length);
-  for (i = 0; i < source.length; i++)
-    result[i] = Array.from(source[i]);
-  return result;
+  return PricePlan.copyPricePlanLines(getPriceMods());
 }
 
 // *************************************************************************************************

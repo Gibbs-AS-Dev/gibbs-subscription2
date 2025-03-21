@@ -35,7 +35,10 @@
 // Changes for Lagergutta.
 
 // Change subscription prices.
-// - In all_subscription_data_manager, add action to edit a price plan. Ensure past dates are not altered.
+// - When changing a price plan line start date by typing, ensure that you cannot type a date before today's date.
+// - When updating a price plan, add verification on the server to ensure past dates are not altered.
+// - In some cases, the list of subscriptions holds "Egen forsikring". In other cases, it's empty. Why? And in the
+//   former case, nothing happens when you edit it. Why?
 
 // Modifications from test:
 // - In admin_book_subscription, display help text to say that negative price modifiers are discounts.
@@ -109,6 +112,10 @@
 // *********************************************************************************************************************
 // *** Done.
 // *********************************************************************************************************************
+// - In all_subscription_data_manager, add action to edit a price plan.
+// - In admin_subscriptions, add a form to update a price plan after editing it.
+// - When adding a new line to a price plan, copy the price from the previous line, if any.
+// - When adding a new line to a price plan, set the date to the first of next month.
 // - Add methods to copy a price plan to price_plan.js.
 // - In admin_subscriptions, disable the option to edit the insurance price plan if the subscription does not include
 //   insurance.
@@ -797,6 +804,7 @@ class Result
   public const PREVIOUS_ORDER_NOT_FOUND = 28;
   public const INVALID_PAYMENT_INFO = 29;
   public const CONFIG_FILE_ERROR = 30;
+  public const INVALID_LINE_COUNT = 31;
 
   // *******************************************************************************************************************
   // *** Static methods.

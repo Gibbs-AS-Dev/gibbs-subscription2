@@ -1356,6 +1356,28 @@ static getDayAfter(date)
 }
 
 // *************************************************************************************************
+// Given a month, in the format "yyyy-mm", or a date in the format "yyyy-mm-dd", return the previous
+// month as a string in "yyyy-mm" format.
+static getMonthBefore(date)
+{
+  date = new Date(date);
+  date.setDate(1);
+  date.setMonth(date.getMonth() - 1);
+  return Utility.getIsoMonth(date);
+}
+
+// *************************************************************************************************
+// Given a month, in the format "yyyy-mm", or a date in the format "yyyy-mm-dd", return the next
+// month as a string in "yyyy-mm" format.
+static getMonthAfter(date)
+{
+  date = new Date(date);
+  date.setDate(1);
+  date.setMonth(date.getMonth() + 1);
+  return Utility.getIsoMonth(date);
+}
+
+// *************************************************************************************************
 // Return a date, in the format "yyyy-mm-dd", that represents the last day of the given year and
 // month. You can either pass a single Javascript Date object, or integers for year and month. In
 // the latter case, the month should be in the Javascript format, which is zero based.

@@ -15,7 +15,8 @@ var subscriptionsBox, filterToolbar, overlay, pricePlanDialogue, paymentHistoryD
 // code to display them has been generated.
 var cancelSubscriptionForm, standardCancelBox, immediateCancelBox, customCancelBox,
   customCancelResultBox, endDateEdit, openEndDateCalendarButton, closeEndDateCalendarButton,
-  endDateCalendarBox, editPricePlanDialogueContent, storePricePlanButton, freetextEdit;
+  endDateCalendarBox, updatePricePlanForm, editPricePlanDialogueContent, storePricePlanButton,
+  freetextEdit;
 
 // The sorting object that controls the sorting of the subscriptions table.
 var sorting;
@@ -961,7 +962,7 @@ function closePaymentHistoryDialogue()
 // the user to edit it in the dialogue box without affecting anything else.
 function displayEditPricePlanDialogue(index, planType)
 {
-  var pricePlanIndex;
+  var o, p, pricePlanIndex;
 
   // Find the index of the price plan to be edited.
   if (planType === ADDITIONAL_PRODUCT_INSURANCE)
@@ -977,8 +978,8 @@ function displayEditPricePlanDialogue(index, planType)
     PricePlan.getPricePlanLines(subscriptions, index, pricePlanIndex));
 
   // Write the contents of the edit price plan dialogue.
-  var o = new Array(9);
-  var p = 0;
+  o = new Array(14);
+  p = 0;
 
   // Header.
   o[p++] = '<div class="dialogue-header"><h3>';
@@ -989,10 +990,18 @@ function displayEditPricePlanDialogue(index, planType)
   o[p++] = '</h3></div>';
 
   // Content.
-  o[p++] = '<div id="editPricePlanDialogueContent" class="dialogue-content">&nbsp;</div>';
+  o[p++] = '<div class="dialogue-content"><form id="updatePricePlanForm" action="/subscription/html/admin_subscriptions.php" method="post">';
+  o[p++] = getPageStateFormElements();
+  o[p++] = '<input type="hidden" name="action" value="update_price_plan" />';
+  o[p++] = Utility.getHidden('subscription_id', String(subscriptions[index][c.sua.ID]));
+  if (planType === ADDITIONAL_PRODUCT_INSURANCE)
+    o[p++] = Utility.getHidden('plan_type', String(ADDITIONAL_PRODUCT_INSURANCE));
+  else
+    o[p++] = Utility.getHidden('plan_type', '-1');
+  o[p++] = '<div id="editPricePlanDialogueContent">&nbsp;</div></form></div>';
 
   // Footer.
-  o[p++] = '<div class="dialogue-footer"><button type="button" id="storePricePlanButton" onclick="storePricePlan();"><i class="fa-solid fa-check"></i>&nbsp;&nbsp;';
+  o[p++] = '<div class="dialogue-footer"><button type="button" id="storePricePlanButton" onclick="Utility.displaySpinnerThenSubmit(updatePricePlanForm);"><i class="fa-solid fa-check"></i>&nbsp;&nbsp;';
   o[p++] = getText(44, 'Oppdater');
   o[p++] = '</button> <button type="button" onclick="closeEditPricePlanDialogue();"><i class="fa-solid fa-xmark"></i>&nbsp;&nbsp;';
   o[p++] = getText(45, 'Avbryt');
@@ -1001,7 +1010,8 @@ function displayEditPricePlanDialogue(index, planType)
   editPricePlanDialogue.innerHTML = o.join('');
 
   // Obtain pointers to user interface elements.
-  Utility.readPointers(['editPricePlanDialogueContent', 'storePricePlanButton']);
+  Utility.readPointers(['updatePricePlanForm', 'editPricePlanDialogueContent',
+    'storePricePlanButton']);
 
   // Display the edit price plan dialogue and update its contents.
   Utility.display(overlay);
@@ -1016,10 +1026,11 @@ function displayPricePlanLines()
   var o, p, i, today, isPast;
 
   today = Utility.getCurrentIsoDate();
-  o = new Array((editedPricePlanLines.length * 42) + 11);
+  o = new Array((editedPricePlanLines.length * 50) + 12);
   p = 0;
 
   // Content.
+  o[p++] = Utility.getHidden('line_count', String(editedPricePlanLines.length));
   o[p++] = '<table cellspacing="0" cellpadding="0"><thead><tr><th>';
   o[p++] = getText(64, 'Fra og med dato');
   o[p++] = '</th><th>';
@@ -1038,11 +1049,13 @@ function displayPricePlanLines()
     // Date.
     o[p++] = '<tr><td><input type="text" id="lineStartDateEdit_';
     o[p++] = String(i);
+    o[p++] = '" name="start_date_';
+    o[p++] = String(i);
     o[p++] = '" value="';
     o[p++] = editedPricePlanLines[i][c.sua.LINE_START_DATE];
     o[p++] = '"';
     if (isPast)
-      o[p++] = ' disabled="disabled"';
+      o[p++] = ' readonly="readonly"';
     o[p++] = ' class="date-edit" onkeyup="updatePricePlanLineDate(';
     o[p++] = String(i);
     o[p++] = ');" onchange="updatePricePlanLineDate(';
@@ -1057,36 +1070,43 @@ function displayPricePlanLines()
     // Price.
     o[p++] = '<td><input type="number" id="linePriceEdit_';
     o[p++] = String(i);
+    o[p++] = '" name="price_';
+    o[p++] = String(i);
     o[p++] = '" min="0" value="';
     o[p++] = String(editedPricePlanLines[i][c.sua.LINE_PRICE]);
     o[p++] = '"';
     if (isPast)
-      o[p++] = ' disabled="disabled"';
+      o[p++] = ' readonly="readonly"';
     o[p++] = ' class="price-edit" onkeyup="updatePricePlanLinePrice(';
     o[p++] = String(i);
     o[p++] = ');" onchange="updatePricePlanLinePrice(';
     o[p++] = String(i);
     o[p++] = ');" /></td>';
 
-    // Description.
-    o[p++] = '<td><input type="text" id="lineDescriptionEdit_';
+    // Cause and description.
+    o[p++] = '<td>';
+    o[p++] = Utility.getHidden('cause_' + String(i), editedPricePlanLines[i][c.sua.LINE_CAUSE]);
+    o[p++] = '<input type="text" id="lineDescriptionEdit_';
+    o[p++] = String(i);
+    o[p++] = '" name="description_';
     o[p++] = String(i);
     o[p++] = '" value="';
-    o[p++] = String(editedPricePlanLines[i][c.sua.LINE_DESCRIPTION]);
+    o[p++] = editedPricePlanLines[i][c.sua.LINE_DESCRIPTION];
     o[p++] = '"';
     if (isPast)
-      o[p++] = ' disabled="disabled"';
+      o[p++] = ' readonly="readonly"';
     o[p++] = ' class="description-edit" onkeyup="updatePricePlanLineDescription(';
     o[p++] = String(i);
     o[p++] = ');" onchange="updatePricePlanLineDescription(';
     o[p++] = String(i);
     o[p++] = ');" /></td>';
 
-    // Delete button.
+    // Delete button. Note that the last remaining item in a price plan can never be deleted,
+    // regardless of the date. A price plan must always have at least one element.
     o[p++] = '<td><button type="button" class="icon-button" onclick="deletePricePlanLine(';
     o[p++] = String(i);
     o[p++] = ');"';
-    if (isPast)
+    if (isPast || (editedPricePlanLines.length <= 1))
       o[p++] = ' disabled="disabled"';
     o[p++] = '><i class="fa-solid fa-trash"></i></button></td></tr>';
   }
@@ -1104,24 +1124,32 @@ function displayPricePlanLines()
 // Add a new line to the price plan currently being edited.
 function addPricePlanLine()
 {
-  var today, newDate, lastLineDate;
+  var today, newDate, lastLineDate, newPrice;
 
   // By default, use tomorrow's date.
   today = Utility.getCurrentIsoDate();
   newDate = Utility.getDayAfter(today);
 
-  // If there are existing price plan lines, ensure the date is later than the last line's date.
+  // If there are existing price plan lines (and there always should be), ensure the new line's date
+  // comes after the last line's date. If the date needs to be moved, choose the first day in the
+  // month after the last line's date, as prices are expected to be changed once a month. Also, set
+  // the new price to equal the last line's price.
+  newPrice = 0;
   if (editedPricePlanLines.length > 0)
   {
-    lastLineDate = Utility.getDayAfter(
-      editedPricePlanLines[editedPricePlanLines.length - 1][c.sua.LINE_START_DATE]);
-    if (lastLineDate > newDate)
-      newDate = lastLineDate;
+    lastLineDate = editedPricePlanLines[editedPricePlanLines.length - 1][c.sua.LINE_START_DATE];
+    if (Utility.isValidDate(lastLineDate))
+    {
+      lastLineDate = Utility.getMonthAfter(lastLineDate) + '-01';
+      if (lastLineDate > newDate)
+        newDate = lastLineDate;
+    }
+    newPrice = editedPricePlanLines[editedPricePlanLines.length - 1][c.sua.LINE_PRICE];
   }
 
   // Add a new line to the editedPricePlanLines array (LINE_START_DATE, LINE_PRICE, LINE_CAUSE,
   // LINE_DESCRIPTION), and display the new table.
-  editedPricePlanLines.push([newDate, 0, 'Added by administrator ' + today, '']);
+  editedPricePlanLines.push([newDate, newPrice, 'Added by administrator ' + today, '']);
   displayPricePlanLines();
   enableStorePricePlanButton();
 }
@@ -1208,7 +1236,7 @@ function editedPricePlanValid()
   var i;
 
   // Check all lines in the price plan. Verify that the start date is a valid date string, and that
-  // the price is a positive integer.
+  // the price is a positive integer. The description is optional.
   for (i = 0; i < editedPricePlanLines.length; i++)
   {
     if (!Utility.isValidDate(editedPricePlanLines[i][c.sua.LINE_START_DATE]) ||
@@ -1225,14 +1253,6 @@ function closeEditPricePlanDialogue()
   editedPricePlanLines = null;
   Utility.hide(editPricePlanDialogue);
   Utility.hide(overlay);
-}
-
-// *************************************************************************************************
-
-function storePricePlan()
-{
-    // *** //
-  closeEditPricePlanDialogue();
 }
 
 // *************************************************************************************************

@@ -7,6 +7,7 @@
   require_once $_SERVER['DOCUMENT_ROOT'] . '/subscription/components/settings/settings_manager.php';
   require_once $_SERVER['DOCUMENT_ROOT'] . '/subscription/components/data/test_data_manager.php';
   require_once $_SERVER['DOCUMENT_ROOT'] . '/subscription/components/data/all_subscription_data_manager.php';
+  require_once $_SERVER['DOCUMENT_ROOT'] . '/subscription/components/data/price_plan_data_manager.php';
   require_once $_SERVER['DOCUMENT_ROOT'] . '/subscription/components/data/product_type_data_manager.php';
   require_once $_SERVER['DOCUMENT_ROOT'] . '/subscription/components/data/location_data_manager.php';
   require_once $_SERVER['DOCUMENT_ROOT'] . '/subscription/components/utility/translation.php';

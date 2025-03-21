@@ -21,6 +21,7 @@ class All_Subscription_Data_Manager extends Single_Table_Data_Manager
   {
     parent::__construct($new_access_token);
     $this->add_action('cancel_subscription', Utility::ROLE_COMPANY_ADMIN, 'cancel_subscription_any_time');
+    $this->add_action('update_price_plan', Utility::ROLE_COMPANY_ADMIN, 'update_price_plan');
     $this->database_table = 'subscriptions';
   }
 
@@ -293,6 +294,114 @@ class All_Subscription_Data_Manager extends Single_Table_Data_Manager
     // Store the end date.
     return Subscription_Utility::set_subscription_end_date(Utility::read_posted_integer($this->id_posted_name),
       $end_date, $this->access_token);
+  }
+
+  // *******************************************************************************************************************
+  // Update an existing price plan. The client will submit the following fields:
+  //   subscription_id : integer        The ID of the subscription for which a price plan should be updated.
+  //   plan_type : integer              The type of plan to replace. Use the ADDITIONAL_PRODUCT_ constants, or pass -1
+  //                                    to update the rent price plan. If not present, the rent price plan will be
+  //                                    updated.
+  //   line_count : integer             The number of lines in the new price plan.
+  //
+  // For each line in the price plan, the following fields should be submitted. The "n" is the index of the price plan,
+  // starting at 0.
+  //   start_date_n : string            The start date of this price plan line.
+  //   price_n : integer                The price which applies from the start date.
+  //   cause_n : string                 The reason the price changed. Used internally.
+  //   description_n : string           The reason the price changed. Displayed to the customer.
+  //
+  // Note that this method does not verify that the updated price plan has not modified the lines whose start date is
+  // today or earlier (which cannot be changed, as payments may already have been performed according to the old lines).
+  //
+  // This method is available to administrators only.
+  public function update_price_plan()
+  {
+    global $wpdb;
+    
+    // Ensure the subscription ID and line count were posted.
+    if (!Utility::integers_posted(array('subscription_id', 'line_count')))
+    {
+      return Result::MISSING_INPUT_FIELD;
+    }
+    $subscription_id = Utility::read_posted_integer('subscription_id');
+    $line_count = Utility::read_posted_integer('line_count');
+    // A price plan must always have at least one line. Ensure that it does.
+    if ($line_count < 1)
+    {
+      return Result::INVALID_LINE_COUNT;
+    }
+
+    // Get the plan type. If not specified, we're updating the rent price plan.
+    $plan_type = null;
+    if (Utility::integer_posted('plan_type'))
+    {
+      $plan_type = Utility::read_posted_integer('plan_type');
+      // If the plan type is -1, we're updating the rent price plan.
+      if ($plan_type === -1)
+      {
+        $plan_type = null;
+      }
+    }
+
+    // Create price dates based on submitted data.
+    $price_dates = array();
+    for ($i = 0; $i < $line_count; $i++)
+    {
+      // Check that all required fields for this line are posted. Cause and description are optional.
+      if (!Utility::date_posted('start_date_' . $i) || !Utility::integer_posted('price_' . $i))
+      {
+        return Result::MISSING_INPUT_FIELD;
+      }
+
+      // Create a price date for this line.
+      $price_dates[] = array(
+        'from_date' => Utility::read_posted_string('start_date_' . $i),
+        'price' => Utility::read_posted_integer('price_' . $i),
+        'cause' => Utility::read_posted_string('cause_' . $i),
+        'description' => Utility::read_posted_string('description_' . $i)
+      );
+    }
+
+    // Delete the existing price plan.
+    $wpdb->query('START TRANSACTION');
+    if (is_null($plan_type))
+    {
+      // Delete the rent price plan.
+      if (!Price_Plan_Data_Manager::delete_rent_price_plan_for($subscription_id))
+      {
+        $wpdb->query('ROLLBACK');
+        error_log("Error while deleting old rent price plan for subscription {$subscription_id}.");
+        return Result::DATABASE_QUERY_FAILED;
+      }
+    }
+    else
+    {
+      // Delete the insurance price plan.
+      if (!Price_Plan_Data_Manager::delete_insurance_price_plan_for($subscription_id))
+      {
+        $wpdb->query('ROLLBACK');
+        error_log("Error while deleting old insurance price plan for subscription {$subscription_id}.");
+        return Result::DATABASE_QUERY_FAILED;
+      }
+    }
+
+    // The old price plan was deleted. Create a new one.
+    if (!Price_Plan_Data_Manager::create_price_plan($subscription_id, $plan_type, $price_dates))
+    {
+      $wpdb->query('ROLLBACK');
+      error_log("Error while creating updated price plan for subscription {$subscription_id}.");
+      return Result::DATABASE_QUERY_FAILED;
+    }
+
+    // All operations succeeded. Commit the changes.
+    if ($wpdb->query('COMMIT') === false)
+    {
+      error_log('Commit failed while creating updated price plan: ' . $wpdb->last_error);
+      $wpdb->query('ROLLBACK');
+      return Result::DATABASE_QUERY_FAILED;
+    }
+    return Result::OK;
   }
 
   // *******************************************************************************************************************

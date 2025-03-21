@@ -367,7 +367,7 @@ class User_Subscription_Data_Manager extends Single_User_Data_Manager
 
     // Delete all price plans associated with this subscription.
     $wpdb->query('START TRANSACTION');
-    if (!Price_Plan_Data_Manager::delete_price_plans_for($id))
+    if (!Price_Plan_Data_Manager::delete_all_price_plans_for($id))
     {
       $wpdb->query('ROLLBACK');
       return Result::DATABASE_QUERY_FAILED;

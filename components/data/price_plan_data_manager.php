@@ -127,34 +127,49 @@ class Price_Plan_Data_Manager
   }
 
   // *******************************************************************************************************************
+  // Delete the rent price plan linked to the subscription with the given $subscription_id, as well as all the lines
+  // that belong to that price plan. Return true if the operation succeeded.
+  public static function delete_rent_price_plan_for($subscription_id)
+  {
+    // Find the ID of the rent price plan that is connected to the subscription with the given ID.
+    $price_plan_id = self::get_rent_price_plan_id_for_subscription($subscription_id);
+
+    // Delete the price plan.
+    if ($price_plan_id >= 0)
+    {
+      return self::delete_price_plans_with_lines(array($price_plan_id));
+    }
+    return true;
+  }
+
+  // *******************************************************************************************************************
+  // Delete the insurance price plan linked to the subscription with the given $subscription_id, as well as all the
+  // lines that belong to that price plan. Return true if the operation succeeded.
+  public static function delete_insurance_price_plan_for($subscription_id)
+  {
+    // Find the ID of the insurance price plan that is connected to the subscription with the given ID.
+    $price_plan_id = self::get_insurance_price_plan_id_for_subscription($subscription_id);
+
+    // Delete the price plan.
+    if ($price_plan_id >= 0)
+    {
+      return self::delete_price_plans_with_lines(array($price_plan_id));
+    }
+    return true;
+  }
+
+  // *******************************************************************************************************************
   // Delete all price plans linked to the subscription with the given $subscription_id, as well as all the lines that
   // belong to those price plans. Return true if the operation succeeded.
-  public static function delete_price_plans_for($subscription_id)
+  public static function delete_all_price_plans_for($subscription_id)
   {
-    global $wpdb;
-
     // Find the IDs of all price plans that are connected to the subscription with the given ID.
     $price_plan_ids = self::get_price_plan_ids_for_subscription($subscription_id);
 
+    // Delete the price plans.
     if (!empty($price_plan_ids))
     {
-      // Delete all price plan lines for the price plans identified.
-      $selection_list = self::get_selection_list('price_plan_id', $price_plan_ids);
-      $result = $wpdb->query("DELETE FROM subscription_price_plan_line WHERE {$selection_list};");
-      if ($result === false)
-      {
-        error_log("Error while deleting price plan lines for subscription {$subscription_id}: {$wpdb->last_error}. Selection list: {$selection_list}");
-        return false;
-      }
-
-      // Delete all the price plans.
-      $selection_list = self::get_selection_list('id', $price_plan_ids);
-      $result = $wpdb->query("DELETE FROM subscription_price_plan WHERE {$selection_list};");
-      if ($result === false)
-      {
-        error_log("Error while deleting price plans for subscription {$subscription_id}: {$wpdb->last_error}. Selection list: {$selection_list}");
-        return false;
-      }
+      return self::delete_price_plans_with_lines($price_plan_ids);
     }
     return true;
   }
@@ -309,6 +324,40 @@ class Price_Plan_Data_Manager
   }
 
   // *******************************************************************************************************************
+  // Return the ID of the rent price plan that is connected to the subscription with the given $subscription_id. The ID
+  // will be an integer. If the subscription was not found, or anything else went wrong, return -1.
+  protected static function get_rent_price_plan_id_for_subscription($subscription_id)
+  {
+    global $wpdb;
+
+    $sql = $wpdb->prepare("SELECT id FROM subscription_price_plan WHERE subscription_id = %d AND `type` IS NULL;",
+      $subscription_id);
+    $results = $wpdb->get_results($sql, ARRAY_A);
+    if (Utility::array_with_one($results))
+    {
+      return intval($results[0]['id']);
+    }
+    return -1;
+  }
+
+  // *******************************************************************************************************************
+  // Return the ID of the insurance price plan that is connected to the subscription with the given $subscription_id.
+  // The ID will be an integer. If the subscription was not found, or anything else went wrong, return -1.
+  protected static function get_insurance_price_plan_id_for_subscription($subscription_id)
+  {
+    global $wpdb;
+
+    $sql = $wpdb->prepare("SELECT id FROM subscription_price_plan WHERE subscription_id = %d AND `type` = " .
+      Utility::ADDITIONAL_PRODUCT_INSURANCE . ";", $subscription_id);
+    $results = $wpdb->get_results($sql, ARRAY_A);
+    if (Utility::array_with_one($results))
+    {
+      return intval($results[0]['id']);
+    }
+    return -1;
+  }
+
+  // *******************************************************************************************************************
   // Return an array of IDs of price plans that are connected to the subscription with the given $subscription_id. Each
   // ID is an integer. If the subscription was not found, or anything else went wrong, return an empty array.
   protected static function get_price_plan_ids_for_subscription($subscription_id)
@@ -395,6 +444,33 @@ class Price_Plan_Data_Manager
       $result[] = "({$price_plan_id}, \"{$price_date['from_date']}\", {$price_date['price']}, \"{$price_date['cause']}\", \"{$price_date['description']}\")";
     }
     return implode(',', $result);
+  }
+
+  // *******************************************************************************************************************
+  // Delete all price plans whose id appears in the given array of $price_plan_ids, as well as all the lines that
+  // belong to those price plans. Return true if the operation succeeded.
+  protected static function delete_price_plans_with_lines($price_plan_ids)
+  {
+    global $wpdb;
+
+    // Delete all price plan lines for the listed price plans.
+    $selection_list = self::get_selection_list('price_plan_id', $price_plan_ids);
+    $result = $wpdb->query("DELETE FROM subscription_price_plan_line WHERE {$selection_list};");
+    if ($result === false)
+    {
+      error_log("Error while deleting price plan lines: {$wpdb->last_error}. Selection list: {$selection_list}");
+      return false;
+    }
+
+    // Delete all the price plans.
+    $selection_list = self::get_selection_list('id', $price_plan_ids);
+    $result = $wpdb->query("DELETE FROM subscription_price_plan WHERE {$selection_list};");
+    if ($result === false)
+    {
+      error_log("Error while deleting price plans: {$wpdb->last_error}. Selection list: {$selection_list}");
+      return false;
+    }
+    return true;
   }
 
   // *******************************************************************************************************************

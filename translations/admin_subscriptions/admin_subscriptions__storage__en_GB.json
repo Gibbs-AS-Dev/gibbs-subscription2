@@ -68,7 +68,9 @@
       "Starting from date",
       "New price",
       "Description (seen by customer)",
-      "Add line"
+      "Add line",
+      "Delete subscription",
+      "Delete subscription. Are you sure? This action cannot be undone."
     ],
   "php_texts":
     [

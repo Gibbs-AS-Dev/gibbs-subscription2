@@ -68,7 +68,9 @@
       "Fra og med dato",
       "Ny pris",
       "Beskrivelse (synlig for kunden)",
-      "Legg til linje"
+      "Legg til linje",
+      "Slett abonnement",
+      "Er du sikker på at du vil slette abonnementet? Du kan ikke gjøre om dette etterpå."
     ],
   "php_texts":
     [

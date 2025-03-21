@@ -21,6 +21,7 @@ class All_Subscription_Data_Manager extends Single_Table_Data_Manager
   {
     parent::__construct($new_access_token);
     $this->add_action('cancel_subscription', Utility::ROLE_COMPANY_ADMIN, 'cancel_subscription_any_time');
+    $this->add_action('delete_subscription', Utility::ROLE_COMPANY_ADMIN, 'delete_subscription');
     $this->add_action('update_price_plan', Utility::ROLE_COMPANY_ADMIN, 'update_price_plan');
     $this->database_table = 'subscriptions';
   }
@@ -70,7 +71,8 @@ class All_Subscription_Data_Manager extends Single_Table_Data_Manager
       LEFT JOIN
         subscription_price_plan_line ppl ON ppl.price_plan_id = pp.id
       WHERE
-        s.owner_id = {$this->get_user_group_user_id()}
+        (s.owner_id = {$this->get_user_group_user_id()}) AND
+        (s.active != 2)
       ORDER BY
         buyer_id, location_id, product_name;
     ";
@@ -297,6 +299,42 @@ class All_Subscription_Data_Manager extends Single_Table_Data_Manager
   }
 
   // *******************************************************************************************************************
+  // Pretend to delete the subscription by setting the active flag to 2 in the database. This will prevent it from being
+  // read and displayed, but not actually remove it from the database. Return an integer result code that can be used to
+  // inform the user of the result of the operation.
+  //
+  // This method is available to administrators only.
+  public function delete_subscription()
+  {
+    global $wpdb;
+
+    // Ensure the ID was posted.
+    if (!Utility::integer_posted($this->id_posted_name))
+    {
+      return Result::MISSING_INPUT_FIELD;
+    }
+    $subscription_id = Utility::read_posted_integer($this->id_posted_name);
+
+    // Set the active field to 2 - that is, deleted.
+    $result = $wpdb->update(
+      $this->database_table,
+      array('active' => 2),
+      array('id' => $subscription_id)
+    );
+    if ($result === false)
+    {
+      error_log("Error while deleting subscription with ID {$subscription_id}: {$wpdb->last_error}.");
+      return Result::DATABASE_QUERY_FAILED;
+    }
+    if ($result !== 1)
+    {
+      error_log("Database query updated the wrong number of rows while deleting subscription with ID {$subscription_id}. Expected: 1. Actual: {$result}.");
+      return Result::DATABASE_QUERY_FAILED;
+    }
+    return Result::OK;
+  }
+
+  // *******************************************************************************************************************
   // Update an existing price plan. The client will submit the following fields:
   //   subscription_id : integer        The ID of the subscription for which a price plan should be updated.
   //   plan_type : integer              The type of plan to replace. Use the ADDITIONAL_PRODUCT_ constants, or pass -1
@@ -320,11 +358,11 @@ class All_Subscription_Data_Manager extends Single_Table_Data_Manager
     global $wpdb;
     
     // Ensure the subscription ID and line count were posted.
-    if (!Utility::integers_posted(array('subscription_id', 'line_count')))
+    if (!Utility::integers_posted(array($this->id_posted_name, 'line_count')))
     {
       return Result::MISSING_INPUT_FIELD;
     }
-    $subscription_id = Utility::read_posted_integer('subscription_id');
+    $subscription_id = Utility::read_posted_integer($this->id_posted_name);
     $line_count = Utility::read_posted_integer('line_count');
     // A price plan must always have at least one line. Ensure that it does.
     if ($line_count < 1)

@@ -113,9 +113,9 @@ class User_Subscription_Data_Manager extends Single_User_Data_Manager
       LEFT JOIN
         subscription_price_plan_line ppl ON ppl.price_plan_id = pp.id
       WHERE
-        s.owner_id = {$this->get_user_group_user_id()} AND
-        s.buyer_id = {$this->get_user_id()} AND
-        s.active = 1
+        (s.owner_id = {$this->get_user_group_user_id()}) AND
+        (s.buyer_id = {$this->get_user_id()}) AND
+        (s.active = 1)
       ORDER BY
         start_date DESC;
     ";

@@ -112,6 +112,8 @@
 // *********************************************************************************************************************
 // *** Done.
 // *********************************************************************************************************************
+// - In admin_subscriptions, add menu item to delete an expired or inactive subscription by setting its active flag to
+//   2. Implement in all_subscription_data_manager.
 // - In all_subscription_data_manager, add action to edit a price plan.
 // - In admin_subscriptions, add a form to update a price plan after editing it.
 // - When adding a new line to a price plan, copy the price from the previous line, if any.

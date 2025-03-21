@@ -253,11 +253,20 @@ function getPopupMenuContents(sender, index)
   o[p++] = sender.getMenuItem(getText(50, 'Si opp abonnement'), 'fa-hand-wave',
     subscriptions[index][c.sua.STATUS] === st.sub.ONGOING,
     'displayCancelSubscriptionDialogue(' + String(index) + ');');
+  // Delete subscription button. Displayed when the subscription has finished, or was never
+  // activated.
+  if ((subscriptions[index][c.sua.STATUS] === st.sub.EXPIRED) || 
+    (subscriptions[index][c.sua.STATUS] === st.sub.INACTIVE))
+  {
+    o[p++] = sender.getMenuItem(getText(68, 'Slett abonnement'), 'fa-trash', true,
+      'deleteSubscription(' + String(index) + ');');
+  }
   // Display customer button.
   o[p++] = sender.getMenuItem(getText(59, 'Vis kundekort'), 'fa-up-right-from-square', true,
     'Utility.displaySpinnerThenGoTo(\'/subscription/html/admin_edit_user.php?user_id=' +
     String(subscriptions[index][c.sua.BUYER_ID]) + '\');');
   o[p++] = '<br />';
+
   // Modify price buttons.
   editable = (subscriptions[index][c.sua.STATUS] === st.sub.ONGOING) ||
     (subscriptions[index][c.sua.STATUS] === st.sub.CANCELLED) ||
@@ -546,6 +555,31 @@ function closeCancelSubscriptionDialogue()
 {
   Utility.hide(cancelSubscriptionDialogue);
   Utility.hide(overlay);
+}
+
+// *************************************************************************************************
+// *** Delete subscription functions.
+// *************************************************************************************************
+// Upon approval, delete the subscription with the given index in the subscriptions table.
+function deleteSubscription(index)
+{
+  index = parseInt(index, 10);
+  if (!Utility.isValidIndex(index, subscriptions))
+    return;
+
+  if (confirm(getText(69, 'Er du sikker på at du vil slette abonnementet? Du kan ikke gjøre om dette etterpå.')))
+  {
+    o = new Array(4);
+    p = 0;
+
+    o[p++] = '<form id="deleteSubscriptionForm" action="/subscription/html/admin_subscriptions.php" method="post"><input type="hidden" name="action" value="delete_subscription" />';
+    o[p++] = getPageStateFormElements();
+    o[p++] = Utility.getHidden('id', subscriptions[index][c.sua.ID]);
+    o[p++] = '</form>';
+
+    cancelSubscriptionDialogue.innerHTML = o.join('');
+    Utility.displaySpinnerThenSubmit(document.getElementById('deleteSubscriptionForm'));
+  }
 }
 
 // *************************************************************************************************
@@ -993,7 +1027,7 @@ function displayEditPricePlanDialogue(index, planType)
   o[p++] = '<div class="dialogue-content"><form id="updatePricePlanForm" action="/subscription/html/admin_subscriptions.php" method="post">';
   o[p++] = getPageStateFormElements();
   o[p++] = '<input type="hidden" name="action" value="update_price_plan" />';
-  o[p++] = Utility.getHidden('subscription_id', String(subscriptions[index][c.sua.ID]));
+  o[p++] = Utility.getHidden('id', String(subscriptions[index][c.sua.ID]));
   if (planType === ADDITIONAL_PRODUCT_INSURANCE)
     o[p++] = Utility.getHidden('plan_type', String(ADDITIONAL_PRODUCT_INSURANCE));
   else

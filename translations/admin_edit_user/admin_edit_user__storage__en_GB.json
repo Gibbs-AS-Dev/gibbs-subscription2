@@ -24,7 +24,7 @@
       "To date",
       "Insurance",
       "Display order history",
-      "Save",
+      "Save notes",
       "The customer will keep the storage unit until the last day of the current month.",
       "The customer will pay for next month, and keep the storage unit until the last day of next month.",
       "Price",
@@ -69,7 +69,9 @@
       "View notes",
       "Loading notes. Please wait...",
       "Notes",
-      "Your private notes on this customer. The customer will not see them."
+      "Your private notes on this customer. The customer will not see them.",
+      "Customer Information",
+      "Invoice Information"
     ],
   "php_texts":
     [

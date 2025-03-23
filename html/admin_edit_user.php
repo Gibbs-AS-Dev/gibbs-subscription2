@@ -56,6 +56,39 @@
         // change_password method can sanitise and validate it.
         $result_code = User::change_password($user_id, $_POST['new_password']);
       }
+      else if ($requested_action === 'update_user')
+      {
+        // Save basic billing information
+        update_user_meta($user_id, 'billing_first_name', sanitize_text_field($_POST['billing_first_name']));
+        update_user_meta($user_id, 'billing_last_name', sanitize_text_field($_POST['billing_last_name']));
+        update_user_meta($user_id, 'billing_phone', sanitize_text_field($_POST['billing_phone']));
+        update_user_meta($user_id, 'billing_email', sanitize_text_field($_POST['billing_email']));
+        update_user_meta($user_id, 'billing_address_1', sanitize_text_field($_POST['billing_address_1']));
+        update_user_meta($user_id, 'billing_postcode', sanitize_text_field($_POST['billing_postcode']));
+        update_user_meta($user_id, 'billing_city', sanitize_text_field($_POST['billing_city']));
+        update_user_meta($user_id, 'country_code', sanitize_text_field($_POST['country_code']));
+        
+        // Check if this is a company and handle company data
+        $user_data = User_Data_Manager::get_user_data($user_id);
+        if ($user_data && $user_data['entity_type'] === Utility::ENTITY_TYPE_COMPANY) {
+          // Save company name and ID
+          if (isset($_POST['company_name'])) {
+            wp_update_user([
+              'ID' => $user_id,
+              'display_name' => sanitize_text_field($_POST['company_name'])
+            ]);
+            // Also save as billing_company
+            update_user_meta($user_id, 'billing_company', sanitize_text_field($_POST['company_name']));
+          }
+          
+          if (isset($_POST['company_id_number'])) {
+            update_user_meta($user_id, 'company_number', sanitize_text_field($_POST['company_id_number']));
+            error_log("Updated company ID number to: " . $_POST['company_id_number']);
+          }
+        }
+        
+        $result_code = Result::OK;
+      }
       else
       {
         // Cancel subscriptions.
@@ -124,9 +157,32 @@ var subscriptions = <?= $subscriptions ?>;
   <body onload="initialise();">
     <?= Sidebar::get_admin_sidebar() ?>
     <?= Header::get_header_with_user_info($access_token, $text->get(0, 'Kundekort'), 'fa-user') ?>
-    <div class="content">
-      <div id="userInfoBox">
+    <div class="content" style="display: flex; gap: 20px;">
+      <div id="userInfoBox" style="flex: 1;">
         &nbsp;
+      </div>
+      <div id="userNotesBox" style="flex: 1; display: <?= $is_new_user ? 'none' : 'block' ?>;">
+        <div class="toolbar">
+          <h3><?= $text->get(67, 'Notater') ?></h3>
+        </div>
+        <div class="form-element help-text">
+          <?= $text->get(68, 'Deres private notater om denne kunden. Kunden vil ikke få tilgang til disse.') ?>
+        </div>
+        <div id="userNotesContent">
+          <form action="/subscription/json/user_notes.php" method="post" id="notesForm" target="notesTarget" onsubmit="return encodeNotesBeforeSubmit();">
+            <input type="hidden" name="action" value="set_user_notes">
+            <input type="hidden" name="user_id" value="<?= $user_id ?>">
+            <textarea id="inlineUserNotesTextArea" name="user_notes" style="width: 100%; min-height: 200px;"></textarea>
+            <input type="hidden" id="encodedUserNotes" name="encoded_user_notes" value="">
+            <div class="button-container" style="margin-top: 10px;">
+              <button type="submit" id="saveNotesButton">
+                <i class="fa-solid fa-check"></i> <?= $text->get(23, 'Lagre') ?>
+                <span id="saveNotesSpinner" class="button-spinner" style="display: none;"><i class="fa-solid fa-spinner fa-spin"></i></span>
+              </button>
+            </div>
+          </form>
+          <iframe id="notesTarget" name="notesTarget" style="display:none;"></iframe>
+        </div>
       </div>
     </div>
     <div id="subscriptionsFrame" class="content">

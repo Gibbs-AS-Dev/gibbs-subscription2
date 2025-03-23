@@ -14,7 +14,7 @@ var userInfoBox, subscriptionsFrame, subscriptionsBox, expiredSubscriptionsCheck
 var individualDataBox, companyDataBox, firstNameEdit, lastNameEdit, companyNameEdit, companyIdEdit,
   userNameEdit, phoneEdit, passwordEdit, submitButton, cancelSubscriptionForm, standardCancelBox,
   immediateCancelBox, customCancelBox, customCancelResultBox, endDateEdit, openCalendarButton,
-  closeCalendarButton, calendarBox, userNotesTextArea;
+  closeCalendarButton, calendarBox, userNotesTextArea, inlineUserNotesTextArea;
 
 // The sorting object that controls the sorting of the subscriptions table. Only present if editing
 // an existing user.
@@ -47,7 +47,79 @@ function initialise()
   // Obtain pointers to user interface elements.
   Utility.readPointers(['userInfoBox', 'subscriptionsFrame', 'subscriptionsBox',
    'expiredSubscriptionsCheckbox', 'overlay', 'userNotesDialogue', 'pricePlanDialogue',
-   'paymentHistoryDialogue', 'cancelSubscriptionDialogue']);
+   'paymentHistoryDialogue', 'cancelSubscriptionDialogue', 'inlineUserNotesTextArea', 'notesForm', 'notesTarget']);
+
+  // Add logging for debugging company loading issue
+  if (user && user.entityType === ENTITY_TYPE_COMPANY) {
+    console.log("Loading company user:", user);
+    console.log("Company ID number:", user.companyIdNumber);
+  }
+  
+  // Failsafe to hide spinner after 10 seconds in case of loading issues
+  setTimeout(function() {
+    console.log("Applying failsafe to hide spinner");
+    Utility.hideSpinner();
+  }, 10000);
+
+  // Set up form handlers
+  if (notesForm) {
+    console.log("Setting up form submission handler");
+    notesForm.onsubmit = function() {
+      // Show loading spinner instead of alert
+      var saveButton = document.getElementById('saveNotesButton');
+      var spinner = document.getElementById('saveNotesSpinner');
+      
+      if (saveButton && spinner) {
+        saveButton.disabled = true;
+        spinner.style.display = 'inline-block';
+      }
+      
+      // Encode line breaks before submission
+      return encodeNotesBeforeSubmit();
+    };
+  } else {
+    console.log("Notes form not found");
+  }
+
+  // Set up iframe load handler
+  if (notesTarget) {
+    console.log("Setting up iframe load handler");
+    notesTarget.onload = function() {
+      // Hide spinner and re-enable button when form is submitted
+      var saveButton = document.getElementById('saveNotesButton');
+      var spinner = document.getElementById('saveNotesSpinner');
+      
+      if (saveButton && spinner) {
+        saveButton.disabled = false;
+        spinner.style.display = 'none';
+      }
+      
+      try {
+        var iframeContent = notesTarget.contentDocument || notesTarget.contentWindow.document;
+        var responseText = iframeContent.body.innerText;
+        if (responseText) {
+          console.log("Notes saved successfully! Response: " + responseText);
+          
+          // Try to parse the JSON response
+          try {
+            var response = JSON.parse(responseText);
+            if (response && response.userNotes) {
+              // Decode line breaks and update the textarea
+              userNotes = Utility.decodeLineBreaks(response.userNotes);
+              inlineUserNotesTextArea.value = userNotes;
+              console.log("Notes updated with line breaks preserved");
+            }
+          } catch (jsonError) {
+            console.error("Error parsing JSON response: " + jsonError.message);
+          }
+        }
+      } catch (e) {
+        console.error("Error processing iframe response: ", e);
+      }
+    };
+  } else {
+    console.log("Notes target iframe not found");
+  }
 
   // Create the popup menu.
   menu = new PopupMenu(getPopupMenuContents);
@@ -104,6 +176,32 @@ function initialise()
       alert(getText(0, 'Det oppstod en feil. Vennligst kontakt kundeservice og oppgi feilkode $1. Tidspunkt: $2.',
         [String(resultCode), TIMESTAMP]));
     }
+
+  // Show user notes directly when page loads
+  if (!isNewUser) {
+    // Make a direct request to get the notes
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', '/subscription/json/user_notes.php?user_id=' + user.id, true);
+    xhr.onload = function() {
+      console.log("XHR Status: " + xhr.status);
+      console.log("XHR Response: " + xhr.responseText);
+      if (xhr.status === 200) {
+        try {
+          var response = JSON.parse(xhr.responseText);
+          if (response && response.userNotes) {
+            userNotes = response.userNotes;
+            console.log("Loaded user notes: " + userNotes);
+            if (inlineUserNotesTextArea) {
+              inlineUserNotesTextArea.value = userNotes;
+            }
+          }
+        } catch (e) {
+          console.error("Error parsing response: " + e.message);
+        }
+      }
+    };
+    xhr.send();
+  }
 }
 
 // *************************************************************************************************
@@ -131,95 +229,159 @@ function displayUserInfo()
 {
   var o, p;
 
-  o = new Array(37);
+  o = new Array(70); // Increased array size for more HTML
   p = 0;
 
-  o[p++] = '<div class="toolbar"><h3>';
-  if (isNewUser)
-    o[p++] = getText(2, 'Opprett kunde');
+  // Create a flex container for the two columns
+  o[p++] = '<div style="display: flex; gap: 20px; width: 100%;">';
+  
+  // ********** LEFT SIDE - User Information (Read-Only) **********
+  o[p++] = '<div style="flex: 1; border: 1px solid #ddd; border-radius: 5px; padding: 15px; background-color: #f9f9f9;">';
+  o[p++] = '<div class="toolbar"><h3>' + getText(200, 'Bruker opplysninger') + '</h3></div>';
+  
+  // Entity type display
+  o[p++] = '<div class="form-element">';
+  if (user.entityType === ENTITY_TYPE_COMPANY)
+    o[p++] = getText(47, 'Bedrift');
   else
-    o[p++] = getText(3, 'Personopplysninger');
-  o[p++] = '</h3></div><form action="/subscription/html/admin_edit_user.php" method="post">';
+    o[p++] = getText(46, 'Privatperson');
+  o[p++] = '</div>';
+
+  // Display first and last name for individuals
+  if (user.entityType === ENTITY_TYPE_INDIVIDUAL)
+  {
+    o[p++] = '<div class="form-element">';
+    o[p++] = '<label class="standard-label">' + getText(4, 'Fornavn:') + '</label>';
+    o[p++] = '<div class="read-only-field">' + (user.orig_first_name || user.firstName || '') + '</div>';
+    o[p++] = '</div>';
+    
+    o[p++] = '<div class="form-element">';
+    o[p++] = '<label class="standard-label">' + getText(5, 'Etternavn:') + '</label>';
+    o[p++] = '<div class="read-only-field">' + (user.orig_last_name || user.lastName || '') + '</div>';
+    o[p++] = '</div>';
+  }
+
+  // Display company name and ID for companies
+  if (user.entityType === ENTITY_TYPE_COMPANY)
+  {
+    o[p++] = '<div class="form-element">';
+    o[p++] = '<label class="standard-label">' + getText(48, 'Navn:') + '</label>';
+    o[p++] = '<div class="read-only-field">' + (user.name || '') + '</div>';
+    o[p++] = '</div>';
+    
+    o[p++] = '<div class="form-element">';
+    o[p++] = '<label class="standard-label">' + getText(49, 'Org. nr:') + '</label>';
+    o[p++] = '<div class="read-only-field">' + (user.companyIdNumber || '') + '</div>';
+    o[p++] = '</div>';
+    
+    // Log company data for debugging
+    console.log("Setting up company edit fields:");
+    console.log("Company name:", user.name);
+    console.log("Company ID:", user.companyIdNumber);
+  }
+
+  // Email (original)
+  o[p++] = '<div class="form-element">';
+  o[p++] = '<label class="standard-label">' + getText(6, 'E-post:') + '</label>';
+  o[p++] = '<div class="read-only-field">' + (user.eMail || '') + '</div>';
+  o[p++] = '</div>';
+
+  // Phone (original)
+  o[p++] = '<div class="form-element">';
+  o[p++] = '<label class="standard-label">' + getText(7, 'Telefonnr:') + '</label>';
+  o[p++] = '<div class="read-only-field">' + (user.orig_phone || user.phone || '') + '</div>';
+  o[p++] = '</div>';
+  
+  // End left side column
+  o[p++] = '</div>';
+
+  // ********** RIGHT SIDE - Billing Information (Editable) **********
+  o[p++] = '<div style="flex: 1; border: 1px solid #ddd; border-radius: 5px; padding: 15px; background-color: #fff;">';
+  o[p++] = '<div class="toolbar"><h3>' + getText(201, 'Faktura opplysninger') + '</h3></div>';
+  
+  // Form starts here
+  o[p++] = '<form action="/subscription/html/admin_edit_user.php" method="post">';
   if (!isNewUser)
     o[p++] = getPageStateFormElements();
 
-  o[p++] = '<div class="form-element">';
-  if (isNewUser)
-  {
-    o[p++] = '<label><input type="radio" id="newIndividualButton" name="entity_type" value="0" checked="checked" onchange="selectEntityType();" />';
-    o[p++] = getText(46, 'Privatperson');
-    o[p++] = '<span class="mandatory">*</span></label><label><input type="radio" id="newCompanyButton" name="entity_type" value="1" onchange="selectEntityType();" />';
-    o[p++] = getText(47, 'Bedrift');
-    o[p++] = '<span class="mandatory">*</span></label>';
-  }
-  else
-  {
-    if (user.entityType === ENTITY_TYPE_COMPANY)
-      o[p++] = getText(47, 'Bedrift');
-    else
-      o[p++] = getText(46, 'Privatperson');
-  }
-  o[p++] = '</div>';
+  // Add action parameter for existing users
+  if (!isNewUser)
+    o[p++] = '<input type="hidden" name="action" value="update_user" />';
 
-  // First and last name for individuals.
-  if (isNewUser || (user.entityType === ENTITY_TYPE_INDIVIDUAL))
+  // First and last name for individuals (billing)
+  if (user.entityType === ENTITY_TYPE_INDIVIDUAL)
   {
     o[p++] = '<div id="individualDataBox">';
-    o[p++] = Utility.getEditBox('firstNameEdit', 'first_name', getText(4, 'Fornavn:'),
-      user.firstName);
-    o[p++] = Utility.getEditBox('lastNameEdit', 'last_name', getText(5, 'Etternavn:'),
-      user.lastName);
+    o[p++] = Utility.getEditBox('firstNameEdit', 'billing_first_name', getText(4, 'Fornavn:'),
+      user.billing_first_name || user.firstName || '');
+    o[p++] = Utility.getEditBox('lastNameEdit', 'billing_last_name', getText(5, 'Etternavn:'),
+      user.billing_last_name || user.lastName || '');
     o[p++] = '</div>';
   }
 
-  // Name and ID number for companies.
-  if (isNewUser || (user.entityType === ENTITY_TYPE_COMPANY))
+  // Name and ID number for companies (billing)
+  if (user.entityType === ENTITY_TYPE_COMPANY)
   {
     o[p++] = '<div id="companyDataBox">';
-    o[p++] = Utility.getEditBox('companyNameEdit', 'company_name', getText(48, 'Navn:'), user.name);
-    o[p++] = Utility.getEditBox('companyIdEdit', 'company_id_number', getText(49, 'Org. nr:'),
-      user.companyIdNumber);
+    // Make sure to stringify these values and handle undefined/null cases
+    var companyName = user.name || '';
+    var companyIdNumber = user.companyIdNumber || '';
+    
+    o[p++] = Utility.getEditBox('companyNameEdit', 'company_name', getText(48, 'Navn:'), companyName);
+    o[p++] = Utility.getEditBox('companyIdEdit', 'company_id_number', getText(49, 'Org. nr:'), companyIdNumber);
+    
+    // Log company data for debugging
+    console.log("Setting up company edit fields:");
+    console.log("Company name:", companyName);
+    console.log("Company ID:", companyIdNumber);
+    
     o[p++] = '</div>';
   }
 
-  o[p++] = Utility.getEditBox('userNameEdit', 'user_name', getText(6, 'E-post:'), user.eMail);
-  o[p++] = Utility.getEditBox('phoneEdit', 'phone', getText(7, 'Telefonnr:'), user.phone);
-  o[p++] = Utility.getEditBox('addressEdit', 'address', getText(42, 'Adresse:'), user.address);
-  o[p++] = Utility.getEditBox('postcodeEdit', 'postcode', getText(44, 'Postnr:'),
-    user.postcode);
-  o[p++] = Utility.getEditBox('areaEdit', 'area', getText(45, 'Poststed:'), user.area);
-  if (isNewUser)
-  {
-    o[p++] = '<div class="form-element"><label for="passwordEdit" class="standard-label">';
-    o[p++] = getText(8, 'Passord:');
-    o[p++] = Utility.getMandatoryMark();
-    o[p++] = '</label><input type="password" id="passwordEdit" name="password" class="long-text" onkeyup="enableSubmitButton();" onchange="enableSubmitButton();" /> <span class="help-text">';
-    o[p++] = getText(9, '(minst $1 tegn)', [String(PASSWORD_MIN_LENGTH)]);
-    o[p++] = '</span></div>';
-  }
-/*
+  // Email (billing)
+  o[p++] = Utility.getEditBox('billingEmailEdit', 'billing_email', getText(6, 'E-post:'), 
+    user.billingEmail || user.eMail || '');
+  
+  // Country code
+  o[p++] = Utility.getEditBox('countryCodeEdit', 'country_code', 'Landkode:', user.countryCode || '+47');
+  
+  // Phone (billing)
+  o[p++] = Utility.getEditBox('phoneEdit', 'billing_phone', getText(7, 'Telefonnr:'), 
+    user.billing_phone || user.phone || '');
+  
+  // Address (billing)
+  o[p++] = Utility.getEditBox('addressEdit', 'billing_address_1', getText(42, 'Adresse:'), 
+    user.billing_address || user.address || '');
+  
+  // Postcode (billing)
+  o[p++] = Utility.getEditBox('postcodeEdit', 'billing_postcode', getText(44, 'Postnr:'),
+    user.billing_postcode || user.postcode || '');
+  
+  // Area (billing)
+  o[p++] = Utility.getEditBox('areaEdit', 'billing_city', getText(45, 'Poststed:'), 
+    user.billing_city || user.area || '');
+  
+  // Submit button
   o[p++] = '<div class="button-container fixed-width-container"><button type="submit" id="submitButton" class="wide-button"><i class="fa-solid fa-check"></i> ';
-  if (isNewUser)
-    o[p++] = getText(2, 'Opprett kunde');
-  else
-    o[p++] = getText(12, 'Lagre endringer');
+  o[p++] = getText(12, 'Lagre endringer');
   o[p++] = '</button></div>';
-*/
-  if (!isNewUser)
-  {
-    o[p++] = '<div class="button-container fixed-width-container"><button type="button" class="wide-button" onclick="changePassword();"><i class="fa-solid fa-key"></i> ';
-    o[p++] = getText(10, 'Endre passord');
-    o[p++] = '</button> <button type="button" class="wide-button" onclick="loadUserNotes();"><i class="fa-solid fa-user-pen"></i> ';
-    o[p++] = getText(65, 'Se notater');
-    o[p++] = '</button></div>';
-  }
+  
   o[p++] = '</form>';
+  
+  // End right side column
+  o[p++] = '</div>';
+  
+  // End flex container
+  o[p++] = '</div>';
+
+  // Add CSS for read-only fields
+  o[p++] = '<style>.read-only-field { padding: 6px 0; font-weight: normal; }</style>';
 
   userInfoBox.innerHTML = o.join('');
 
-  // Obtain pointers to user interface elements.
+  // Obtain pointers to user interface elements
   Utility.readPointers(['individualDataBox', 'companyDataBox', 'firstNameEdit', 'lastNameEdit',
-    'companyNameEdit', 'companyIdEdit', 'userNameEdit', 'phoneEdit', 'passwordEdit',
+    'companyNameEdit', 'companyIdEdit', 'billingEmailEdit', 'countryCodeEdit', 'phoneEdit',
     'submitButton']);
 
   enableSubmitButton();
@@ -257,15 +419,17 @@ function setEntityType(newValue)
 
 function enableSubmitButton()
 {
-  // var invalid;
+  var invalid;
   
-    // *** // Creating or updating customers is currently not implemented.
-  // submitButton.disabled = true;
-
-/*
   // The form cannot be submitted if the main edit boxes are empty.
-  invalid = ((firstNameEdit.value === '') && (lastNameEdit.value === '')) ||
-    (userNameEdit.value === '') || (phoneEdit.value === '');
+  if (selectedEntityType === ENTITY_TYPE_INDIVIDUAL) {
+    invalid = ((firstNameEdit.value === '') && (lastNameEdit.value === '')) ||
+      (billingEmailEdit.value === '') || (phoneEdit.value === '');
+  } else {
+    invalid = (companyNameEdit.value === '') ||
+      (billingEmailEdit.value === '') || (phoneEdit.value === '');
+  }
+  
   if (isNewUser)
   {
     // For a new customer, the user also has to fill in the password, and it has to contain at least
@@ -273,17 +437,8 @@ function enableSubmitButton()
     invalid = invalid || (passwordEdit.value === '') ||
       (passwordEdit.value.length < PASSWORD_MIN_LENGTH);
   }
-  else
-  {
-    // For an existing customer, the contents have to differ from the stored value. If nothing has
-    // changed, there is no point in saving.
-    invalid = invalid || ((firstNameEdit.value === user.firstName) &&
-      (lastNameEdit.value === user.lastName) && (userNameEdit.value === user.eMail) &&
-      (phoneEdit.value === user.phone));
-  }
 
   submitButton.disabled = invalid;
-*/
 }
 
 // *************************************************************************************************
@@ -318,20 +473,30 @@ function changePassword()
 
 function loadUserNotes()
 {
-  // If the user notes have already been loaded, 
-  if (userNotes !== null)
-    displayUserNotes();
-  else
-  {
-    // Fetch the user notes from the server, then store and display them.
-    userNotesDialogue.innerHTML = '<p>' +
-      getText(66, 'Laster notater. Vennligst vent...') + '</p>';
-    Utility.display(overlay);
-    Utility.display(userNotesDialogue);
+  // If the user notes have already been loaded, populate the field
+  if (userNotes !== null) {
+    console.log("Using cached user notes");
+    inlineUserNotesTextArea.value = userNotes;
+  } else {
+    // Fetch the user notes from the server, then store and display them
+    console.log("Fetching user notes for user ID: " + user.id);
+    Utility.displaySpinner();
     errorDisplayed = false;
     fetch('/subscription/json/user_notes.php?user_id=' + String(user.id))
-      .then(Utility.extractJson)
-      .then(storeUserNotes)
+      .then(function(response) {
+        console.log("Notes fetch response status: " + response.status);
+        // Check if response is OK
+        if (!response.ok) {
+          throw new Error('Network response was not ok: ' + response.status);
+        }
+        // Use Utility.extractJson if available, otherwise use response.json()
+        if (typeof Utility !== 'undefined' && typeof Utility.extractJson === 'function') {
+          return Utility.extractJson(response);
+        } else {
+          return response.json();
+        }
+      })
+      .then(storeUserNotesInline)
       .catch(logUserNotesError);
   }
 }
@@ -340,53 +505,52 @@ function loadUserNotes()
 // Log an error that occurred while fetching user notes from the server.
 function logUserNotesError(error)
 {
-  console.error('Error fetching or updating user notes: ' + error);
-  closeUserNotesDialogue();
+  console.error('Error fetching user notes: ', error);
+  alert(getText(0, 'Det oppstod en feil. Vennligst kontakt kundeservice.'));
+  Utility.hideSpinner();
 }
 
 // *************************************************************************************************
-// Store and display the user notes for the user being edited. These are the administrator's private
-// notes concerning that user.
-function storeUserNotes(data)
+// Store and display the user notes in the inline text area 
+function storeUserNotesInline(data)
 {
+  console.log("Notes fetch response data:", data);
+  
   // See if the request has already failed.
   if (errorDisplayed)
     return;
 
-  if (data && data.resultCode)
+  if (data && data.resultCode !== undefined)
   {
     if (Utility.isError(data.resultCode))
     {
-      console.error('Error fetching or updating user notes: result code: ' +
+      console.error('Error fetching user notes: result code: ' +
         String(data.resultCode));
       errorDisplayed = true;
       alert(getText(0, 'Det oppstod en feil. Vennligst kontakt kundeservice og oppgi feilkode $1. Tidspunkt: $2.',
         [String(data.resultCode), Utility.getTimestamp()]));
-      closeUserNotesDialogue();
+      Utility.hideSpinner();
     }
     else
     {
       if (typeof data.userNotes !== 'undefined')
       {
+        console.log("Successfully fetched user notes");
         userNotes = Utility.decodeLineBreaks(data.userNotes);
-        // If the result was OK, that means the user notes were stored. Close the dialogue.
-        // Otherwise, display it.
-        if (data.resultCode === result.OK)
-          closeUserNotesDialogue();
-        else
-          displayUserNotes();
+        inlineUserNotesTextArea.value = userNotes;
+        Utility.hideSpinner();
       }
       else
       {
-        console.error('Error fetching or updating user notes: user notes field missing.');
-        closeUserNotesDialogue();
+        console.error('Error fetching user notes: userNotes field missing from response.');
+        Utility.hideSpinner();
       }
     }
   }
   else
   {
-    console.error('Error fetching or updating user notes: data object or result code missing.');
-    closeUserNotesDialogue();
+    console.error('Error fetching user notes: data object or resultCode missing.');
+    Utility.hideSpinner();
   }
 }
 
@@ -431,20 +595,74 @@ function saveUserNotes()
 {
   var options, requestData;
 
+  // Show spinner while saving
+  Utility.displaySpinner();
+  
+  // Prepare the form data
   requestData = new FormData();
   requestData.append('action', 'set_user_notes');
   requestData.append('user_id', String(user.id));
   requestData.append('user_notes', Utility.encodeLineBreaks(userNotesTextArea.value));
-  options =
-    {
-      method: 'POST',
-      body: requestData
-    };
+  
+  options = {
+    method: 'POST',
+    body: requestData
+  };
+  
   errorDisplayed = false;
+  
+  // Send the request
   fetch('/subscription/json/user_notes.php', options)
-    .then(Utility.extractJson)
-    .then(storeUserNotes)
-    .catch(logUserNotesError);
+    .then(function(response) {
+      console.log("Response status: " + response.status);
+      // Check if response is OK
+      if (!response.ok) {
+        throw new Error('Network response was not ok: ' + response.status);
+      }
+      // Use Utility.extractJson if available, otherwise use response.json()
+      if (typeof Utility !== 'undefined' && typeof Utility.extractJson === 'function') {
+        return Utility.extractJson(response);
+      } else {
+        return response.json();
+      }
+    })
+    .then(function(data) {
+      console.log("Response data:", data);
+      
+      if (data && data.resultCode !== undefined) {
+        if (Utility.isError(data.resultCode)) {
+          // Handle error
+          console.error('Error saving user notes: result code: ' + String(data.resultCode));
+          errorDisplayed = true;
+          alert(getText(0, 'Det oppstod en feil. Vennligst kontakt kundeservice og oppgi feilkode $1. Tidspunkt: $2.',
+            [String(data.resultCode), Utility.getTimestamp()]));
+        } else {
+          // Success
+          if (typeof data.userNotes !== 'undefined') {
+            userNotes = Utility.decodeLineBreaks(data.userNotes);
+            userNotesTextArea.value = userNotes;
+            // Don't show alert, just close the dialog
+            closeUserNotesDialogue();
+          } else {
+            console.error('Response missing userNotes field:', data);
+            alert(getText(0, 'Det oppstod en feil. Vennligst kontakt kundeservice.'));
+          }
+        }
+      } else {
+        // Handle missing data
+        console.error('Invalid response data:', data);
+        alert(getText(0, 'Det oppstod en feil. Vennligst kontakt kundeservice og oppgi feilkode $1. Tidspunkt: $2.',
+          ['?', Utility.getTimestamp()]));
+      }
+      Utility.hideSpinner();
+    })
+    .catch(function(error) {
+      // Handle network or other errors
+      console.error('Error saving user notes: ' + error);
+      alert(getText(0, 'Det oppstod en feil. Vennligst kontakt kundeservice og oppgi feilkode $1. Tidspunkt: $2.',
+        ['?', Utility.getTimestamp()]));
+      Utility.hideSpinner();
+    });
 }
 
 // *************************************************************************************************
@@ -1226,6 +1444,102 @@ function closePaymentHistoryDialogue()
 {
   Utility.hide(paymentHistoryDialogue);
   Utility.hide(overlay);
+}
+
+// *************************************************************************************************
+// Encode line breaks in the notes textarea before form submission
+function encodeNotesBeforeSubmit() {
+  try {
+    var notesTextarea = document.getElementById('inlineUserNotesTextArea');
+    var encodedField = document.getElementById('encodedUserNotes');
+    
+    if (notesTextarea && encodedField) {
+      // Store the original value in the user_notes field for display
+      var originalValue = notesTextarea.value;
+      
+      // Encode line breaks and store in the hidden field
+      encodedField.value = Utility.encodeLineBreaks(originalValue);
+      
+      // Update the form to use the encoded value
+      notesTextarea.name = 'original_user_notes'; // Rename original field
+      
+      console.log("Notes encoded for submission");
+      return true;
+    } else {
+      console.error("Could not find required form elements");
+      return false;
+    }
+  } catch (e) {
+    console.error("Error encoding notes: " + e.message);
+    return false;
+  }
+}
+
+// *************************************************************************************************
+// Add a simple backup save function with minimal code for testing
+function saveInlineUserNotes()
+{
+  try {
+    // Show loading spinner
+    var saveButton = document.getElementById('saveNotesButton');
+    var spinner = document.getElementById('saveNotesSpinner');
+    
+    if (saveButton && spinner) {
+      saveButton.disabled = true;
+      spinner.style.display = 'inline-block';
+    }
+    
+    var formData = new FormData();
+    formData.append('action', 'set_user_notes');
+    formData.append('user_id', String(user.id));
+    formData.append('user_notes', Utility.encodeLineBreaks(inlineUserNotesTextArea.value));
+    
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '/subscription/json/user_notes.php', true);
+    
+    xhr.onload = function() {
+      // Hide spinner and re-enable button
+      if (saveButton && spinner) {
+        saveButton.disabled = false;
+        spinner.style.display = 'none';
+      }
+      
+      if (xhr.status === 200) {
+        console.log("Notes saved successfully!");
+        try {
+          var response = JSON.parse(xhr.responseText);
+          if (response && response.userNotes) {
+            userNotes = Utility.decodeLineBreaks(response.userNotes);
+            inlineUserNotesTextArea.value = userNotes;
+            console.log("Notes updated: " + userNotes);
+          }
+        } catch (e) {
+          console.error("Response parsing error: " + e.message);
+        }
+      } else {
+        console.error("Server returned status: " + xhr.status);
+      }
+    };
+    
+    xhr.onerror = function() {
+      // Hide spinner and re-enable button on error
+      if (saveButton && spinner) {
+        saveButton.disabled = false;
+        spinner.style.display = 'none';
+      }
+      console.error("Request failed");
+    };
+    
+    xhr.send(formData);
+    console.log("Request sent");
+  } catch (e) {
+    // Hide spinner and re-enable button on error
+    if (saveButton && spinner) {
+      saveButton.disabled = false;
+      spinner.style.display = 'none';
+    }
+    console.error("Error in save function: " + e.message);
+  }
 }
 
 // *************************************************************************************************

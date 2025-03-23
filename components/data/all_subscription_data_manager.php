@@ -4,6 +4,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/subscription/components/data/single_t
 require_once $_SERVER['DOCUMENT_ROOT'] . '/subscription/components/utility/utility.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/subscription/components/utility/subscription_utility.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/subscription/components/data/user_data_manager.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/subscription/components/data/user_subscription_data_manager.php';
 
 class All_Subscription_Data_Manager extends Single_Table_Data_Manager
 {
@@ -23,6 +24,7 @@ class All_Subscription_Data_Manager extends Single_Table_Data_Manager
     $this->add_action('cancel_subscription', Utility::ROLE_COMPANY_ADMIN, 'cancel_subscription_any_time');
     $this->add_action('delete_subscription', Utility::ROLE_COMPANY_ADMIN, 'delete_subscription');
     $this->add_action('update_price_plan', Utility::ROLE_COMPANY_ADMIN, 'update_price_plan');
+    $this->add_action('override_start_date', Utility::ROLE_COMPANY_ADMIN, 'override_start_date');
     $this->database_table = 'subscriptions';
   }
 
@@ -318,7 +320,7 @@ class All_Subscription_Data_Manager extends Single_Table_Data_Manager
     // Set the active field to 2 - that is, deleted.
     $result = $wpdb->update(
       $this->database_table,
-      array('active' => 2),
+      array('active' => 2, 'updated_at' => current_time('mysql')),
       array('id' => $subscription_id)
     );
     if ($result === false)
@@ -437,6 +439,60 @@ class All_Subscription_Data_Manager extends Single_Table_Data_Manager
     {
       error_log('Commit failed while creating updated price plan: ' . $wpdb->last_error);
       $wpdb->query('ROLLBACK');
+      return Result::DATABASE_QUERY_FAILED;
+    }
+    return Result::OK;
+  }
+
+  // *******************************************************************************************************************
+  // Set the start date of a subscription to something other than when the subscription started. This can be used to set
+  // the record straight when transferring subscriptions from an earlier system. Changing the start date will not modify
+  // anything else, such as price plans or already generated orders.
+  public function override_start_date()
+  {
+    global $wpdb;
+
+    // Read parameters.
+    if (!Utility::integer_posted($this->id_posted_name) || !Utility::date_posted('new_start_date'))
+    {
+      return Result::MISSING_INPUT_FIELD;
+    }
+    $subscription_id = Utility::read_posted_integer($this->id_posted_name);
+    $new_start_date = Utility::read_posted_string('new_start_date');
+
+    // Validate new start date. Read the subscription. Verify that the new start date is after a reasonable earliest
+    // start date, and before today's date. If the subscription has an end date, the new start date has to be earlier
+    // than that as well.
+    $subscription_data = new User_Subscription_Data_Manager($this->access_token);
+    $subscription = $subscription_data->read_subscription($subscription_id);
+    if (!isset($subscription))
+    {
+      error_log('Failed to override start date: subscription with ID ' . $subscription_id . ' not found.');
+      return Result::SUBSCRIPTION_NOT_FOUND;
+    }
+    $last_date = Utility::get_today();
+    if (!empty($subscription['end_date']) && ($subscription['end_date'] < $last_date))
+    {
+      $last_date = $subscription['end_date'];
+    }
+    if (($new_start_date < '1950-01-01') || ($new_start_date >= $last_date))
+    {
+      return Result::INVALID_DATE;
+    }
+
+    // Update the start date.
+    $result = $wpdb->update($this->database_table,
+        array('start_date' => $new_start_date, 'updated_at' => current_time('mysql')),
+        array('id' => $subscription_id)
+      );
+    if ($result === false)
+    {
+      error_log("Error while updating start date for subscription {$subscription_id}: {$wpdb->last_error}.");
+      return Result::DATABASE_QUERY_FAILED;
+    }
+    if ($result !== 1)
+    {
+      error_log("Database query updated the wrong number of rows updating start date for subscription {$subscription_id}. Expected: 1. Actual: {$result}.");
       return Result::DATABASE_QUERY_FAILED;
     }
     return Result::OK;

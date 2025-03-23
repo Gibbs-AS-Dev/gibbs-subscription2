@@ -240,7 +240,7 @@ function getPopupMenuContents(sender, index)
 {
   var o, p, editable;
 
-  index = parseInt(index, 10);
+  index = parseInt(index, 12);
   if (!Utility.isValidIndex(index, subscriptions))
     return '';
   o = new Array(6);
@@ -277,6 +277,12 @@ function getPopupMenuContents(sender, index)
     editable && (subscriptions[index][c.sua.INSURANCE_NAME] !== ''),
     'displayEditPricePlanDialogue(' + String(index) + ', ' +
     String(ADDITIONAL_PRODUCT_INSURANCE) + ');');
+
+  // Override start date.
+  o[p++] = '<br />';
+  o[p++] = sender.getMenuItem(getText(70, 'Endre startdato'), 'fa-calendar', true,
+    'overrideStartDate(' + String(index) + ');');
+
   return o.join('');
 }
 
@@ -1388,6 +1394,60 @@ function closeEditPricePlanDateDialogue()
   editedPricePlanLineIndex = -1;
   Utility.hide(editPricePlanDateDialogue);
   Utility.display(editPricePlanDialogue);
+}
+
+// *************************************************************************************************
+// Override start date functions.
+// *************************************************************************************************
+// Display a dialogue box to edit the start date of the subscription with the given index in the
+// subscriptions table. This can be used to set the record straight when transferring subscriptions
+// from an earlier system. Changing the start date will not modify anything else, such as price
+// plans or already generated orders.
+function overrideStartDate(index)
+{
+  var newDate, lastDate;
+
+  index = parseInt(index, 10);
+  if (!Utility.isValidIndex(index, subscriptions))
+    return;
+
+  // Display dialogue box.
+  newDate = prompt(
+      getText(71, 'Endre startdatoen for abonnementet. Dette bør kun gjøres når du har importert et abonnement fra et annet system. Merk at endringen ikke påvirker prisplaner eller allerede genererte ordre. Datoen må skrives på formatet "åååå-mm-dd":'),
+      subscriptions[index][c.sua.START_DATE]
+    );
+  // If the newDate is null, the user cancelled. Do nothing.
+  if (newDate !== null)
+  {
+    // Verify that the user entered a valid date, and that it is after the earliest reasonable start
+    // date.
+    if (!Utility.isValidDate(newDate) || (newDate < '1950-01-01'))
+      alert(getText(72, 'Ugyldig dato.'));
+    else
+    {
+      // Verify that the date is before today, and before the end date, if one exists.
+      lastDate = Utility.getCurrentIsoDate();
+      if ((subscriptions[index][c.sua.END_DATE] !== '') &&
+        (subscriptions[index][c.sua.END_DATE] < lastDate))
+        lastDate = subscriptions[index][c.sua.END_DATE];
+      if (newDate >= lastDate)
+        alert(getText(73, 'Startdato må være før dagens dato, og før eventuell sluttdato.'));
+      else
+      {
+        o = new Array(5);
+        p = 0;
+
+        o[p++] = '<form id="overrideStartDateForm" action="/subscription/html/admin_subscriptions.php" method="post"><input type="hidden" name="action" value="override_start_date" />';
+        o[p++] = getPageStateFormElements();
+        o[p++] = Utility.getHidden('id', subscriptions[index][c.sua.ID]);
+        o[p++] = Utility.getHidden('new_start_date', newDate);
+        o[p++] = '</form>';
+
+        cancelSubscriptionDialogue.innerHTML = o.join('');
+        Utility.displaySpinnerThenSubmit(document.getElementById('overrideStartDateForm'));
+      }
+    }
+  }
 }
 
 // *************************************************************************************************

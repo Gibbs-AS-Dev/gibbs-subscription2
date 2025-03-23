@@ -68,6 +68,7 @@
 //   Separate tab in Settings? Separate menu option?
 
 // Other:
+// - Add buttons to edit the price plan when displaying rent and insurance price plans in admin_subscriptions.
 // - In SidebarMenu._getLinkItem, do processing in a separate function. Support shift-click as well as ctrl-click.
 // - Ensure all links support opening in a separate tab or separate window.
 // - Prevent an administrator from creating a subscription. They should create a test user for this instead. What do we
@@ -112,6 +113,8 @@
 // *********************************************************************************************************************
 // *** Done.
 // *********************************************************************************************************************
+// - In admin_subscriptions, add user interface to select a new starting date for a subscription.
+// - In all_subscription_data_manager, implement request to set the starting date for a subscription.
 // - In admin_subscriptions, add menu item to delete an expired or inactive subscription by setting its active flag to
 //   2. Implement in all_subscription_data_manager.
 // - In all_subscription_data_manager, add action to edit a price plan.
@@ -807,6 +810,8 @@ class Result
   public const INVALID_PAYMENT_INFO = 29;
   public const CONFIG_FILE_ERROR = 30;
   public const INVALID_LINE_COUNT = 31;
+  public const INVALID_DATE = 32;
+  public const SUBSCRIPTION_NOT_FOUND = 33;
 
   // *******************************************************************************************************************
   // *** Static methods.

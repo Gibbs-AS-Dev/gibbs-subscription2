@@ -70,7 +70,11 @@
       "Description (seen by customer)",
       "Add line",
       "Delete subscription",
-      "Delete subscription. Are you sure? This action cannot be undone."
+      "Delete subscription. Are you sure? This action cannot be undone.",
+      "Modify start date",
+      "Modify the subscription's start date. This should only be done when you have imported a subscription from another system. Note that the change will not affect price plans or already generated orders. Please write the date as \"yyyy-mm-dd\":",
+      "Invalid date.",
+      "Start date must be earlier than today, and before any end date."
     ],
   "php_texts":
     [

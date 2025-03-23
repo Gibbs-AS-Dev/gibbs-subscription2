@@ -70,7 +70,11 @@
       "Beskrivelse (synlig for kunden)",
       "Legg til linje",
       "Slett abonnement",
-      "Er du sikker på at du vil slette abonnementet? Du kan ikke gjøre om dette etterpå."
+      "Er du sikker på at du vil slette abonnementet? Du kan ikke gjøre om dette etterpå.",
+      "Endre startdato",
+      "Endre startdatoen for abonnementet. Dette bør kun gjøres når du har importert et abonnement fra et annet system. Merk at endringen ikke påvirker prisplaner eller allerede genererte ordre. Datoen må skrives på formatet \"åååå-mm-dd\":",
+      "Ugyldig dato.",
+      "Startdato må være før dagens dato, og før eventuell sluttdato."
     ],
   "php_texts":
     [

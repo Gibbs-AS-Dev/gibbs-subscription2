@@ -51,8 +51,9 @@
       $user_data->set_user_id(Utility::read_passed_integer('user_id'));
       // Store user notes, if requested.
       $result_code = $user_data->perform_action();
-      // Read user notes.
-      $user_notes = $user_data->get_user_notes();
+      // Read user notes. JSON strings are double quoted. Replace all instances of \' with ', since the encoding is not
+      // legal in JSON.
+      $user_notes = str_replace("\\'", "'", $user_data->get_user_notes());
       $user_id = $user_data->get_user_id();
     }
   }

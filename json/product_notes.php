@@ -63,6 +63,12 @@
         {
           $product_notes = '';
         }
+        else
+        {
+          // JSON strings are double quoted. Replace all instances of \' with ', since the encoding is not legal in
+          // JSON.
+          $product_notes = str_replace("\\'", "'", $product_notes);
+        }
       }
     }
   }

@@ -17,8 +17,6 @@
 // - Bug: Book a particular product from admin_rental_overview. Ensure the location has no insurances. The insurance
 //   tab still shows, and while you skip it when selecting the product type, you can return to it from the summary tab.
 // - Bug: When displaying order history, if you open an order, the total amount table cell still has an underline.
-// - Bug: When editing user notes "He's totally bonkers!" got "Error fetching or updating user notes: SyntaxError:
-//   JSON.parse: bad escaped character at line 4 column 20 of the JSON data" when loading notes.
 // - Bug: A Gibbs admin was somehow given a user role in a user group. This should not happen. Don't assign roles to
 //   Gibbs administrators. They have access everywhere, in any case.
 // - Bug: In admin_rental_overview, I was unable to book a unit that had been cancelled. Was it because it needs
@@ -113,6 +111,8 @@
 // *********************************************************************************************************************
 // *** Done.
 // *********************************************************************************************************************
+// - Bug: When editing user notes "He's totally bonkers!" got "Error fetching or updating user notes: SyntaxError:
+//   JSON.parse: bad escaped character at line 4 column 20 of the JSON data" when loading notes.
 // - In admin_subscriptions, add user interface to select a new starting date for a subscription.
 // - In all_subscription_data_manager, implement request to set the starting date for a subscription.
 // - In admin_subscriptions, add menu item to delete an expired or inactive subscription by setting its active flag to

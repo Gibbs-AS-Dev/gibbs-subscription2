@@ -197,7 +197,8 @@ c.typ =
     ID: 0,
     NAME: 1,
     PRICE: 2,
-    CATEGORY_ID: 3
+    CATEGORY_ID: 3,
+    NOTES: 4
   };
 
 // categories table column indexes.
@@ -1645,6 +1646,27 @@ static getProductTypeName(id, defaultValue)
   for (i = 0; i < productTypes.length; i++)
     if (productTypes[i][c.typ.ID] === id)
       return productTypes[i][c.typ.NAME];
+  if (typeof defaultValue === 'undefined')
+    return '&nbsp;';
+  return defaultValue;
+}
+
+// *************************************************************************************************
+// Return the name and notes of the product type with the given ID, or the given defaultValue if no such
+// product type was found. defaultValue is optional. If not provided, the function returns a
+// non-breaking space. A table named "productTypes" is assumed to exist.
+static getProductTypeNameWithNotes(id, defaultValue)
+{
+  var i;
+  
+  for (i = 0; i < productTypes.length; i++)
+    if (productTypes[i][c.typ.ID] === id) {
+      var name = productTypes[i][c.typ.NAME];
+      if (productTypes[i][c.typ.NOTES]) {
+        name += ' - ' + productTypes[i][c.typ.NOTES];
+      }
+      return name;
+    }
   if (typeof defaultValue === 'undefined')
     return '&nbsp;';
   return defaultValue;

@@ -263,7 +263,7 @@ function displayEditProductDialogue(index)
     alert(getText(29, 'Du må opprette både kategorier, bodtyper og lager før du kan legge til lagerboder.'));
     return
   }
-  o = new Array((locations.length * 7) + (productTypes.length * 7) + 49);
+  o = new Array((locations.length * 7) + (productTypes.length * 9) + 49);
   p = 0;
   
   o[p++] = '<div class="dialogue-header"><h1>';
@@ -326,6 +326,11 @@ function displayEditProductDialogue(index)
       o[p++] = ' selected="selected"';
     o[p++] = '>';
     o[p++] = productTypes[i][c.typ.NAME];
+    if (productTypes[i][c.typ.NOTES] !== '')
+    {
+      o[p++] = ' - ';
+      o[p++] = productTypes[i][c.typ.NOTES];
+    }
     o[p++] = '</option>';
   }
   o[p++] = '</select></div><div class="form-element"><label class="standard-label">&nbsp;</label><input type="checkbox" id="enabledCheckbox" name="enabled" value="1" ';

@@ -24,6 +24,8 @@ class Product_Type_Data_Manager extends Single_Table_Data_Manager
   // Return the product type with the given $id as an object with the following fields:
   //   id
   //   name
+  //   product_type_notes
+  //   size
   //   price
   //   category_id
   // If an error occurred, the method will return null.
@@ -35,6 +37,8 @@ class Product_Type_Data_Manager extends Single_Table_Data_Manager
         SELECT
           id,
           name,
+          notes AS product_type_notes,
+          size,
           price,
           category_id
         FROM
@@ -59,6 +63,8 @@ class Product_Type_Data_Manager extends Single_Table_Data_Manager
   // Return an array of product type objects, each of which has the following fields:
   //   id
   //   name
+  //   product_type_notes
+  //   size
   //   price
   //   category_id
   // If an error occurred, the method will return an empty array.
@@ -67,11 +73,22 @@ class Product_Type_Data_Manager extends Single_Table_Data_Manager
     global $wpdb;
 
     $results = $wpdb->get_results("
-      SELECT id, name, price, category_id
-      FROM {$this->database_table}
-      WHERE owner_id = {$this->get_user_group_user_id()}
-      ORDER BY name;
-    ", OBJECT);
+        SELECT
+          id,
+          name,
+          notes AS product_type_notes,
+          size,
+          price,
+          category_id
+        FROM
+          {$this->database_table}
+        WHERE
+          owner_id = {$this->get_user_group_user_id()}
+        ORDER BY
+          name;
+      ",
+      OBJECT
+    );
     if (!is_array($results))
     {
       return array();
@@ -85,7 +102,7 @@ class Product_Type_Data_Manager extends Single_Table_Data_Manager
 
   // *******************************************************************************************************************
   // Read all product types owned by the current user from the database. Return them as a string containing a Javascript
-  // array declaration.
+  // array declaration. Use the c.typ column constants.
   public function read()
   {
     $results = $this->get_product_types();
@@ -98,7 +115,11 @@ class Product_Type_Data_Manager extends Single_Table_Data_Manager
         $table .= $product_type->id;
         $table .= ", '";
         $table .= $product_type->name;
+        $table .= "', '";
+        $table .= (isset($product_type->product_type_notes) ? $product_type->product_type_notes : '');
         $table .= "', ";
+        $table .= $product_type->size;
+        $table .= ", ";
         $table .= $product_type->price;
         $table .= ", ";
         $table .= $product_type->category_id;
@@ -271,6 +292,8 @@ class Product_Type_Data_Manager extends Single_Table_Data_Manager
     $category = array(
       'owner_id' => $this->get_user_group_user_id(),
       'name' => Utility::read_posted_string('name'),
+      'notes' => Utility::read_posted_string('product_type_notes', null),
+      'size' => Utility::read_posted_float('size'),
       'price' => Utility::read_posted_integer('price'),
       'category_id' => Utility::read_posted_integer('category_id'),
       'updated_at' => current_time('mysql')

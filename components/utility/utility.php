@@ -109,6 +109,13 @@
 // *********************************************************************************************************************
 // *** Done.
 // *********************************************************************************************************************
+// - Add optional notes field to product types. Read from and write to the database. Add to data table. Display and
+//   edit in admin_product_types.
+// - Use the notes, if present, when editing a product.
+// - Add optional size to product types. Read from and write to the database. Add to data table. Display and edit in
+//   admin_product_types.
+// - Bug: Extra </button> applied in popup menus if icons are used.
+// - Bug: In admin_subscriptions, menu actions are applied to the wrong index. Caused by parseInt(index, 12).
 // - Add buttons to edit the price plan when displaying rent and insurance price plans in admin_subscriptions.
 // - Bug: When displaying order history, if you open an order, the total amount table cell still has an underline.
 // - Bug: When editing user notes "He's totally bonkers!" got "Error fetching or updating user notes: SyntaxError:
@@ -1248,6 +1255,28 @@ class Utility
     if (isset($_REQUEST[$field_name]))
     {
       return intval(sanitize_text_field($_REQUEST[$field_name]));
+    }
+    return $default_value;
+  }
+
+  // *******************************************************************************************************************
+
+  public static function read_posted_float($field_name, $default_value = 0.0)
+  {
+    if (isset($_POST[$field_name]))
+    {
+      return floatval(sanitize_text_field($_POST[$field_name]));
+    }
+    return $default_value;
+  }
+
+  // *******************************************************************************************************************
+
+  public static function read_passed_float($field_name, $default_value = 0.0)
+  {
+    if (isset($_REQUEST[$field_name]))
+    {
+      return floatval(sanitize_text_field($_REQUEST[$field_name]));
     }
     return $default_value;
   }

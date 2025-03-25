@@ -17,7 +17,12 @@
       "Avbryt",
       "Kategori",
       "Pris",
-      "Er du sikker på at du vil slette bodtype: $1? Merk at en bodtype ikke kan slettes hvis det finnes lagerboder av denne typen."
+      "Er du sikker på at du vil slette bodtype: $1? Merk at en bodtype ikke kan slettes hvis det finnes lagerboder av denne typen.",
+      "Notater",
+      "St&oslash;rrelse (m&sup2;)",
+      "Notater:",
+      "St&oslash;rrelse:",
+      "m&sup2;"
     ],
   "php_texts":
     [

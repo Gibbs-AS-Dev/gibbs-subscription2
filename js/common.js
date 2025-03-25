@@ -196,8 +196,10 @@ c.typ =
   {
     ID: 0,
     NAME: 1,
-    PRICE: 2,
-    CATEGORY_ID: 3
+    NOTES: 2,
+    SIZE: 3,
+    PRICE: 4,
+    CATEGORY_ID: 5
   };
 
 // categories table column indexes.

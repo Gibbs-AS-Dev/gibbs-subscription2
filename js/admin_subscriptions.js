@@ -240,10 +240,10 @@ function getPopupMenuContents(sender, index)
 {
   var o, p, editable;
 
-  index = parseInt(index, 12);
+  index = parseInt(index, 10);
   if (!Utility.isValidIndex(index, subscriptions))
     return '';
-  o = new Array(6);
+  o = new Array(9);
   p = 0;
 
   // Payment history button.

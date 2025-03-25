@@ -12,7 +12,7 @@ var productTypesBox, editProductTypeDialogue;
 // Pointers to dynamically generated user interface elements. These will be populated once the HTML
 // code to display them has been generated.
 var editProductTypeForm, productTypeSubmitButton, productTypeCategoryCombo, productTypeNameEdit,
-  productTypePriceEdit;
+  productTypeSizeEdit, productTypePriceEdit;
 
 // The sorting object that controls the sorting of the product types table.
 var sorting;
@@ -43,6 +43,8 @@ function initialise()
               productType[c.typ.NAME]; 
           }),
         Sorting.createUiColumn(c.typ.NAME, Sorting.SORT_AS_STRING),
+        Sorting.createUiColumn(c.typ.NOTES, Sorting.SORT_AS_STRING),
+        Sorting.createUiColumn(c.typ.SIZE, Sorting.SORT_AS_INTEGER),
         Sorting.createUiColumn(c.typ.PRICE, Sorting.SORT_AS_INTEGER),
         Sorting.createUiColumn(Sorting.DO_NOT)
       ],
@@ -91,15 +93,17 @@ function doDisplayProductTypes()
     return;
   }
 
-  o = new Array((productTypes.length * 9) + 7);
+  o = new Array((productTypes.length * 13) + 9);
   p = 0;
   
   // Header.
   o[p++] = '<table cellspacing="0" cellpadding="0"><thead><tr>';
   o[p++] = sorting.getTableHeader(0, getText(14, 'Kategori'));
   o[p++] = sorting.getTableHeader(1, getText(3, 'Navn'));
-  o[p++] = sorting.getTableHeader(2, getText(15, 'Pris'));
-  o[p++] = sorting.getTableHeader(3, '&nbsp;');
+  o[p++] = sorting.getTableHeader(2, getText(17, 'Notater'));
+  o[p++] = sorting.getTableHeader(3, getText(18, 'St&oslash;rrelse (m&sup2;)'));
+  o[p++] = sorting.getTableHeader(4, getText(15, 'Pris'));
+  o[p++] = sorting.getTableHeader(5, '&nbsp;');
   o[p++] = '</tr></thead><tbody>';
   for (i = 0; i < productTypes.length; i++)
   {
@@ -109,6 +113,15 @@ function doDisplayProductTypes()
     // Product type name.
     o[p++] = '</td><td>';
     o[p++] = productTypes[i][c.typ.NAME];
+    // Notes.
+    o[p++] = '</td><td>';
+    if (productTypes[i][c.typ.NOTES] === '')
+      o[p++] = '&nbsp;';
+    else
+      o[p++] = productTypes[i][c.typ.NOTES];
+    // Size.
+    o[p++] = '</td><td>';
+    o[p++] = String(productTypes[i][c.typ.SIZE]);
     // Base price.
     o[p++] = '</td><td>';
     o[p++] = String(productTypes[i][c.typ.PRICE]);
@@ -185,15 +198,19 @@ function displayEditProductTypeDialogue(index)
     return;
   }
 
-  o = new Array((categories.length * 7) + 29);
+  o = new Array((categories.length * 7) + 50);
   p = 0;
   
+  // Header.
   o[p++] = '<div class="dialogue-header"><h1>';
   if (isNew)
     o[p++] = getText(6, 'Opprett bodtype');
   else
     o[p++] = getText(4, 'Rediger bodtype');
-  o[p++] = '</h1></div><div class="dialogue-content"><form id="editProductTypeForm" action="/subscription/html/admin_product_types.php" method="post"><div class="form-element">';
+  o[p++] = '</h1></div>';
+  
+  // Content.
+  o[p++] = '<div class="dialogue-content"><form id="editProductTypeForm" action="/subscription/html/admin_product_types.php" method="post">';
   o[p++] = getPageStateFormElements();
   if (isNew)
     o[p++] = '<input type="hidden" name="action" value="create_product_type" />';
@@ -202,7 +219,9 @@ function displayEditProductTypeDialogue(index)
     o[p++] = '<input type="hidden" name="action" value="update_product_type" />';
     o[p++] = Utility.getHidden('id', productTypes[index][c.typ.ID]);
   }
-  o[p++] = '<label for="productTypeCategoryCombo" class="standard-label">';
+
+  // Category.
+  o[p++] = '<div class="form-element"><label for="productTypeCategoryCombo" class="standard-label">';
   o[p++] = getText(8, 'Kategori:');
   o[p++] = Utility.getMandatoryMark();
   o[p++] = '</label> <select id="productTypeCategoryCombo" name="category_id" class="long-text" onchange="enableProductTypeSubmitButton();">';
@@ -217,7 +236,10 @@ function displayEditProductTypeDialogue(index)
     o[p++] = categories[i][c.cat.NAME];
     o[p++] = '</option>';
   }
-  o[p++] = '</select></div><div class="form-element"><label for="productTypeNameEdit" class="standard-label">';
+  o[p++] = '</select></div>';
+  
+  // Name.
+  o[p++] = '<div class="form-element"><label for="productTypeNameEdit" class="standard-label">';
   o[p++] = getText(10, 'Navn:');
   o[p++] = Utility.getMandatoryMark();
   o[p++] = '</label> <input type="text" id="productTypeNameEdit" name="name" class="long-text" onkeyup="enableProductTypeSubmitButton();" onchange="enableProductTypeSubmitButton();"';
@@ -227,17 +249,50 @@ function displayEditProductTypeDialogue(index)
     o[p++] = productTypes[index][c.typ.NAME];
     o[p++] = '"';
   }
-  o[p++] = ' /></div><div class="form-element"><label for="productTypePriceEdit" class="standard-label">';
+  o[p++] = ' /></div>';
+  
+  // Notes.
+  o[p++] = '<div class="form-element"><label for="productTypeNotesEdit" class="standard-label">';
+  o[p++] = getText(19, 'Notater:');
+  o[p++] = '</label> <input type="text" id="productTypeNotesEdit" name="product_type_notes" class="long-text" onkeyup="enableProductTypeSubmitButton();" onchange="enableProductTypeSubmitButton();"';
+  if (!isNew)
+  {
+    o[p++] = ' value="';
+    o[p++] = productTypes[index][c.typ.NOTES];
+    o[p++] = '"';
+  }
+  o[p++] = ' /></div>';
+
+  // Size.
+  o[p++] = '<div class="form-element"><label for="productTypeSizeEdit" class="standard-label">';
+  o[p++] = getText(20, 'St&oslash;rrelse:');
+  o[p++] = Utility.getMandatoryMark();
+  o[p++] = '</label> <input type="number" id="productTypeSizeEdit" name="size" class="long-text" onkeyup="enableProductTypeSubmitButton();" onchange="enableProductTypeSubmitButton();"';
+  if (!isNew)
+  {
+    o[p++] = ' value="';
+    o[p++] = String(productTypes[index][c.typ.SIZE]);
+    o[p++] = '"';
+  }
+  o[p++] = ' /> ';
+  o[p++] = getText(21, 'm&sup2;');
+  o[p++] = '</div>';
+  
+  // Price.
+  o[p++] = '<div class="form-element"><label for="productTypePriceEdit" class="standard-label">';
   o[p++] = getText(9, 'Pris:');
   o[p++] = Utility.getMandatoryMark();
-  o[p++] = '</label> <input type="text" id="productTypePriceEdit" name="price" class="long-text" onkeyup="enableProductTypeSubmitButton();" onchange="enableProductTypeSubmitButton();"';
+  o[p++] = '</label> <input type="number" id="productTypePriceEdit" name="price" class="long-text" onkeyup="enableProductTypeSubmitButton();" onchange="enableProductTypeSubmitButton();"';
   if (!isNew)
   {
     o[p++] = ' value="';
     o[p++] = String(productTypes[index][c.typ.PRICE]);
     o[p++] = '"';
   }
-  o[p++] = ' /></div></form></div><div class="dialogue-footer"><button type="button" id="productTypeSubmitButton" onclick="Utility.displaySpinnerThenSubmit(editProductTypeForm);"><i class="fa-solid fa-check"></i> ';
+  o[p++] = ' /></div></form></div>';
+  
+  // Footer.
+  o[p++] = '<div class="dialogue-footer"><button type="button" id="productTypeSubmitButton" onclick="Utility.displaySpinnerThenSubmit(editProductTypeForm);"><i class="fa-solid fa-check"></i> ';
   if (isNew)
     o[p++] = getText(11, 'Opprett');
   else
@@ -250,7 +305,8 @@ function displayEditProductTypeDialogue(index)
 
   // Obtain pointers to user interface elements.
   Utility.readPointers(['editProductTypeForm', 'productTypeSubmitButton',
-    'productTypeCategoryCombo', 'productTypeNameEdit', 'productTypePriceEdit']);
+    'productTypeCategoryCombo', 'productTypeNameEdit', 'productTypeSizeEdit',
+    'productTypePriceEdit']);
 
   Utility.display(overlay);
   Utility.display(editProductTypeDialogue);
@@ -266,11 +322,35 @@ function closeProductTypeDialogue()
 }
 
 // *************************************************************************************************
+// Return true if the size in the editProductTypeDialogue is valid.
+function isValidSize()
+{
+  var value;
+
+  if (productTypeSizeEdit.value === '')
+    return false;
+  value = parseFloat(productTypeSizeEdit.value);
+  return isFinite(value) && (value >= 0.0);
+}
+
+// *************************************************************************************************
+// Return true if the price in the editProductTypeDialogue is valid.
+function isValidPrice()
+{
+  var value;
+
+  if (productTypePriceEdit.value === '')
+    return false;
+  value = parseInt(productTypePriceEdit.value, 10);
+  return isFinite(value) && (value >= 0);
+}
+
+// *************************************************************************************************
 
 function enableProductTypeSubmitButton()
 {
   productTypeSubmitButton.disabled = (productTypeCategoryCombo.selectedIndex <= -1) ||
-    (productTypeNameEdit.value === '') || (productTypePriceEdit.value === '');
+    (productTypeNameEdit.value === '') || !isValidSize() || !isValidPrice();
 }
 
 // *************************************************************************************************

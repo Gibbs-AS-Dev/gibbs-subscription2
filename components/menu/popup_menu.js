@@ -103,7 +103,7 @@ getMenuButton(index)
     {
       o[p++] = '<i class="fa-solid ';
       o[p++] = this._menuButtonIcon;
-      o[p++] = '"></i></button>';
+      o[p++] = '"></i>';
       if (hasText)
         o[p++] = '&nbsp;&nbsp;';
     }

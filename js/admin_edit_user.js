@@ -1057,7 +1057,7 @@ function displayPaymentHistory(index)
   if (!Utility.isValidIndex(index, subscriptions))
     return;
   paymentHistory = subscriptions[index][c.sub.PAYMENT_HISTORY];
-  o = new Array((paymentHistory.length * 36) + 20);
+  o = new Array((paymentHistory.length * 38) + 20);
   p = 0;
 
   o[p++] = '<div class="dialogue-header"><h1>';
@@ -1120,7 +1120,10 @@ function displayPaymentHistory(index)
     o[p++] = '>';
     o[p++] = Utility.getStatusLabel(PAYMENT_STATUS_TEXTS, PAYMENT_STATUS_COLOURS,
       paymentHistory[i][c.pay.PAYMENT_STATUS]);
-    o[p++] = '</td><td class="currency">';
+    o[p++] = '</td><td class="currency';
+    if (paymentHistory[i][c.pay.OPEN])
+      o[p++] = ' payment-details-open';
+    o[p++] = '">';
     amount = getOrderAmount(index, i);
     o[p++] = String(amount);
     o[p++] = ',-</td></tr>';

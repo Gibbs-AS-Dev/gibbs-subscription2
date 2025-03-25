@@ -16,7 +16,6 @@
 //   constraints.
 // - Bug: Book a particular product from admin_rental_overview. Ensure the location has no insurances. The insurance
 //   tab still shows, and while you skip it when selecting the product type, you can return to it from the summary tab.
-// - Bug: When displaying order history, if you open an order, the total amount table cell still has an underline.
 // - Bug: A Gibbs admin was somehow given a user role in a user group. This should not happen. Don't assign roles to
 //   Gibbs administrators. They have access everywhere, in any case.
 // - Bug: In admin_rental_overview, I was unable to book a unit that had been cancelled. Was it because it needs
@@ -66,7 +65,6 @@
 //   Separate tab in Settings? Separate menu option?
 
 // Other:
-// - Add buttons to edit the price plan when displaying rent and insurance price plans in admin_subscriptions.
 // - In SidebarMenu._getLinkItem, do processing in a separate function. Support shift-click as well as ctrl-click.
 // - Ensure all links support opening in a separate tab or separate window.
 // - Prevent an administrator from creating a subscription. They should create a test user for this instead. What do we
@@ -111,6 +109,8 @@
 // *********************************************************************************************************************
 // *** Done.
 // *********************************************************************************************************************
+// - Add buttons to edit the price plan when displaying rent and insurance price plans in admin_subscriptions.
+// - Bug: When displaying order history, if you open an order, the total amount table cell still has an underline.
 // - Bug: When editing user notes "He's totally bonkers!" got "Error fetching or updating user notes: SyntaxError:
 //   JSON.parse: bad escaped character at line 4 column 20 of the JSON data" when loading notes.
 // - In admin_subscriptions, add user interface to select a new starting date for a subscription.

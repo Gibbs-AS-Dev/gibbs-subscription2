@@ -630,7 +630,7 @@ function displayPricePlan(index, pricePlanIndex)
   planLines = PricePlan.getPricePlanLines(subscriptions, index, pricePlanIndex);
   if (planLines === null)
     return;
-  o = new Array((planLines.length * 11) + 14);
+  o = new Array((planLines.length * 11) + 27);
   p = 0;
 
   o[p++] = '<div class="dialogue-header"><h1>';
@@ -683,7 +683,13 @@ function displayPricePlan(index, pricePlanIndex)
     o[p++] = getText(16, 'Abonnementet avsluttet');
     o[p++] = '</td></tr>';
   }
-  o[p++] = '</tbody></table></div><div class="dialogue-footer"><button type="button" onclick="closePricePlanDialogue();"><i class="fa-solid fa-check"></i> ';
+  o[p++] = '</tbody></table></div><div class="dialogue-footer"><button type="button" onclick="closePricePlanDialogue(); displayEditPricePlanDialogue(';
+  o[p++] = String(index);
+  o[p++] = ', ';
+  o[p++] = String(planType);
+  o[p++] = ');"><i class="fa-solid fa-pen-to-square"></i> ';
+  o[p++] = getText(74, 'Rediger');
+  o[p++] = '</button>&nbsp;&nbsp;<button type="button" onclick="closePricePlanDialogue();"><i class="fa-solid fa-check"></i> ';
   o[p++] = getText(17, 'Lukk');
   o[p++] = '</button></div></form>';
 
@@ -821,7 +827,7 @@ function displayPaymentHistory(index)
   if (!Utility.isValidIndex(index, subscriptions))
     return;
   paymentHistory = subscriptions[index][c.sua.PAYMENT_HISTORY];
-  o = new Array((paymentHistory.length * 36) + 20);
+  o = new Array((paymentHistory.length * 38) + 20);
   p = 0;
 
   o[p++] = '<div class="dialogue-header"><h1>';
@@ -884,7 +890,10 @@ function displayPaymentHistory(index)
     o[p++] = '>';
     o[p++] = Utility.getStatusLabel(PAYMENT_STATUS_TEXTS, PAYMENT_STATUS_COLOURS,
       paymentHistory[i][c.pay.PAYMENT_STATUS]);
-    o[p++] = '</td><td class="currency">';
+    o[p++] = '</td><td class="currency';
+    if (paymentHistory[i][c.pay.OPEN])
+      o[p++] = ' payment-details-open';
+    o[p++] = '">';
     amount = getOrderAmount(index, i);
     o[p++] = String(amount);
     o[p++] = ',-</td></tr>';

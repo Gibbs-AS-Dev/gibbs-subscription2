@@ -74,7 +74,8 @@
       "Endre startdato",
       "Endre startdatoen for abonnementet. Dette bør kun gjøres når du har importert et abonnement fra et annet system. Merk at endringen ikke påvirker prisplaner eller allerede genererte ordre. Datoen må skrives på formatet \"åååå-mm-dd\":",
       "Ugyldig dato.",
-      "Startdato må være før dagens dato, og før eventuell sluttdato."
+      "Startdato må være før dagens dato, og før eventuell sluttdato.",
+      "Rediger"
     ],
   "php_texts":
     [

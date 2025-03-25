@@ -74,7 +74,8 @@
       "Modify start date",
       "Modify the subscription's start date. This should only be done when you have imported a subscription from another system. Note that the change will not affect price plans or already generated orders. Please write the date as \"yyyy-mm-dd\":",
       "Invalid date.",
-      "Start date must be earlier than today, and before any end date."
+      "Start date must be earlier than today, and before any end date.",
+      "Edit"
     ],
   "php_texts":
     [
